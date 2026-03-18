@@ -2,10 +2,7 @@
 	import { resolve } from '$app/paths';
 	import type { ActionData, PageData } from './$types';
 	import type { AppPageHeaderAction } from '$lib/components/app/page-header';
-	import {
-		BATCH_STATUS_LABELS,
-		BATCH_STATUS_ORDER
-	} from '$lib/batches/config';
+	import { BATCH_STATUS_LABELS, BATCH_STATUS_ORDER } from '$lib/batches/config';
 	import PageHeaderConfig from '$lib/components/app/page-header-config.svelte';
 	import { Alert, AlertDescription, AlertTitle } from '$lib/components/ui/alert';
 	import { Button } from '$lib/components/ui/button';
