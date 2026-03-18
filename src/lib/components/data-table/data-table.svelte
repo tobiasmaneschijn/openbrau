@@ -379,7 +379,7 @@
 			</label>
 
 			{#each filterControls as control (control.columnId)}
-				<div class="min-w-[12rem]">
+				<div class="min-w-48">
 					<label class="block">
 						<span
 							class="mb-1 block text-xs font-semibold tracking-wide text-muted-foreground uppercase"
@@ -411,7 +411,7 @@
 		</div>
 
 		<div class="flex flex-wrap items-end gap-3 xl:flex-nowrap">
-			<label class="min-w-[8.5rem]">
+			<label class="min-w-34">
 				<span
 					class="mb-1 block text-xs font-semibold tracking-wide text-muted-foreground uppercase"
 				>
@@ -433,7 +433,7 @@
 					<Button
 						variant="outline"
 						size="default"
-						class="w-full justify-between xl:min-w-[11rem]"
+						class="w-full justify-between xl:min-w-44"
 						onclick={() => (columnMenuOpen = !columnMenuOpen)}
 					>
 						<span class="inline-flex items-center gap-2">
@@ -445,7 +445,7 @@
 
 					{#if columnMenuOpen}
 						<div
-							class="absolute top-full right-0 z-20 mt-2 min-w-[14rem] rounded-2xl border bg-popover p-3 shadow-lg"
+							class="absolute top-full right-0 z-20 mt-2 min-w-56 rounded-2xl border bg-popover p-3 shadow-lg"
 						>
 							<div class="mb-2 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
 								{m.visible_columns()}
@@ -459,7 +459,7 @@
 									>
 										<span
 											class={cn(
-												'flex size-4 shrink-0 items-center justify-center rounded-[4px] border',
+												'flex size-4 shrink-0 items-center justify-center rounded-lg border',
 												getColumnIsVisible(column.id)
 													? 'border-primary bg-primary text-primary-foreground'
 													: 'border-input bg-background'
@@ -622,7 +622,7 @@
 	{#if rowActions && openActionRowId}
 		<Portal>
 			<div
-				class="fixed z-50 min-w-[10rem] -translate-x-full rounded-xl border bg-popover p-1 shadow-lg [&_a]:flex [&_a]:w-full [&_a]:items-center [&_a]:rounded-md [&_a]:px-2 [&_a]:py-1.5 [&_a]:text-sm [&_a]:hover:bg-accent/60 [&_button]:flex [&_button]:w-full [&_button]:items-center [&_button]:rounded-md [&_button]:px-2 [&_button]:py-1.5 [&_button]:text-sm [&_button]:hover:bg-accent/60"
+				class="fixed z-50 min-w-40 -translate-x-full rounded-xl border bg-popover p-1 shadow-lg [&_a]:flex [&_a]:w-full [&_a]:items-center [&_a]:rounded-md [&_a]:px-2 [&_a]:py-1.5 [&_a]:text-sm [&_a]:hover:bg-accent/60 [&_button]:flex [&_button]:w-full [&_button]:items-center [&_button]:rounded-md [&_button]:px-2 [&_button]:py-1.5 [&_button]:text-sm [&_button]:hover:bg-accent/60"
 				style={`top:${actionMenuPosition.top}px;left:${actionMenuPosition.left}px;`}
 			>
 				{#each rows as row (row.id)}

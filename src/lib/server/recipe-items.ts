@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, max } from 'drizzle-orm';
+import { and, asc, eq, max } from 'drizzle-orm';
 import { fail } from '@sveltejs/kit';
 import { withAuditContext } from '$lib/server/db/audit';
 import { db } from '$lib/server/db';

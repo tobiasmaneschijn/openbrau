@@ -108,7 +108,7 @@
 			<Card class="border-border/70 bg-card/95 shadow-sm">
 				<CardHeader class="space-y-4">
 					<div class="flex flex-wrap items-center gap-2">
-						{#each BREW_TYPES as type}
+						{#each BREW_TYPES as type (type)}
 							<button
 								type="button"
 								class={`rounded-full border px-3 py-1 text-sm transition ${
@@ -264,7 +264,7 @@
 						<p class="text-sm text-muted-foreground">{m.choose_planning_details()}</p>
 					</div>
 					<div class="grid gap-3">
-						{#each RECIPE_FIELD_KEYS as field}
+						{#each RECIPE_FIELD_KEYS as field (field)}
 							<label
 								class="flex items-center justify-between gap-3 rounded-2xl border bg-background/80 px-4 py-3"
 							>
@@ -303,7 +303,7 @@
 							<p class="text-sm text-muted-foreground">{m.choose_bitterness_method()}</p>
 						</div>
 						<div class="grid gap-2">
-							{#each IBU_FORMULAS as formula}
+							{#each IBU_FORMULAS as formula (formula)}
 								<button
 									type="button"
 									class={`flex flex-col items-start rounded-2xl border px-4 py-3 text-left text-sm transition ${
@@ -328,7 +328,7 @@
 							<p class="text-sm text-muted-foreground">{m.turn_on_only_tools()}</p>
 						</div>
 						<div class="grid gap-3">
-							{#each RECIPE_MODULE_KEYS as module}
+							{#each RECIPE_MODULE_KEYS as module (module)}
 								<label
 									class="flex items-center justify-between gap-3 rounded-2xl border bg-background/80 px-4 py-3"
 								>
