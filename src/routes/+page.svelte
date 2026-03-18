@@ -28,7 +28,7 @@
 </svelte:head>
 
 <div
-	class="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(197,153,82,0.18),_transparent_30%),linear-gradient(180deg,_#faf9f4_0%,_#f3ede0_100%)] px-6 py-16"
+	class="min-h-screen bg-[radial-gradient(circle_at_top,rgba(197,153,82,0.18),transparent_30%),linear-gradient(180deg,#faf9f4_0%,#f3ede0_100%)] px-6 py-16"
 >
 	<div class="mx-auto max-w-7xl space-y-8">
 		<section class="grid gap-8 lg:grid-cols-[1.15fr_0.85fr]">

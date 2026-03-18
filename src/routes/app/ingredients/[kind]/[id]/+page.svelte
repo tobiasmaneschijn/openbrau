@@ -2,7 +2,6 @@
 	import { resolve } from '$app/paths';
 	import type { ActionData, PageData } from './$types';
 	import type { AppPageHeaderAction } from '$lib/components/app/page-header';
-	import { INGREDIENT_KIND_LABELS } from '$lib/ingredients/config';
 	import PageHeaderConfig from '$lib/components/app/page-header-config.svelte';
 	import { Alert, AlertDescription, AlertTitle } from '$lib/components/ui/alert';
 	import { Button } from '$lib/components/ui/button';
