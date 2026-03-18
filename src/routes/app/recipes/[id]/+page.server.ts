@@ -27,6 +27,7 @@ import {
 	requiredString,
 	stringArrayField
 } from '$lib/server/forms';
+import * as m from '$lib/paraglide/messages';
 
 const HOP_USE_PHASES = ['mash', 'first_wort', 'boil', 'whirlpool', 'dry_hop'] as const;
 const MISC_USE_PHASES = ['mash', 'boil', 'whirlpool', 'fermentation', 'packaging'] as const;
@@ -90,7 +91,7 @@ export const actions: Actions = {
 		});
 
 		if (!recipe) {
-			return fail(404, { message: 'Recipe not found.' });
+			return fail(404, { message: m.recipe_not_found() });
 		}
 
 		return { success: true };
@@ -115,7 +116,7 @@ export const actions: Actions = {
 			});
 		} catch (error) {
 			if (error instanceof Response) throw error;
-			return fail(400, { message: 'Unable to add fermentable.' });
+			return fail(400, { message: m.unable_to_add_fermentable() });
 		}
 
 		return { success: true };
@@ -151,7 +152,7 @@ export const actions: Actions = {
 			});
 		} catch (error) {
 			if (error instanceof Response) throw error;
-			return fail(400, { message: 'Unable to add hop.' });
+			return fail(400, { message: m.unable_to_add_hop() });
 		}
 
 		return { success: true };
@@ -188,7 +189,7 @@ export const actions: Actions = {
 			});
 		} catch (error) {
 			if (error instanceof Response) throw error;
-			return fail(400, { message: 'Unable to add yeast.' });
+			return fail(400, { message: m.unable_to_add_yeast() });
 		}
 
 		return { success: true };
@@ -226,7 +227,7 @@ export const actions: Actions = {
 			});
 		} catch (error) {
 			if (error instanceof Response) throw error;
-			return fail(400, { message: 'Unable to add misc ingredient.' });
+			return fail(400, { message: m.unable_to_add_misc() });
 		}
 
 		return { success: true };

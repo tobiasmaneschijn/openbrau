@@ -4,6 +4,7 @@ import { withAuditContext } from '$lib/server/db/audit';
 import { db } from '$lib/server/db';
 import { batchTelemetry, batches, equipment, recipes } from '$lib/server/db/schema';
 import { canTransitionBatchStatus } from '$lib/batches/config';
+import * as m from '$lib/paraglide/messages';
 
 export type BatchRecord = typeof batches.$inferSelect;
 export type BatchStatus = BatchRecord['status'];
@@ -147,7 +148,7 @@ async function getRecipeForBatchCreation(recipeId: string, userId: string) {
 export async function createBatch(input: CreateBatchInput) {
 	const recipe = await getRecipeForBatchCreation(input.recipeId, input.userId);
 	if (!recipe) {
-		throw fail(404, { message: 'Recipe not found.' });
+		throw fail(404, { message: m.recipe_not_found() });
 	}
 
 	return withAuditContext(input.userId, async (tx) => {
@@ -201,7 +202,7 @@ export async function transitionBatchStatusForOwner(
 	}
 
 	if (!canTransitionBatchStatus(batch.status, nextStatus)) {
-		throw fail(400, { message: 'Batch status change is not allowed.' });
+		throw fail(400, { message: m.batch_status_change_not_allowed() });
 	}
 
 	return withAuditContext(userId, async (tx) => {

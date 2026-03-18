@@ -39,6 +39,7 @@
 		TableHeader,
 		TableRow
 	} from '$lib/components/ui/table';
+	import * as m from '$lib/paraglide/messages';
 
 	type Props = {
 		data: TData[];
@@ -57,13 +58,13 @@
 	let {
 		data,
 		columns,
-		searchPlaceholder = 'Search this list',
+		searchPlaceholder = m.search_this_list(),
 		searchColumnIds = [],
 		filterControls = [],
-		emptyTitle = 'Nothing here yet',
-		emptyDescription = 'Once records are available, they will show up here.',
+		emptyTitle = m.nothing_here_yet(),
+		emptyDescription = m.once_records_available(),
 		pageSizeOptions = [10, 20, 50],
-		rowActionsLabel = 'Actions',
+		rowActionsLabel = m.actions(),
 		rowActions,
 		getRowId
 	}: Props = $props();
@@ -391,7 +392,7 @@
 								value={String(table.getColumn(control.columnId)?.getFilterValue() ?? '')}
 								onchange={(event) => handleSelectFilterInput(control.columnId, event)}
 							>
-								<option value="">All</option>
+								<option value="">{m.all()}</option>
 								{#each control.options ?? [] as option (option.value)}
 									<option value={option.value}>{option.label}</option>
 								{/each}
@@ -400,7 +401,7 @@
 							<Input
 								value={String(table.getColumn(control.columnId)?.getFilterValue() ?? '')}
 								oninput={(event) => handleTextFilterInput(control.columnId, event)}
-								placeholder={control.placeholder ?? `Filter ${control.label.toLowerCase()}`}
+								placeholder={control.placeholder ?? m.filter_label({ label: control.label.toLowerCase() })}
 							/>
 						{/if}
 					</label>
@@ -413,7 +414,7 @@
 				<span
 					class="mb-1 block text-xs font-semibold tracking-wide text-muted-foreground uppercase"
 				>
-					Rows
+					{m.rows()}
 				</span>
 				<select
 					bind:value={pageSizeValue}
@@ -421,7 +422,7 @@
 					onchange={handlePageSizeChange}
 				>
 					{#each pageSizeOptions as option (option)}
-						<option value={String(option)}>{option} / page</option>
+						<option value={String(option)}>{m.page_of({ page: option })}</option>
 					{/each}
 				</select>
 			</label>
@@ -436,7 +437,7 @@
 					>
 						<span class="inline-flex items-center gap-2">
 							<Settings2Icon class="size-4" />
-							Columns
+							{m.columns()}
 						</span>
 						<span class="text-xs text-muted-foreground">{hideableColumns.length}</span>
 					</Button>
@@ -446,7 +447,7 @@
 							class="absolute top-full right-0 z-20 mt-2 min-w-[14rem] rounded-2xl border bg-popover p-3 shadow-lg"
 						>
 							<div class="mb-2 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-								Visible columns
+								{m.visible_columns()}
 							</div>
 							<div class="grid gap-2">
 								{#each hideableColumns as column (column.id)}
@@ -481,9 +482,7 @@
 	<div
 		class="flex flex-col gap-2 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between"
 	>
-		<p>
-			Showing {rows.length} of {filteredRowCount} matching rows
-		</p>
+			<p>{m.showing_rows({ shown: rows.length, total: filteredRowCount })}</p>
 	</div>
 
 	<div class="rounded-2xl border">

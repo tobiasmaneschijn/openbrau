@@ -11,7 +11,7 @@ declare global {
 		}
 		interface PageData {
 			session: AuthSession | null;
-			user: Pick<AuthUser, 'id' | 'username' | 'preferences'> | null;
+			user: Pick<AuthUser, 'id' | 'username' | 'preferences' | 'isAdmin'> | null;
 		}
 		// interface PageState {}
 		// interface Platform {}

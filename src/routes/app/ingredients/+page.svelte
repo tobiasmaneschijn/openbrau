@@ -5,6 +5,7 @@
 	import { DataTable, type DataTableFilterControl } from '$lib/components/data-table';
 	import { INGREDIENT_KIND_LABELS, INGREDIENT_KIND_ORDER } from '$lib/ingredients/config';
 	import { Button } from '$lib/components/ui/button';
+	import * as m from '$lib/paraglide/messages';
 	import type {
 		FermentableRecord,
 		HopRecord,
@@ -26,7 +27,7 @@
 					(ingredient as FermentableRecord).supplier ||
 					(ingredient as FermentableRecord).brand ||
 					(ingredient as FermentableRecord).type ||
-					'Details available'
+					m.details_available()
 				);
 			case 'hops':
 				return (
@@ -34,7 +35,7 @@
 					(ingredient as HopRecord).origin ||
 					(ingredient as HopRecord).form ||
 					(ingredient as HopRecord).type ||
-					'Details available'
+					m.details_available()
 				);
 			case 'yeasts':
 				return (
@@ -42,14 +43,14 @@
 					(ingredient as YeastRecord).lab ||
 					(ingredient as YeastRecord).form ||
 					(ingredient as YeastRecord).type ||
-					'Details available'
+					m.details_available()
 				);
 			case 'miscs':
 				return (
 					(ingredient as MiscRecord).supplier ||
 					(ingredient as MiscRecord).type ||
 					(ingredient as MiscRecord).useFor ||
-					'Details available'
+					m.details_available()
 				);
 		}
 	}
@@ -65,16 +66,16 @@
 	const ingredientColumns: ColumnDef<IngredientTableRow>[] = [
 		{
 			accessorKey: 'name',
-			header: 'Ingredient'
+			header: m.ingredient()
 		},
 		{
 			accessorKey: 'kind',
-			header: 'Type',
+			header: m.type(),
 			enableColumnFilter: true
 		},
 		{
 			accessorKey: 'summary',
-			header: 'Summary',
+			header: m.summary(),
 			enableSorting: false
 		}
 	];
@@ -82,7 +83,7 @@
 	const ingredientFilters: DataTableFilterControl[] = [
 		{
 			columnId: 'kind',
-			label: 'Type',
+			label: m.type(),
 			type: 'select',
 			options: INGREDIENT_KIND_ORDER.map((kind) => ({
 				label: INGREDIENT_KIND_LABELS[kind],
@@ -106,10 +107,10 @@
 
 <div class="space-y-6">
 	<PageHeaderConfig
-		eyebrow="Library"
-		title="Ingredients"
-		description="Your ingredient library powers recipe suggestions, BeerXML imports, and reusable supplier details."
-		meta={`${ingredientRows.length} saved ingredients`}
+		eyebrow={m.library()}
+		title={m.ingredients()}
+		description={m.ingredient_kind_fermentables_description()}
+		meta={m.saved_ingredients({ count: ingredientRows.length })}
 	/>
 
 	<DataTable
@@ -117,13 +118,13 @@
 		columns={ingredientColumns}
 		filterControls={ingredientFilters}
 		searchColumnIds={['name', 'kind', 'summary']}
-		searchPlaceholder="Search ingredients by name, type, or supplier details"
-		emptyTitle="No saved ingredients yet"
-		emptyDescription="They will start to appear as you add ingredients to recipes or import BeerXML."
+		searchPlaceholder={m.search_ingredients()}
+		emptyTitle={m.no_saved_ingredients_yet()}
+		emptyDescription={m.ingredients_empty_state()}
 	>
 		{#snippet rowActions(ingredient)}
 			<Button href={ingredient.openHref} variant="ghost" size="sm" class={actionItemClass}
-				>Open</Button
+				>{m.open()}</Button
 			>
 		{/snippet}
 	</DataTable>

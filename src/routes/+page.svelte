@@ -14,6 +14,7 @@
 		CardTitle
 	} from '$lib/components/ui/card';
 	import { formatTemperature, formatVolume } from '$lib/units';
+	import * as m from '$lib/paraglide/messages';
 
 	let { data }: { data: PageData } = $props();
 
@@ -22,10 +23,10 @@
 </script>
 
 <svelte:head>
-	<title>OpenBrau</title>
+	<title>{m.app_name()}</title>
 	<meta
 		name="description"
-		content="Self-hosted beverage production management with reactive recipe design, telemetry, and metric-first data modeling."
+		content={m.landing_description()}
 	/>
 </svelte:head>
 
@@ -40,59 +41,54 @@
 						variant="secondary"
 						class="w-fit rounded-full px-3 py-1 tracking-[0.18em] uppercase"
 					>
-						OpenBrau
+						{m.app_name()}
 					</Badge>
 					<CardTitle class="max-w-3xl text-5xl leading-tight font-black sm:text-6xl">
-						A cleaner production workspace for fermented and crafted beverages.
+						{m.recipes_process_planning()}
 					</CardTitle>
 					<CardDescription class="max-w-2xl text-base leading-7">
-						Design recipes, manage process profiles, and keep storage in liters, kilograms, celsius,
-						and minutes while rendering the UI in the units your team prefers.
+						{m.landing_description()}
 					</CardDescription>
 				</CardHeader>
 				<CardContent class="flex flex-wrap gap-3">
 					<Button href={resolve(data.user ? '/app' : '/login')}>
-						{data.user ? 'Open workspace' : 'Sign in locally'}
+						{data.user ? m.open_workspace() : m.sign_in_locally()}
 					</Button>
 					<Button href={resolve(data.user ? '/app/recipes' : '/login')} variant="outline">
-						Explore the recipe flow
+						{m.explore_recipe_flow()}
 					</Button>
 				</CardContent>
 			</Card>
 
 			<Card class="border-border/70 bg-sidebar/95 shadow-xl">
 				<CardHeader>
-					<CardTitle class="text-2xl font-bold">Display-layer conversions</CardTitle>
-					<CardDescription>
-						Examples of metric-first storage rendered for an imperial operator.
-					</CardDescription>
+					<CardTitle class="text-2xl font-bold">{m.display_layer_conversions()}</CardTitle>
+					<CardDescription>{m.display_layer_conversions_description()}</CardDescription>
 				</CardHeader>
 				<CardContent class="space-y-4">
 					<div class="flex items-start gap-4 rounded-2xl border p-4">
 						<GaugeIcon class="mt-1 size-5 text-primary" />
 						<div>
-							<p class="font-medium">Batch size</p>
+							<p class="font-medium">{m.batch_size()}</p>
 							<p class="text-sm text-muted-foreground">
-								Stored as 20.0 L, shown as {sampleBatchVolume}
+								{m.stored_as({ value: '20.0 L', display: sampleBatchVolume })}
 							</p>
 						</div>
 					</div>
 					<div class="flex items-start gap-4 rounded-2xl border p-4">
 						<ThermometerIcon class="mt-1 size-5 text-primary" />
 						<div>
-							<p class="font-medium">Fermentation target</p>
+							<p class="font-medium">{m.fermentation_target()}</p>
 							<p class="text-sm text-muted-foreground">
-								Stored as 19.0 deg C, shown as {sampleFermentationTemp}
+								{m.stored_as({ value: '19.0 C', display: sampleFermentationTemp })}
 							</p>
 						</div>
 					</div>
 					<div class="flex items-start gap-4 rounded-2xl border p-4">
 						<BeakerIcon class="mt-1 size-5 text-primary" />
 						<div>
-							<p class="font-medium">Phase 1 scope</p>
-							<p class="text-sm text-muted-foreground">
-								Local auth, protected workspace, recipes, equipment, and starter process math.
-							</p>
+							<p class="font-medium">{m.phase_1_scope()}</p>
+							<p class="text-sm text-muted-foreground">{m.local_auth_description()}</p>
 						</div>
 					</div>
 				</CardContent>

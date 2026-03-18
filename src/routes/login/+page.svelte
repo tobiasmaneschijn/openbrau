@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { ActionData } from './$types';
+	import type { ActionData, PageData } from './$types';
 	import BarrelIcon from '@lucide/svelte/icons/barrel';
 	import KeyRoundIcon from '@lucide/svelte/icons/key-round';
 	import SparklesIcon from '@lucide/svelte/icons/sparkles';
@@ -14,12 +14,13 @@
 		CardTitle
 	} from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
+	import * as m from '$lib/paraglide/messages';
 
-	let { form }: { form: ActionData } = $props();
+	let { data, form }: { data: PageData; form: ActionData } = $props();
 </script>
 
 <svelte:head>
-	<title>Login | OpenBrau</title>
+	<title>{m.sign_in()} | {m.app_name()}</title>
 </svelte:head>
 
 <div
@@ -32,45 +33,44 @@
 	<div class="relative mx-auto grid max-w-6xl gap-8 lg:grid-cols-[1.1fr_0.9fr]">
 		<Card class="border-border/70 bg-card/85 shadow-2xl backdrop-blur">
 			<CardHeader class="space-y-4">
-				<div class="flex items-center gap-3">
-					<div
-						class="flex size-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground"
-					>
-						<BarrelIcon class="size-6" />
+					<div class="flex items-center gap-3">
+						<div
+							class="flex size-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground"
+						>
+							<BarrelIcon class="size-6" />
+						</div>
+						<div>
+							<p class="text-sm font-semibold tracking-[0.26em] uppercase">{m.app_name()}</p>
+							<p class="text-sm text-muted-foreground">{m.homebrew_workspace()}</p>
+						</div>
 					</div>
-					<div>
-						<p class="text-sm font-semibold tracking-[0.26em] uppercase">OpenBrau</p>
-						<p class="text-sm text-muted-foreground">shadcn-svelte workspace refresh</p>
-					</div>
-				</div>
 				<Badge variant="secondary" class="w-fit rounded-full px-3 py-1 tracking-[0.18em] uppercase">
-					Local First
+					{m.local_first()}
 				</Badge>
 				<CardTitle class="max-w-2xl text-4xl leading-tight font-black sm:text-5xl">
-					Recipes, process profiles, and production planning in a calmer control room.
+					{m.recipes_process_planning()}
 				</CardTitle>
 				<CardDescription class="max-w-2xl text-base leading-7">
-					Create a local account to open the Phase 1 workspace. The app stores process data in SI
-					base units and renders the UI using your preferences at display time.
+					{m.landing_description()}
 				</CardDescription>
 			</CardHeader>
 			<CardContent class="grid gap-4 md:grid-cols-2">
 				<div class="rounded-2xl border bg-background/80 p-5">
 					<div class="mb-3 flex items-center gap-2">
 						<SparklesIcon class="size-4 text-primary" />
-						<p class="font-semibold">Adaptive complexity</p>
+						<p class="font-semibold">{m.adaptive_complexity()}</p>
 					</div>
 					<p class="text-sm leading-6 text-muted-foreground">
-						Start with a simple formulation and grow into advanced inputs as the product expands.
+						{m.adaptive_complexity_description()}
 					</p>
 				</div>
 				<div class="rounded-2xl border bg-background/80 p-5">
 					<div class="mb-3 flex items-center gap-2">
 						<KeyRoundIcon class="size-4 text-primary" />
-						<p class="font-semibold">Local auth</p>
+						<p class="font-semibold">{m.local_auth()}</p>
 					</div>
 					<p class="text-sm leading-6 text-muted-foreground">
-						Registration and login are database-backed, with session cookies managed on the server.
+						{m.local_auth_description()}
 					</p>
 				</div>
 			</CardContent>
@@ -78,43 +78,48 @@
 
 		<Card class="border-border/70 bg-sidebar/95 shadow-2xl">
 			<CardHeader>
-				<CardTitle class="text-2xl font-bold">Open your workspace</CardTitle>
-				<CardDescription>
-					Create your first account or sign in with an existing one.
-				</CardDescription>
+				<CardTitle class="text-2xl font-bold">{m.open_your_workspace()}</CardTitle>
+				<CardDescription>{m.create_or_sign_in()}</CardDescription>
 			</CardHeader>
 			<CardContent class="space-y-5">
 				{#if form?.message}
 					<Alert variant="destructive">
-						<AlertTitle>Authentication failed</AlertTitle>
+						<AlertTitle>{m.authentication_failed()}</AlertTitle>
 						<AlertDescription>{form.message}</AlertDescription>
 					</Alert>
 				{/if}
 
 				<form method="POST" class="space-y-4">
 					<div class="space-y-2">
-						<label for="username" class="text-sm font-medium">Username</label>
-						<Input id="username" name="username" type="text" required placeholder="cellar-team" />
+						<label for="username" class="text-sm font-medium">{m.username()}</label>
+						<Input id="username" name="username" type="text" required placeholder={m.username_placeholder()} />
 					</div>
 
 					<div class="space-y-2">
-						<label for="password" class="text-sm font-medium">Password</label>
+						<label for="password" class="text-sm font-medium">{m.password()}</label>
 						<Input
 							id="password"
 							name="password"
 							type="password"
 							required
 							minlength={8}
-							placeholder="At least 8 characters"
+							placeholder={m.password_placeholder()}
 						/>
 					</div>
 
 					<div class="grid gap-3 sm:grid-cols-2">
-						<Button name="intent" value="login" type="submit" class="w-full">Sign in</Button>
-						<Button name="intent" value="register" type="submit" variant="outline" class="w-full">
-							Create account
-						</Button>
+						<Button name="intent" value="login" type="submit" class="w-full">{m.sign_in()}</Button>
+						{#if data.registrationOpen}
+							<Button name="intent" value="register" type="submit" variant="outline" class="w-full">
+								{m.create_account()}
+							</Button>
+						{/if}
 					</div>
+					{#if !data.registrationOpen}
+						<p class="text-sm text-muted-foreground">
+							Registration is disabled on this installation.
+						</p>
+					{/if}
 				</form>
 			</CardContent>
 		</Card>

@@ -4,6 +4,7 @@ import { listEquipmentByOwner } from '$lib/server/equipment';
 import { createBatch } from '$lib/server/batches';
 import { optionalString, requiredString } from '$lib/server/forms';
 import { listRecipesByAuthor } from '$lib/server/recipes';
+import * as m from '$lib/paraglide/messages';
 
 export const load: PageServerLoad = async ({ locals, url }) => ({
 	equipment: await listEquipmentByOwner(locals.user!.id),
@@ -30,7 +31,7 @@ export const actions: Actions = {
 			throw redirect(302, `/app/batches/${batch.id}`);
 		} catch (error) {
 			if (error instanceof Response) throw error;
-			return fail(400, { message: 'Unable to start batch.' });
+			return fail(400, { message: m.unable_to_start_batch() });
 		}
 	}
 };

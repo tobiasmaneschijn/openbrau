@@ -19,6 +19,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import RecipeForm from '$lib/components/recipes/recipe-form.svelte';
+	import * as m from '$lib/paraglide/messages';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
 
@@ -27,18 +28,18 @@
 	const yeastSuggestionId = 'yeast-suggestions';
 	const miscSuggestionId = 'misc-suggestions';
 	const hopUseOptions = [
-		{ value: 'mash', label: 'Mash' },
-		{ value: 'first_wort', label: 'First wort' },
-		{ value: 'boil', label: 'Boil' },
-		{ value: 'whirlpool', label: 'Whirlpool' },
-		{ value: 'dry_hop', label: 'Dry hop' }
+		{ value: 'mash', label: m.mash_phase() },
+		{ value: 'first_wort', label: m.first_wort_phase() },
+		{ value: 'boil', label: m.boil_phase() },
+		{ value: 'whirlpool', label: m.whirlpool_phase() },
+		{ value: 'dry_hop', label: m.dry_hop_phase() }
 	] as const;
 	const miscUseOptions = [
-		{ value: 'mash', label: 'Mash' },
-		{ value: 'boil', label: 'Boil' },
-		{ value: 'whirlpool', label: 'Whirlpool' },
-		{ value: 'fermentation', label: 'Fermentation' },
-		{ value: 'packaging', label: 'Packaging' }
+		{ value: 'mash', label: m.mash_phase() },
+		{ value: 'boil', label: m.boil_phase() },
+		{ value: 'whirlpool', label: m.whirlpool_phase() },
+		{ value: 'fermentation', label: m.fermentation_phase() },
+		{ value: 'packaging', label: m.packaging_phase() }
 	] as const;
 
 	function formatMetric(value: number | string | null, decimals: number) {
@@ -58,30 +59,49 @@
 		return RECIPE_MODULE_LABELS[module as RecipeModuleKey] ?? module;
 	}
 
+	function usePhaseLabel(value: string) {
+		switch (value) {
+			case 'mash':
+				return m.mash_phase();
+			case 'steep':
+				return m.steep_phase();
+			case 'boil':
+				return m.boil_phase();
+			case 'fermentation':
+				return m.fermentation_phase();
+			case 'first_wort':
+				return m.first_wort_phase();
+			case 'whirlpool':
+				return m.whirlpool_phase();
+			case 'dry_hop':
+				return m.dry_hop_phase();
+			case 'packaging':
+				return m.packaging_phase();
+			default:
+				return value;
+		}
+	}
+
 	const recipeDetailHeaderActions = $derived([
-		{
-			label: 'Start batch',
-			href: resolve(`/app/batches/new?recipeId=${data.recipe.id}`),
-			variant: 'secondary'
-		},
-		{ label: 'Export XML', href: resolve(`/app/recipes/${data.recipe.id}/beerxml`), variant: 'outline' },
-		{ label: 'Back', href: resolve('/app/recipes'), variant: 'outline' },
-		{ label: 'Save changes', type: 'submit', form: 'recipe-edit-form', variant: 'default' }
+		{ label: m.start_batch(), href: resolve(`/app/batches/new?recipeId=${data.recipe.id}`), variant: 'secondary' },
+		{ label: m.export_xml(), href: resolve(`/app/recipes/${data.recipe.id}/beerxml`), variant: 'outline' },
+		{ label: m.back(), href: resolve('/app/recipes'), variant: 'outline' },
+		{ label: m.save_changes(), type: 'submit', form: 'recipe-edit-form', variant: 'default' }
 	] satisfies AppPageHeaderAction[]);
 
 </script>
 
 <div class="space-y-6">
 	<PageHeaderConfig
-		eyebrow="Recipes"
+		eyebrow={m.recipes()}
 		title={data.recipe.name}
-		description="Review your targets, ingredients, brewing setup, and planning details in one place."
+		description={m.recipe_snapshot_description()}
 		actions={recipeDetailHeaderActions}
 	/>
 
 	{#if form?.message}
 		<Alert variant="destructive">
-			<AlertTitle>Could not save recipe</AlertTitle>
+			<AlertTitle>{m.could_not_save_recipe()}</AlertTitle>
 			<AlertDescription>{form.message}</AlertDescription>
 		</Alert>
 	{/if}
@@ -97,18 +117,15 @@
 			<Card class="border-border/70 bg-card/95 shadow-sm">
 				<CardHeader class="space-y-3">
 					<div class="flex flex-wrap items-center gap-2">
-						<CardTitle class="text-xl font-bold">Recipe snapshot</CardTitle>
+						<CardTitle class="text-xl font-bold">{m.recipe_snapshot()}</CardTitle>
 						<Badge variant="secondary"
 							>{IBU_FORMULA_LABELS[data.engineSummary.process.ibuFormula]}</Badge
 						>
 						{#if data.engineSummary.process.usesGenericEquipmentProfile}
-							<Badge>Default setup</Badge>
+							<Badge>{m.default_setup()}</Badge>
 						{/if}
 					</div>
-					<CardDescription>
-						This summary shows your saved targets, brew-day volumes, and the current estimates for
-						this recipe.
-					</CardDescription>
+						<CardDescription>{m.recipe_snapshot_description()}</CardDescription>
 					<div class="flex flex-wrap gap-2">
 						{#each data.engineSummary.modules as module (module)}
 							<Badge variant="outline">{moduleLabel(module)}</Badge>
@@ -117,54 +134,56 @@
 				</CardHeader>
 				<CardContent class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
 					<div class="rounded-2xl border bg-background/80 p-4">
-						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">Original gravity</p>
+						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">{m.original_gravity()}</p>
 						<p class="mt-2 text-2xl font-black">
 							{formatMetric(data.engineSummary.computed.og, 3)}
 						</p>
 						<p class="mt-1 text-sm text-muted-foreground">
-							Target {formatMetric(data.engineSummary.targets.og, 3)}
+							{m.target_value({ value: formatMetric(data.engineSummary.targets.og, 3) })}
 						</p>
 					</div>
 					<div class="rounded-2xl border bg-background/80 p-4">
-						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">Final gravity</p>
+						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">{m.final_gravity()}</p>
 						<p class="mt-2 text-2xl font-black">
 							{formatMetric(data.engineSummary.computed.fg, 3)}
 						</p>
 						<p class="mt-1 text-sm text-muted-foreground">
-							Target {formatMetric(data.engineSummary.targets.fg, 3)}
+							{m.target_value({ value: formatMetric(data.engineSummary.targets.fg, 3) })}
 						</p>
 					</div>
 					<div class="rounded-2xl border bg-background/80 p-4">
-						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">Estimated ABV</p>
+						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">{m.estimated_abv()}</p>
 						<p class="mt-2 text-2xl font-black">
 							{formatMetric(data.engineSummary.computed.abvPct, 2)}%
 						</p>
 					</div>
 					<div class="rounded-2xl border bg-background/80 p-4">
-						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">Bitterness</p>
+						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">{m.bitterness_label()}</p>
 						<p class="mt-2 text-2xl font-black">
 							{formatMetric(data.engineSummary.computed.ibu, 1)}
 						</p>
 						<p class="mt-1 text-sm text-muted-foreground">
-							Target {formatMetric(data.engineSummary.targets.ibu, 1)}
+							{m.target_value({ value: formatMetric(data.engineSummary.targets.ibu, 1) })}
 						</p>
 					</div>
 					<div class="rounded-2xl border bg-background/80 p-4">
-						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">Color</p>
+						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">{m.color_label()}</p>
 						<p class="mt-2 text-2xl font-black">
 							{formatMetric(data.engineSummary.computed.srm, 1)}
 						</p>
 						<p class="mt-1 text-sm text-muted-foreground">
-							Target {formatMetric(data.engineSummary.targets.srm, 1)}
+							{m.target_value({ value: formatMetric(data.engineSummary.targets.srm, 1) })}
 						</p>
 					</div>
 					<div class="rounded-2xl border bg-background/80 p-4">
-						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">Pre-boil volume</p>
+						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">{m.pre_boil_volume()}</p>
 						<p class="mt-2 text-2xl font-black">
 							{formatMetric(data.engineSummary.batch.preBoilVolumeL, 1)} L
 						</p>
 						<p class="mt-1 text-sm text-muted-foreground">
-							Liquor {formatMetric(data.engineSummary.batch.totalLiquorRequirementL, 1)} L
+							{m.target_value({
+								value: `${formatMetric(data.engineSummary.batch.totalLiquorRequirementL, 1)} L`
+							})}
 						</p>
 					</div>
 				</CardContent>
@@ -172,21 +191,19 @@
 
 			<Card class="border-border/70 bg-card/95 shadow-sm">
 				<CardHeader>
-					<CardTitle class="text-xl font-bold">Things to review</CardTitle>
-					<CardDescription>
-						Helpful checks to keep your saved targets and brewing setup aligned.
-					</CardDescription>
+					<CardTitle class="text-xl font-bold">{m.things_to_review()}</CardTitle>
+					<CardDescription>{m.review_description()}</CardDescription>
 				</CardHeader>
 				<CardContent class="space-y-3">
 					<div class="grid gap-3 sm:grid-cols-2">
 						<div class="rounded-2xl border bg-background/80 p-4">
-							<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">Efficiency</p>
+							<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">{m.efficiency()}</p>
 							<p class="mt-2 text-2xl font-black">
 								{formatMetric(data.engineSummary.process.brewhouseEfficiencyPct, 1)}%
 							</p>
 						</div>
 						<div class="rounded-2xl border bg-background/80 p-4">
-							<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">Boil-off loss</p>
+							<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">{m.boil_off_loss()}</p>
 							<p class="mt-2 text-2xl font-black">
 								{formatMetric(data.engineSummary.batch.boilOffLossL, 1)} L
 							</p>
@@ -205,7 +222,7 @@
 						</div>
 					{:else}
 						<div class="rounded-2xl border bg-background/80 p-4 text-sm text-muted-foreground">
-							Everything looks good right now.
+							{m.everything_looks_good()}
 						</div>
 					{/if}
 				</CardContent>
@@ -216,25 +233,20 @@
 			<CardHeader class="space-y-3">
 				<div class="flex flex-wrap items-center justify-between gap-3">
 					<div>
-						<CardTitle class="text-xl font-bold">Ingredients</CardTitle>
-						<CardDescription>
-							Add ingredients to this recipe and reuse anything you have already saved in your
-							ingredient library.
-						</CardDescription>
+						<CardTitle class="text-xl font-bold">{m.ingredients()}</CardTitle>
+						<CardDescription>{m.recipe_ingredients_description()}</CardDescription>
 					</div>
-					<Button href={resolve('/app/ingredients')} variant="outline"
-						>Open ingredient library</Button
-					>
+					<Button href={resolve('/app/ingredients')} variant="outline">{m.open_ingredient_library()}</Button>
 				</div>
 			</CardHeader>
 			<CardContent class="grid gap-4 xl:grid-cols-2">
 				<section class="rounded-2xl border bg-background/70 p-4">
 					<div class="mb-4 flex items-center justify-between gap-3">
 						<div>
-							<h3 class="font-semibold">Fermentables</h3>
-							<p class="text-sm text-muted-foreground">
-								Malt, sugar, juice concentrate, extract, and fermentable adjuncts.
-							</p>
+						<h3 class="font-semibold">{m.ingredient_kind_fermentables()}</h3>
+						<p class="text-sm text-muted-foreground">
+							{m.ingredient_kind_fermentables_description()}
+						</p>
 						</div>
 						<Badge variant="outline">{data.ingredients.fermentables.length}</Badge>
 					</div>
@@ -261,10 +273,10 @@
 												{/if}
 											</p>
 											<p class="text-xs tracking-[0.16em] text-muted-foreground uppercase">
-												{item.usePhase} . Yield {formatMetric(item.ingredient.yieldPct, 1)}% . {formatMetric(
-													item.ingredient.colorLovibond,
-													1
-												)} L
+											{usePhaseLabel(item.usePhase)} . {m.yield_pct()} {formatMetric(item.ingredient.yieldPct, 1)}% . {formatMetric(
+												item.ingredient.colorLovibond,
+												1
+											)} L
 											</p>
 											{#if item.notes}
 												<p class="text-sm text-muted-foreground">{item.notes}</p>
@@ -274,7 +286,7 @@
 										<form method="POST" action="?/removeFermentable">
 											<input type="hidden" name="fermentableId" value={item.fermentableId} />
 											<input type="hidden" name="sortOrder" value={item.sortOrder} />
-											<Button type="submit" variant="outline">Remove</Button>
+											<Button type="submit" variant="outline">{m.remove()}</Button>
 										</form>
 									</div>
 								</div>
@@ -282,7 +294,7 @@
 						</div>
 					{:else}
 						<div class="rounded-2xl border border-dashed p-4 text-sm text-muted-foreground">
-							No fermentables added yet.
+							{m.no_fermentables_added_yet()}
 						</div>
 					{/if}
 
@@ -293,7 +305,7 @@
 					>
 						<div class="grid gap-3 md:grid-cols-2">
 							<div class="space-y-2 md:col-span-2">
-								<label for="fermentable-name" class="text-sm font-medium">Ingredient name</label>
+								<label for="fermentable-name" class="text-sm font-medium">{m.ingredient_name()}</label>
 								<Input id="fermentable-name" name="name" list={fermentableSuggestionId} required />
 								<datalist id={fermentableSuggestionId}>
 									{#each data.ingredientLibrary.fermentables as ingredient (ingredient.id)}
@@ -302,7 +314,7 @@
 								</datalist>
 							</div>
 							<div class="space-y-2">
-								<label for="fermentable-amount" class="text-sm font-medium">Amount (kg)</label>
+								<label for="fermentable-amount" class="text-sm font-medium">{m.amount_kg()}</label>
 								<Input
 									id="fermentable-amount"
 									name="amountKg"
@@ -312,63 +324,63 @@
 								/>
 							</div>
 							<div class="space-y-2">
-								<label for="fermentable-phase" class="text-sm font-medium">Use phase</label>
+								<label for="fermentable-phase" class="text-sm font-medium">{m.use_phase()}</label>
 								<select
 									id="fermentable-phase"
 									name="usePhase"
 									class="flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm shadow-xs ring-offset-background transition-[color,box-shadow] outline-none focus-visible:ring-1 focus-visible:ring-ring"
 								>
-									<option value="mash">Mash</option>
-									<option value="steep">Steep</option>
-									<option value="boil">Boil</option>
-									<option value="fermentation">Fermentation</option>
+									<option value="mash">{m.mash_phase()}</option>
+									<option value="steep">{m.fermentation_phase()}</option>
+									<option value="boil">{m.boil_phase()}</option>
+									<option value="fermentation">{m.fermentation_phase()}</option>
 								</select>
 							</div>
 							<div class="space-y-2">
-								<label for="fermentable-yield" class="text-sm font-medium">Yield (%)</label>
+								<label for="fermentable-yield" class="text-sm font-medium">{m.yield_pct()}</label>
 								<Input id="fermentable-yield" name="yieldPct" type="number" step="0.01" required />
 							</div>
 							<div class="space-y-2">
-								<label for="fermentable-color" class="text-sm font-medium">Color (Lovibond)</label>
+								<label for="fermentable-color" class="text-sm font-medium">{m.color_lovibond()}</label>
 								<Input id="fermentable-color" name="colorLovibond" type="number" step="0.01" />
 							</div>
 							<div class="space-y-2">
-								<label for="fermentable-type" class="text-sm font-medium">Type</label>
-								<Input id="fermentable-type" name="type" placeholder="Grain, sugar, extract..." />
+								<label for="fermentable-type" class="text-sm font-medium">{m.type()}</label>
+								<Input id="fermentable-type" name="type" placeholder={m.grain_sugar_extract_placeholder()} />
 							</div>
 							<div class="space-y-2">
-								<label for="fermentable-brand" class="text-sm font-medium">Brand</label>
+								<label for="fermentable-brand" class="text-sm font-medium">{m.brand()}</label>
 								<Input id="fermentable-brand" name="brand" />
 							</div>
 							<div class="space-y-2 md:col-span-2">
-								<label for="fermentable-origin" class="text-sm font-medium">Origin</label>
+								<label for="fermentable-origin" class="text-sm font-medium">{m.origin()}</label>
 								<Input id="fermentable-origin" name="origin" />
 							</div>
 							<div class="space-y-2 md:col-span-2">
-								<label for="fermentable-notes" class="text-sm font-medium">Recipe note</label>
+								<label for="fermentable-notes" class="text-sm font-medium">{m.recipe_note()}</label>
 								<Textarea id="fermentable-notes" name="notes" rows={3} />
 							</div>
 						</div>
 						<label class="flex items-center gap-3 rounded-2xl border bg-card/80 px-4 py-3">
 							<Checkbox name="isExtract" value="on" />
 							<div>
-								<p class="text-sm font-medium">Treat as extract</p>
+								<p class="text-sm font-medium">{m.treat_as_extract()}</p>
 								<p class="text-xs text-muted-foreground">
-									Useful for extract beer, juice concentrates, or syrup additions.
+									{m.treat_as_extract_description()}
 								</p>
 							</div>
 						</label>
-						<Button type="submit">Add fermentable</Button>
+						<Button type="submit">{m.add_fermentable()}</Button>
 					</form>
 				</section>
 
 				<section class="rounded-2xl border bg-background/70 p-4">
 					<div class="mb-4 flex items-center justify-between gap-3">
 						<div>
-							<h3 class="font-semibold">Hops</h3>
-							<p class="text-sm text-muted-foreground">
-								Boil hops, whirlpool additions, mash hops, and dry hops.
-							</p>
+						<h3 class="font-semibold">{m.ingredient_kind_hops()}</h3>
+						<p class="text-sm text-muted-foreground">
+							{m.ingredient_kind_hops_description()}
+						</p>
 						</div>
 						<Badge variant="outline">{data.ingredients.hops.length}</Badge>
 					</div>
@@ -386,15 +398,15 @@
 												{item.ingredient.name}
 											</a>
 											<p class="text-sm text-muted-foreground">
-												{formatMetric(item.amountKg, 3)} kg . {formatMetric(
+											{formatMetric(item.amountKg, 3)} kg . {formatMetric(
 													item.ingredient.alphaAcidPct,
 													2
 												)}% alpha acid
 											</p>
 											<p class="text-xs tracking-[0.16em] text-muted-foreground uppercase">
-												{item.usePhase}
+											{usePhaseLabel(item.usePhase)}
 												{#if item.timeMin != null}
-													. {item.timeMin} min
+												. {item.timeMin} {m.time_min()}
 												{/if}
 												{#if item.ingredient.form}
 													. {item.ingredient.form}
@@ -408,7 +420,7 @@
 										<form method="POST" action="?/removeHop">
 											<input type="hidden" name="hopId" value={item.hopId} />
 											<input type="hidden" name="sortOrder" value={item.sortOrder} />
-											<Button type="submit" variant="outline">Remove</Button>
+											<Button type="submit" variant="outline">{m.remove()}</Button>
 										</form>
 									</div>
 								</div>
@@ -416,7 +428,7 @@
 						</div>
 					{:else}
 						<div class="rounded-2xl border border-dashed p-4 text-sm text-muted-foreground">
-							No hops added yet.
+							{m.no_hops_added_yet()}
 						</div>
 					{/if}
 
@@ -427,7 +439,7 @@
 					>
 						<div class="grid gap-3 md:grid-cols-2">
 							<div class="space-y-2 md:col-span-2">
-								<label for="hop-name" class="text-sm font-medium">Hop name</label>
+								<label for="hop-name" class="text-sm font-medium">{m.hop_name()}</label>
 								<Input id="hop-name" name="name" list={hopSuggestionId} required />
 								<datalist id={hopSuggestionId}>
 									{#each data.ingredientLibrary.hops as ingredient (ingredient.id)}
@@ -436,19 +448,19 @@
 								</datalist>
 							</div>
 							<div class="space-y-2">
-								<label for="hop-amount" class="text-sm font-medium">Amount (kg)</label>
+								<label for="hop-amount" class="text-sm font-medium">{m.amount_kg()}</label>
 								<Input id="hop-amount" name="amountKg" type="number" step="0.0001" required />
 							</div>
 							<div class="space-y-2">
-								<label for="hop-alpha" class="text-sm font-medium">Alpha acid (%)</label>
+								<label for="hop-alpha" class="text-sm font-medium">{m.alpha_acid_pct()}</label>
 								<Input id="hop-alpha" name="alphaAcidPct" type="number" step="0.01" required />
 							</div>
 							<div class="space-y-2">
-								<label for="hop-time" class="text-sm font-medium">Time (min)</label>
+								<label for="hop-time" class="text-sm font-medium">{m.time_min()}</label>
 								<Input id="hop-time" name="timeMin" type="number" step="1" />
 							</div>
 							<div class="space-y-2">
-								<label for="hop-use" class="text-sm font-medium">Use</label>
+								<label for="hop-use" class="text-sm font-medium">{m.use()}</label>
 								<select
 									id="hop-use"
 									name="usePhase"
@@ -460,33 +472,33 @@
 								</select>
 							</div>
 							<div class="space-y-2">
-								<label for="hop-form" class="text-sm font-medium">Form</label>
-								<Input id="hop-form" name="form" placeholder="Pellet, whole, plug..." />
+								<label for="hop-form" class="text-sm font-medium">{m.form_label()}</label>
+								<Input id="hop-form" name="form" placeholder={m.pellet_whole_plug_placeholder()} />
 							</div>
 							<div class="space-y-2">
-								<label for="hop-type" class="text-sm font-medium">Type</label>
-								<Input id="hop-type" name="type" placeholder="Bittering, aroma, dual purpose..." />
+								<label for="hop-type" class="text-sm font-medium">{m.type()}</label>
+								<Input id="hop-type" name="type" placeholder={m.bittering_aroma_dual_purpose_placeholder()} />
 							</div>
 							<div class="space-y-2 md:col-span-2">
-								<label for="hop-origin" class="text-sm font-medium">Origin</label>
+								<label for="hop-origin" class="text-sm font-medium">{m.origin()}</label>
 								<Input id="hop-origin" name="origin" />
 							</div>
 							<div class="space-y-2 md:col-span-2">
-								<label for="hop-notes" class="text-sm font-medium">Recipe note</label>
+								<label for="hop-notes" class="text-sm font-medium">{m.recipe_note()}</label>
 								<Textarea id="hop-notes" name="notes" rows={3} />
 							</div>
 						</div>
-						<Button type="submit">Add hop</Button>
+						<Button type="submit">{m.add_hop()}</Button>
 					</form>
 				</section>
 
 				<section class="rounded-2xl border bg-background/70 p-4">
 					<div class="mb-4 flex items-center justify-between gap-3">
 						<div>
-							<h3 class="font-semibold">Yeast</h3>
-							<p class="text-sm text-muted-foreground">
-								Dry yeast, liquid cultures, and any pitch notes for this batch.
-							</p>
+						<h3 class="font-semibold">{m.ingredient_kind_yeasts()}</h3>
+						<p class="text-sm text-muted-foreground">
+							{m.ingredient_kind_yeasts_description()}
+						</p>
 						</div>
 						<Badge variant="outline">{data.ingredients.yeasts.length}</Badge>
 					</div>
@@ -504,20 +516,20 @@
 												{item.ingredient.name}
 											</a>
 											<p class="text-sm text-muted-foreground">
-												{item.ingredient.lab || item.ingredient.supplier || 'Saved culture'}
+												{item.ingredient.lab || item.ingredient.supplier || m.saved_culture()}
 												{#if item.ingredient.attenuationPct}
-													. {formatMetric(item.ingredient.attenuationPct, 1)}% attenuation
+													. {formatMetric(item.ingredient.attenuationPct, 1)}% {m.attenuation_pct()}
 												{/if}
 											</p>
 											<p class="text-xs tracking-[0.16em] text-muted-foreground uppercase">
-												{item.amountIsWeight
-													? `${formatMetric(item.amountKg, 3)} kg`
-													: `${formatMetric(item.amountL, 3)} L`}
+											{item.amountIsWeight
+												? `${formatMetric(item.amountKg, 3)} kg`
+												: `${formatMetric(item.amountL, 3)} L`}
 												{#if item.cellsBillions}
-													. {formatMetric(item.cellsBillions, 0)}B cells
+													. {formatMetric(item.cellsBillions, 0)} {m.cells_billions()}
 												{/if}
 												{#if item.isStarterRequired}
-													. starter
+													. {m.starter_required()}
 												{/if}
 											</p>
 											{#if item.notes}
@@ -528,7 +540,7 @@
 										<form method="POST" action="?/removeYeast">
 											<input type="hidden" name="yeastId" value={item.yeastId} />
 											<input type="hidden" name="sortOrder" value={item.sortOrder} />
-											<Button type="submit" variant="outline">Remove</Button>
+											<Button type="submit" variant="outline">{m.remove()}</Button>
 										</form>
 									</div>
 								</div>
@@ -536,7 +548,7 @@
 						</div>
 					{:else}
 						<div class="rounded-2xl border border-dashed p-4 text-sm text-muted-foreground">
-							No yeast added yet.
+							{m.no_yeast_added_yet()}
 						</div>
 					{/if}
 
@@ -547,7 +559,7 @@
 					>
 						<div class="grid gap-3 md:grid-cols-2">
 							<div class="space-y-2 md:col-span-2">
-								<label for="yeast-name" class="text-sm font-medium">Yeast name</label>
+								<label for="yeast-name" class="text-sm font-medium">{m.yeast_name()}</label>
 								<Input id="yeast-name" name="name" list={yeastSuggestionId} required />
 								<datalist id={yeastSuggestionId}>
 									{#each data.ingredientLibrary.yeasts as ingredient (ingredient.id)}
@@ -556,69 +568,67 @@
 								</datalist>
 							</div>
 							<div class="space-y-2">
-								<label for="yeast-lab" class="text-sm font-medium">Lab</label>
+								<label for="yeast-lab" class="text-sm font-medium">{m.lab_label()}</label>
 								<Input id="yeast-lab" name="lab" />
 							</div>
 							<div class="space-y-2">
-								<label for="yeast-form" class="text-sm font-medium">Form</label>
-								<Input id="yeast-form" name="form" placeholder="Dry, liquid..." />
+								<label for="yeast-form" class="text-sm font-medium">{m.form_label()}</label>
+								<Input id="yeast-form" name="form" placeholder={m.dry_liquid_placeholder()} />
 							</div>
 							<div class="space-y-2">
-								<label for="yeast-type" class="text-sm font-medium">Type</label>
-								<Input id="yeast-type" name="type" placeholder="Ale, lager, wine..." />
+								<label for="yeast-type" class="text-sm font-medium">{m.type()}</label>
+								<Input id="yeast-type" name="type" placeholder={m.ale_lager_wine_placeholder()} />
 							</div>
 							<div class="space-y-2">
-								<label for="yeast-attenuation" class="text-sm font-medium">Attenuation (%)</label>
+								<label for="yeast-attenuation" class="text-sm font-medium">{m.attenuation_pct()}</label>
 								<Input id="yeast-attenuation" name="attenuationPct" type="number" step="0.01" />
 							</div>
 							<div class="space-y-2">
-								<label for="yeast-amount-weight" class="text-sm font-medium">Amount (kg)</label>
+								<label for="yeast-amount-weight" class="text-sm font-medium">{m.amount_kg()}</label>
 								<Input id="yeast-amount-weight" name="amountKg" type="number" step="0.0001" />
 							</div>
 							<div class="space-y-2">
-								<label for="yeast-amount-volume" class="text-sm font-medium">Amount (L)</label>
+								<label for="yeast-amount-volume" class="text-sm font-medium">{m.amount_l()}</label>
 								<Input id="yeast-amount-volume" name="amountL" type="number" step="0.0001" />
 							</div>
 							<div class="space-y-2">
-								<label for="yeast-cells" class="text-sm font-medium">Cells (billions)</label>
+								<label for="yeast-cells" class="text-sm font-medium">{m.cells_billions_label()}</label>
 								<Input id="yeast-cells" name="cellsBillions" type="number" step="0.01" />
 							</div>
 							<div class="space-y-2">
-								<label for="yeast-amount-mode" class="text-sm font-medium">Amount mode</label>
+								<label for="yeast-amount-mode" class="text-sm font-medium">{m.amount_mode()}</label>
 								<select
 									id="yeast-amount-mode"
 									name="amountIsWeight"
 									class="flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm shadow-xs ring-offset-background transition-[color,box-shadow] outline-none focus-visible:ring-1 focus-visible:ring-ring"
 								>
-									<option value="weight">Weight</option>
-									<option value="volume">Volume</option>
+									<option value="weight">{m.weight()}</option>
+									<option value="volume">{m.volume()}</option>
 								</select>
 							</div>
 							<div class="space-y-2 md:col-span-2">
-								<label for="yeast-notes" class="text-sm font-medium">Pitch note</label>
+								<label for="yeast-notes" class="text-sm font-medium">{m.recipe_note()}</label>
 								<Textarea id="yeast-notes" name="notes" rows={3} />
 							</div>
 						</div>
 						<label class="flex items-center gap-3 rounded-2xl border bg-card/80 px-4 py-3">
 							<Checkbox name="isStarterRequired" value="on" />
 							<div>
-								<p class="text-sm font-medium">Starter required</p>
-								<p class="text-xs text-muted-foreground">
-									Use this to flag cultures that need a starter before brew day.
-								</p>
+								<p class="text-sm font-medium">{m.starter_required()}</p>
+								<p class="text-xs text-muted-foreground">{m.starter_required_description()}</p>
 							</div>
 						</label>
-						<Button type="submit">Add yeast</Button>
+						<Button type="submit">{m.add_yeast()}</Button>
 					</form>
 				</section>
 
 				<section class="rounded-2xl border bg-background/70 p-4">
 					<div class="mb-4 flex items-center justify-between gap-3">
 						<div>
-							<h3 class="font-semibold">Other ingredients</h3>
-							<p class="text-sm text-muted-foreground">
-								Nutrients, spices, finings, fruit, stabilizers, and other additions.
-							</p>
+						<h3 class="font-semibold">{m.ingredient_kind_miscs()}</h3>
+						<p class="text-sm text-muted-foreground">
+							{m.ingredient_kind_miscs_description()}
+						</p>
 						</div>
 						<Badge variant="outline">{data.ingredients.miscs.length}</Badge>
 					</div>
@@ -646,9 +656,9 @@
 													? `${formatMetric(item.amountKg, 3)} kg`
 													: `${formatMetric(item.amountL, 3)} L`}
 												{#if item.timeMin != null}
-													. {item.timeMin} min
+												. {item.timeMin} {m.time_min()}
 												{/if}
-												. {item.usePhase}
+												. {usePhaseLabel(item.usePhase)}
 											</p>
 											{#if item.notes}
 												<p class="text-sm text-muted-foreground">{item.notes}</p>
@@ -666,7 +676,7 @@
 						</div>
 					{:else}
 						<div class="rounded-2xl border border-dashed p-4 text-sm text-muted-foreground">
-							No extra ingredients added yet.
+							{m.no_extra_ingredients_added_yet()}
 						</div>
 					{/if}
 
@@ -677,7 +687,7 @@
 					>
 						<div class="grid gap-3 md:grid-cols-2">
 							<div class="space-y-2 md:col-span-2">
-								<label for="misc-name" class="text-sm font-medium">Ingredient name</label>
+								<label for="misc-name" class="text-sm font-medium">{m.ingredient_name()}</label>
 								<Input id="misc-name" name="name" list={miscSuggestionId} required />
 								<datalist id={miscSuggestionId}>
 									{#each data.ingredientLibrary.miscs as ingredient (ingredient.id)}
@@ -686,16 +696,16 @@
 								</datalist>
 							</div>
 							<div class="space-y-2">
-								<label for="misc-type" class="text-sm font-medium">Type</label>
+								<label for="misc-type" class="text-sm font-medium">{m.type()}</label>
 								<Input
 									id="misc-type"
 									name="type"
-									placeholder="Nutrient, spice, fining..."
+									placeholder={m.ingredient_kind_miscs_description()}
 									required
 								/>
 							</div>
 							<div class="space-y-2">
-								<label for="misc-use-for" class="text-sm font-medium">Use for</label>
+								<label for="misc-use-for" class="text-sm font-medium">{m.use_for()}</label>
 								<Input
 									id="misc-use-for"
 									name="useFor"
@@ -703,19 +713,19 @@
 								/>
 							</div>
 							<div class="space-y-2">
-								<label for="misc-amount-weight" class="text-sm font-medium">Amount (kg)</label>
+								<label for="misc-amount-weight" class="text-sm font-medium">{m.amount_kg()}</label>
 								<Input id="misc-amount-weight" name="amountKg" type="number" step="0.0001" />
 							</div>
 							<div class="space-y-2">
-								<label for="misc-amount-volume" class="text-sm font-medium">Amount (L)</label>
+								<label for="misc-amount-volume" class="text-sm font-medium">{m.amount_l()}</label>
 								<Input id="misc-amount-volume" name="amountL" type="number" step="0.0001" />
 							</div>
 							<div class="space-y-2">
-								<label for="misc-time" class="text-sm font-medium">Time (min)</label>
+								<label for="misc-time" class="text-sm font-medium">{m.time_min()}</label>
 								<Input id="misc-time" name="timeMin" type="number" step="1" />
 							</div>
 							<div class="space-y-2">
-								<label for="misc-use" class="text-sm font-medium">Use</label>
+								<label for="misc-use" class="text-sm font-medium">{m.use()}</label>
 								<select
 									id="misc-use"
 									name="usePhase"
@@ -727,26 +737,26 @@
 								</select>
 							</div>
 							<div class="space-y-2">
-								<label for="misc-amount-mode" class="text-sm font-medium">Amount mode</label>
+								<label for="misc-amount-mode" class="text-sm font-medium">{m.amount_mode()}</label>
 								<select
 									id="misc-amount-mode"
 									name="amountIsWeight"
 									class="flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm shadow-xs ring-offset-background transition-[color,box-shadow] outline-none focus-visible:ring-1 focus-visible:ring-ring"
 								>
-									<option value="weight">Weight</option>
-									<option value="volume">Volume</option>
+									<option value="weight">{m.weight()}</option>
+									<option value="volume">{m.volume()}</option>
 								</select>
 							</div>
 							<div class="space-y-2 md:col-span-2">
-								<label for="misc-description" class="text-sm font-medium">Description</label>
+								<label for="misc-description" class="text-sm font-medium">{m.notes()}</label>
 								<Textarea id="misc-description" name="description" rows={3} />
 							</div>
 							<div class="space-y-2 md:col-span-2">
-								<label for="misc-notes" class="text-sm font-medium">Recipe note</label>
+								<label for="misc-notes" class="text-sm font-medium">{m.recipe_note()}</label>
 								<Textarea id="misc-notes" name="notes" rows={3} />
 							</div>
 						</div>
-						<Button type="submit">Add ingredient</Button>
+						<Button type="submit">{m.add_ingredient()}</Button>
 					</form>
 				</section>
 			</CardContent>

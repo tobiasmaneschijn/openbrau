@@ -1,4 +1,5 @@
 import type { IbuFormula, RecipeDefinition, RecipeEquipmentProfile } from '$lib/recipes/domain';
+import * as m from '$lib/paraglide/messages';
 import {
 	estimateAbv,
 	estimateFinalGravity,
@@ -103,7 +104,11 @@ function compareTarget(
 	if (Math.abs(computed - target) > threshold) {
 		warnings.push({
 			code,
-			message: `${label} is a little different from the current estimate (${target} vs ${round(computed, 3)}).`
+			message: m.target_is_a_little_different_from_the_current_estimate({
+				label,
+				target: String(target),
+				computed: String(round(computed, 3))
+			})
 		});
 	}
 }
@@ -228,43 +233,45 @@ export function calculateRecipeSummary(recipe: RecipeDefinition): RecipeEngineSu
 	if (equipment?.isGeneric) {
 		warnings.push({
 			code: 'generic-equipment-profile',
-			message:
-				'This recipe is using the default setup until you choose one of your equipment profiles.'
+			message: m.using_default_setup_until_you_choose_one_of_your_equipment_profiles()
 		});
 	}
 
 	if (recipe.fermentables.length === 0) {
 		warnings.push({
 			code: 'missing-fermentables',
-			message: 'Add fermentables to estimate gravity and color from the ingredient list.'
+			message: m.add_fermentables_to_estimate_gravity_and_color_from_the_ingredient_list()
 		});
 	}
 
 	if (recipe.brewType === 'beer' && recipe.hops.length === 0) {
 		warnings.push({
 			code: 'missing-hops',
-			message: 'Add hop additions to estimate bitterness from the recipe itself.'
+			message: m.add_hop_additions_to_estimate_bitterness_from_the_recipe_itself()
 		});
 	}
 
 	if (recipe.yeasts.length === 0) {
 		warnings.push({
 			code: 'missing-yeast',
-			message: 'Add a yeast to estimate final gravity and ABV more accurately.'
+			message: m.add_a_yeast_to_estimate_final_gravity_and_abv_more_accurately()
 		});
 	}
 
 	if (equipment && Math.abs(equipment.batchSizeL - recipe.process.targetBatchSizeL) > 0.5) {
 		warnings.push({
 			code: 'equipment-scaling-mismatch',
-			message: `Your target batch size (${recipe.process.targetBatchSizeL} L) does not match this setup's usual size (${equipment.batchSizeL} L).`
+			message: m.your_target_batch_size_does_not_match_this_setups_usual_size({
+				batchSize: `${recipe.process.targetBatchSizeL} L`,
+				equipmentSize: `${equipment.batchSizeL} L`
+			})
 		});
 	}
 
 	compareTarget(
 		warnings,
 		'target-og-mismatch',
-		'Original gravity',
+		m.original_gravity(),
 		computedOg,
 		recipe.targets.og ?? null,
 		0.002
@@ -272,7 +279,7 @@ export function calculateRecipeSummary(recipe: RecipeDefinition): RecipeEngineSu
 	compareTarget(
 		warnings,
 		'target-fg-mismatch',
-		'Final gravity',
+		m.final_gravity(),
 		computedFg,
 		recipe.targets.fg ?? null,
 		0.002
@@ -280,7 +287,7 @@ export function calculateRecipeSummary(recipe: RecipeDefinition): RecipeEngineSu
 	compareTarget(
 		warnings,
 		'target-ibu-mismatch',
-		'Bitterness',
+		m.ibu(),
 		computedIbu,
 		recipe.targets.ibu ?? null,
 		5
@@ -288,7 +295,7 @@ export function calculateRecipeSummary(recipe: RecipeDefinition): RecipeEngineSu
 	compareTarget(
 		warnings,
 		'target-srm-mismatch',
-		'Color',
+		m.color_label(),
 		computedSrm,
 		recipe.targets.srm ?? null,
 		2

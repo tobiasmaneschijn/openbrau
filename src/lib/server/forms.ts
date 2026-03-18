@@ -1,9 +1,10 @@
 import { fail } from '@sveltejs/kit';
+import * as m from '$lib/paraglide/messages';
 
 export function requiredString(formData: FormData, key: string) {
 	const value = formData.get(key);
 	if (typeof value !== 'string' || !value.trim()) {
-		throw fail(400, { message: `${key} is required.` });
+		throw fail(400, { message: m.field_required() });
 	}
 
 	return value.trim();
@@ -24,7 +25,7 @@ export function booleanField(formData: FormData, key: string) {
 export function enumField<T extends string>(formData: FormData, key: string, values: readonly T[]) {
 	const value = requiredString(formData, key);
 	if (!values.includes(value as T)) {
-		throw fail(400, { message: `${key} is invalid.` });
+		throw fail(400, { message: m.field_invalid_selection() });
 	}
 
 	return value as T;
@@ -44,6 +45,6 @@ export function stringArrayField(formData: FormData, key: string) {
 
 		return parsed;
 	} catch {
-		throw fail(400, { message: `${key} is invalid.` });
+		throw fail(400, { message: m.field_invalid_list() });
 	}
 }

@@ -12,6 +12,7 @@ import {
 	timestamp,
 	uuid
 } from 'drizzle-orm/pg-core';
+import type { StoredUserPreferences } from '$lib/settings';
 
 const timestamps = {
 	createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
@@ -52,16 +53,17 @@ export const users = pgTable('users', {
 	id: uuid('id').defaultRandom().primaryKey(),
 	username: text('username').notNull().unique(),
 	passwordHash: text('password_hash').notNull(),
+	isAdmin: boolean('is_admin').notNull().default(false),
 	preferences: jsonb('preferences')
-		.$type<{
-			locale?: string;
-			theme?: 'system' | 'light' | 'dark';
-			units?: 'metric' | 'imperial';
-			enabled_features?: string[];
-			advanced_mode?: boolean;
-		}>()
+		.$type<StoredUserPreferences>()
 		.notNull()
 		.default({ units: 'metric', enabled_features: [], advanced_mode: false }),
+	...timestamps
+});
+
+export const appSettings = pgTable('app_settings', {
+	id: text('id').primaryKey().default('global'),
+	allowRegistrations: boolean('allow_registrations').notNull().default(true),
 	...timestamps
 });
 

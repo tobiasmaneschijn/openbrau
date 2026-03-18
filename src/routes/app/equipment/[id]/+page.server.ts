@@ -6,6 +6,7 @@ import {
 	updateEquipmentForOwner
 } from '$lib/server/equipment';
 import { booleanField, optionalString, requiredString } from '$lib/server/forms';
+import * as m from '$lib/paraglide/messages';
 
 export const load: PageServerLoad = async ({ params, locals }) => {
 	const profile = await getEquipmentForOwner(params.id, locals.user!.id);
@@ -32,7 +33,7 @@ export const actions: Actions = {
 		});
 
 		if (!profile) {
-			return fail(404, { message: 'Equipment profile not found.' });
+			return fail(404, { message: m.equipment_profile_not_found() });
 		}
 
 		return { success: true };

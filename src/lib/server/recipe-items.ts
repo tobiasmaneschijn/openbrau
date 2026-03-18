@@ -2,6 +2,7 @@ import { and, asc, desc, eq, max } from 'drizzle-orm';
 import { fail } from '@sveltejs/kit';
 import { withAuditContext } from '$lib/server/db/audit';
 import { db } from '$lib/server/db';
+import * as m from '$lib/paraglide/messages';
 import {
 	fermentables,
 	hops,
@@ -86,7 +87,7 @@ async function ensureRecipeOwned(recipeId: string, ownerId: string) {
 		.limit(1);
 
 	if (!recipe) {
-		throw fail(404, { message: 'Recipe not found.' });
+		throw fail(404, { message: m.recipe_not_found() });
 	}
 
 	return recipe;

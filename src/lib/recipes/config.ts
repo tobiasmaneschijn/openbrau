@@ -1,3 +1,4 @@
+import * as m from '$lib/paraglide/messages';
 import type { BrewType } from '$lib/server/recipes';
 import { IBU_FORMULAS, RECIPE_MODULE_KEYS, type IbuFormula, type RecipeModuleKey } from './domain';
 
@@ -25,9 +26,9 @@ type BrewTypeConfig = {
 
 export const BREW_TYPE_CONFIG: Record<BrewType, BrewTypeConfig> = {
 	beer: {
-		label: 'Beer',
-		styleLabel: 'Style',
-		processTimeLabel: 'Boil time (min)',
+		label: m.brew_type_standard(),
+		styleLabel: m.brew_type_style(),
+		processTimeLabel: m.brew_type_boil_time(),
 		visibleFields: [
 			'style',
 			'notes',
@@ -40,28 +41,28 @@ export const BREW_TYPE_CONFIG: Record<BrewType, BrewTypeConfig> = {
 		]
 	},
 	wine: {
-		label: 'Wine',
-		styleLabel: 'Varietal',
-		processTimeLabel: 'Heat time (min)',
+		label: m.brew_type_wine(),
+		styleLabel: m.brew_type_varietal(),
+		processTimeLabel: m.brew_type_heat_time(),
 		visibleFields: ['style', 'notes', 'equipmentId', 'targetOg', 'targetFg']
 	},
 	mead: {
-		label: 'Mead',
-		styleLabel: 'Mead style',
-		processTimeLabel: 'Heat time (min)',
+		label: m.brew_type_mead(),
+		styleLabel: m.brew_type_style(),
+		processTimeLabel: m.brew_type_heat_time(),
 		visibleFields: ['style', 'notes', 'boilTimeMin', 'equipmentId', 'targetOg', 'targetFg']
 	}
 };
 
 export const RECIPE_FIELD_LABELS: Record<RecipeFieldKey, string> = {
-	style: 'Style',
-	notes: "Brewer's notes",
-	boilTimeMin: 'Boil length',
-	equipmentId: 'Brewing setup',
-	targetOg: 'Original gravity target',
-	targetFg: 'Final gravity target',
-	targetIbu: 'Bitterness target',
-	targetSrm: 'Color target'
+	style: m.style(),
+	notes: m.notes(),
+	boilTimeMin: m.brew_type_boil_time(),
+	equipmentId: m.equipment(),
+	targetOg: m.original_gravity(),
+	targetFg: m.final_gravity(),
+	targetIbu: m.ibu(),
+	targetSrm: m.target_srm_label()
 };
 
 export function getHiddenFieldsForBrewType(brewType: BrewType) {
@@ -72,20 +73,20 @@ export function getHiddenFieldsForBrewType(brewType: BrewType) {
 export { IBU_FORMULAS, RECIPE_MODULE_KEYS };
 
 export const IBU_FORMULA_LABELS: Record<IbuFormula, string> = {
-	tinseth: 'Balanced bitterness',
-	rager: 'Classic bitterness'
+	tinseth: m.balanced_bitterness(),
+	rager: m.classic_bitterness()
 };
 
 export const RECIPE_MODULE_LABELS: Record<RecipeModuleKey, string> = {
-	core: 'Recipe basics',
-	water_chemistry: 'Water profile',
-	mash_steps: 'Mash schedule',
-	yeast_starter: 'Starter planning'
+	core: m.recipe_basics(),
+	water_chemistry: m.water_profile(),
+	mash_steps: m.mash_schedule(),
+	yeast_starter: m.starter_planning()
 };
 
 export const RECIPE_MODULE_DESCRIPTIONS: Record<RecipeModuleKey, string> = {
-	core: 'The core targets and ingredients for this recipe.',
-	water_chemistry: 'Plan minerals, salts, and source water adjustments.',
-	mash_steps: 'Add mash temperatures and step timing.',
-	yeast_starter: 'Estimate starter size and pitching support.'
+	core: m.recipe_core_description(),
+	water_chemistry: m.water_chemistry_description(),
+	mash_steps: m.mash_steps_description(),
+	yeast_starter: m.yeast_starter_description()
 };

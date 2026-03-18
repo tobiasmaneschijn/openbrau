@@ -8,11 +8,15 @@
 	import { DataTable, type DataTableFilterControl } from '$lib/components/data-table';
 	import { Alert, AlertDescription, AlertTitle } from '$lib/components/ui/alert';
 	import { Button } from '$lib/components/ui/button';
+	import { createDateFormatter, getEffectiveNumberLocale, readUserSettings } from '$lib/settings';
+	import { formatVolume } from '$lib/units';
+	import * as m from '$lib/paraglide/messages';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
 	const actionItemClass = 'w-full justify-start px-2 py-1.5 text-sm shadow-none';
+	const settings = $derived(readUserSettings(data.user?.preferences));
 	const batchHeaderActions: AppPageHeaderAction[] = [
-		{ label: 'Start batch', href: resolve('/app/batches/new'), variant: 'default' }
+		{ label: m.start_batch(), href: resolve('/app/batches/new'), variant: 'default' }
 	];
 
 	type BatchTableRow = {
@@ -29,41 +33,40 @@
 		openHref: string;
 	};
 
-	const dateFormatter = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' });
-
+	const dateFormatter = $derived(createDateFormatter(settings, { dateStyle: 'medium' }));
 	const batchColumns: ColumnDef<BatchTableRow>[] = [
 		{
 			accessorKey: 'recipeName',
-			header: 'Batch'
+			header: m.batch_log()
 		},
 		{
 			accessorKey: 'status',
-			header: 'Status',
+			header: m.batch_status_draft(),
 			enableColumnFilter: true
 		},
 		{
 			accessorKey: 'style',
-			header: 'Style'
+			header: m.style()
 		},
 		{
 			id: 'brewDate',
-			header: 'Brew day',
+			header: m.date_and_time(),
 			accessorFn: (row) => row.brewDateValue,
 			cell: ({ row }) => row.original.brewDateLabel
 		},
 		{
 			accessorKey: 'equipmentName',
-			header: 'Equipment'
+			header: m.equipment()
 		},
 		{
 			id: 'actualBatchSize',
-			header: 'Actual volume',
+			header: m.target_volume(),
 			accessorFn: (row) => row.actualBatchSizeLValue,
 			cell: ({ row }) => row.original.actualBatchSizeLabel
 		},
 		{
 			accessorKey: 'notes',
-			header: 'Notes',
+			header: m.notes(),
 			enableSorting: false
 		}
 	];
@@ -71,7 +74,7 @@
 	const batchFilters: DataTableFilterControl[] = [
 		{
 			columnId: 'status',
-			label: 'Status',
+			label: m.batch_status_draft(),
 			type: 'select',
 			options: Object.values(BATCH_STATUS_LABELS).map((label) => ({
 				label,
@@ -85,12 +88,18 @@
 			id: batch.id,
 			recipeName: batch.recipeName,
 			status: BATCH_STATUS_LABELS[batch.status],
-			style: batch.recipeStyle || 'No style',
+			style: batch.recipeStyle || m.unknown(),
 			brewDateValue: batch.brewDate ? batch.brewDate.getTime() : -1,
-			brewDateLabel: batch.brewDate ? dateFormatter.format(batch.brewDate) : 'Brew day not set',
-			equipmentName: batch.equipmentName || 'Default setup',
+			brewDateLabel: batch.brewDate ? dateFormatter.format(batch.brewDate) : m.unknown(),
+			equipmentName: batch.equipmentName || m.default_label(),
 			actualBatchSizeLValue: Number(batch.actualBatchSizeL ?? 0),
-			actualBatchSizeLabel: batch.actualBatchSizeL ? `${batch.actualBatchSizeL} L` : '-',
+			actualBatchSizeLabel: batch.actualBatchSizeL
+				? formatVolume(
+						Number(batch.actualBatchSizeL),
+						settings.units,
+						getEffectiveNumberLocale(settings)
+					)
+				: '-',
 			notes: batch.notes || '-',
 			openHref: `/app/batches/${batch.id}`
 		}))
@@ -99,16 +108,16 @@
 
 <div class="space-y-6">
 	<PageHeaderConfig
-		eyebrow="Brew log"
-		title="Batches"
-		description="Track brew day, fermentation, and packaging progress for every active batch."
-		meta={`${data.batches.length} tracked batches`}
+		eyebrow={m.batch_log()}
+		title={m.batches()}
+		description={m.live_batch_overview_description()}
+		meta={m.tracked_batches({ count: data.batches.length })}
 		actions={batchHeaderActions}
 	/>
 
 	{#if form?.message}
 		<Alert variant="destructive">
-			<AlertTitle>Could not update batches</AlertTitle>
+			<AlertTitle>{m.could_not_update_batches()}</AlertTitle>
 			<AlertDescription>{form.message}</AlertDescription>
 		</Alert>
 	{/if}
@@ -118,15 +127,15 @@
 		columns={batchColumns}
 		filterControls={batchFilters}
 		searchColumnIds={['recipeName', 'status', 'style', 'equipmentName', 'notes']}
-		searchPlaceholder="Search batches by recipe, status, equipment, or notes"
-		emptyTitle="No batches yet"
-		emptyDescription="Start a batch from one of your recipes when you are ready to brew."
+		searchPlaceholder={m.search_recipes()}
+		emptyTitle={m.no_recipes_yet()}
+		emptyDescription={m.create_first_recipe()}
 	>
 		{#snippet rowActions(batch)}
-			<Button href={batch.openHref} variant="ghost" size="sm" class={actionItemClass}>Open</Button>
+			<Button href={batch.openHref} variant="ghost" size="sm" class={actionItemClass}>{m.open()}</Button>
 			<form method="POST" action="?/delete">
 				<input type="hidden" name="id" value={batch.id} />
-				<Button type="submit" variant="ghost" size="sm" class={actionItemClass}>Delete</Button>
+				<Button type="submit" variant="ghost" size="sm" class={actionItemClass}>{m.delete()}</Button>
 			</form>
 		{/snippet}
 	</DataTable>

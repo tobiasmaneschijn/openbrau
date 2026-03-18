@@ -1,7 +1,16 @@
 CREATE TYPE "public"."audit_action" AS ENUM('insert', 'update', 'delete', 'restore');--> statement-breakpoint
 CREATE TYPE "public"."batch_status" AS ENUM('draft', 'brewing', 'fermenting', 'conditioning', 'finished');--> statement-breakpoint
+CREATE TYPE "public"."brew_type" AS ENUM('beer', 'wine', 'mead');--> statement-breakpoint
 CREATE TYPE "public"."hop_use_phase" AS ENUM('mash', 'first_wort', 'boil', 'whirlpool', 'dry_hop');--> statement-breakpoint
+CREATE TYPE "public"."ibu_formula" AS ENUM('tinseth', 'rager');--> statement-breakpoint
 CREATE TYPE "public"."misc_use_phase" AS ENUM('mash', 'boil', 'whirlpool', 'fermentation', 'packaging');--> statement-breakpoint
+CREATE TABLE "app_settings" (
+	"id" text PRIMARY KEY DEFAULT 'global' NOT NULL,
+	"allow_registrations" boolean DEFAULT true NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE "audit_logs" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"table_name" text NOT NULL,
@@ -55,11 +64,21 @@ CREATE TABLE "fermentables" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"owner_id" uuid,
 	"name" text NOT NULL,
+	"type" text DEFAULT 'grain' NOT NULL,
 	"brand" text,
+	"origin" text,
+	"supplier" text,
+	"source_url" text,
 	"yield_pct" numeric(5, 2) NOT NULL,
 	"color_lovibond" numeric(6, 2) DEFAULT '0' NOT NULL,
 	"moisture_pct" numeric(5, 2),
+	"coarse_fine_diff_pct" numeric(5, 2),
+	"diastatic_power_lintner" numeric(8, 2),
+	"protein_pct" numeric(5, 2),
+	"max_in_batch_pct" numeric(5, 2),
+	"recommend_mash" boolean DEFAULT true NOT NULL,
 	"is_extract" boolean DEFAULT false NOT NULL,
+	"notes" text,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
@@ -69,9 +88,17 @@ CREATE TABLE "hops" (
 	"owner_id" uuid,
 	"name" text NOT NULL,
 	"origin" text,
+	"supplier" text,
+	"source_url" text,
 	"alpha_acid_pct" numeric(5, 2) NOT NULL,
 	"beta_acid_pct" numeric(5, 2),
 	"form" text DEFAULT 'pellet' NOT NULL,
+	"type" text DEFAULT 'bittering' NOT NULL,
+	"hsi_pct" numeric(5, 2),
+	"cohumulone_pct" numeric(5, 2),
+	"myrcene_pct" numeric(5, 2),
+	"substitutes" text,
+	"notes" text,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
@@ -81,7 +108,11 @@ CREATE TABLE "miscs" (
 	"owner_id" uuid,
 	"name" text NOT NULL,
 	"type" text NOT NULL,
+	"use_for" text,
+	"supplier" text,
+	"source_url" text,
 	"description" text,
+	"notes" text,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
@@ -123,6 +154,8 @@ CREATE TABLE "recipe_miscs" (
 	"misc_id" uuid NOT NULL,
 	"sort_order" integer DEFAULT 0 NOT NULL,
 	"amount_kg" numeric(8, 4),
+	"amount_l" numeric(8, 4),
+	"amount_is_weight" boolean DEFAULT true NOT NULL,
 	"time_min" integer,
 	"use_phase" "misc_use_phase" DEFAULT 'boil' NOT NULL,
 	"notes" text,
@@ -134,6 +167,8 @@ CREATE TABLE "recipe_yeasts" (
 	"yeast_id" uuid NOT NULL,
 	"sort_order" integer DEFAULT 0 NOT NULL,
 	"amount_kg" numeric(8, 4),
+	"amount_l" numeric(8, 4),
+	"amount_is_weight" boolean DEFAULT true NOT NULL,
 	"cells_billions" numeric(10, 2),
 	"is_starter_required" boolean DEFAULT false NOT NULL,
 	"notes" text,
@@ -146,11 +181,15 @@ CREATE TABLE "recipes" (
 	"equipment_id" uuid,
 	"source_water_profile_id" uuid,
 	"name" text NOT NULL,
+	"brew_type" "brew_type" DEFAULT 'beer' NOT NULL,
 	"style" text,
 	"notes" text,
 	"advanced_mode" boolean DEFAULT false NOT NULL,
+	"enabled_modules" jsonb DEFAULT '["core"]'::jsonb NOT NULL,
+	"hidden_fields" jsonb DEFAULT '[]'::jsonb NOT NULL,
 	"target_batch_size_l" numeric(8, 3) NOT NULL,
 	"boil_time_min" integer DEFAULT 60 NOT NULL,
+	"ibu_formula" "ibu_formula" DEFAULT 'tinseth' NOT NULL,
 	"target_og" numeric(6, 3),
 	"target_fg" numeric(6, 3),
 	"target_ibu" numeric(6, 2),
@@ -159,10 +198,21 @@ CREATE TABLE "recipes" (
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "sessions" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" uuid NOT NULL,
+	"token_hash" text NOT NULL,
+	"expires_at" timestamp with time zone NOT NULL,
+	"last_seen_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	CONSTRAINT "sessions_token_hash_unique" UNIQUE("token_hash")
+);
+--> statement-breakpoint
 CREATE TABLE "users" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"username" text NOT NULL,
 	"password_hash" text NOT NULL,
+	"is_admin" boolean DEFAULT false NOT NULL,
 	"preferences" jsonb DEFAULT '{"units":"metric","enabled_features":[],"advanced_mode":false}'::jsonb NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
@@ -188,11 +238,21 @@ CREATE TABLE "yeasts" (
 	"owner_id" uuid,
 	"name" text NOT NULL,
 	"lab" text,
+	"supplier" text,
+	"source_url" text,
 	"product_code" text,
+	"type" text DEFAULT 'ale' NOT NULL,
+	"form" text DEFAULT 'dry' NOT NULL,
 	"attenuation_pct" numeric(5, 2),
 	"min_temperature_c" numeric(5, 2),
 	"max_temperature_c" numeric(5, 2),
 	"flocculation" text,
+	"best_for" text,
+	"max_reuse" integer,
+	"inventory" text,
+	"culture_date" timestamp with time zone,
+	"add_to_secondary" boolean DEFAULT false NOT NULL,
+	"notes" text,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
@@ -216,6 +276,7 @@ ALTER TABLE "recipe_yeasts" ADD CONSTRAINT "recipe_yeasts_yeast_id_yeasts_id_fk"
 ALTER TABLE "recipes" ADD CONSTRAINT "recipes_author_id_users_id_fk" FOREIGN KEY ("author_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "recipes" ADD CONSTRAINT "recipes_equipment_id_equipment_id_fk" FOREIGN KEY ("equipment_id") REFERENCES "public"."equipment"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "recipes" ADD CONSTRAINT "recipes_source_water_profile_id_water_profiles_id_fk" FOREIGN KEY ("source_water_profile_id") REFERENCES "public"."water_profiles"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "sessions" ADD CONSTRAINT "sessions_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "water_profiles" ADD CONSTRAINT "water_profiles_owner_id_users_id_fk" FOREIGN KEY ("owner_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "yeasts" ADD CONSTRAINT "yeasts_owner_id_users_id_fk" FOREIGN KEY ("owner_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX "audit_logs_table_record_idx" ON "audit_logs" USING btree ("table_name","record_id");--> statement-breakpoint
@@ -230,5 +291,7 @@ CREATE INDEX "hops_owner_idx" ON "hops" USING btree ("owner_id");--> statement-b
 CREATE INDEX "miscs_owner_idx" ON "miscs" USING btree ("owner_id");--> statement-breakpoint
 CREATE INDEX "recipes_author_idx" ON "recipes" USING btree ("author_id");--> statement-breakpoint
 CREATE INDEX "recipes_equipment_idx" ON "recipes" USING btree ("equipment_id");--> statement-breakpoint
+CREATE INDEX "sessions_user_idx" ON "sessions" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "sessions_expires_at_idx" ON "sessions" USING btree ("expires_at");--> statement-breakpoint
 CREATE INDEX "water_profiles_owner_idx" ON "water_profiles" USING btree ("owner_id");--> statement-breakpoint
 CREATE INDEX "yeasts_owner_idx" ON "yeasts" USING btree ("owner_id");

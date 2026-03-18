@@ -10,6 +10,7 @@ import {
 	updateBatchLogForOwner
 } from '$lib/server/batches';
 import { optionalString, requiredString } from '$lib/server/forms';
+import * as m from '$lib/paraglide/messages';
 
 export const load: PageServerLoad = async ({ params, locals }) => {
 	const batch = await getBatchForOwner(params.id, locals.user!.id);
@@ -37,7 +38,7 @@ export const actions: Actions = {
 		});
 
 		if (!batch) {
-			return fail(404, { message: 'Batch not found.' });
+			return fail(404, { message: m.batch_not_found() });
 		}
 
 		return { success: true };
@@ -54,13 +55,13 @@ export const actions: Actions = {
 			);
 
 			if (!batch) {
-				return fail(404, { message: 'Batch not found.' });
+				return fail(404, { message: m.batch_not_found() });
 			}
 
 			return { success: true };
 		} catch (error) {
 			if (error instanceof Response) throw error;
-			return fail(400, { message: 'Unable to change batch status.' });
+			return fail(400, { message: m.unable_to_change_batch_status() });
 		}
 	},
 	addTelemetry: async ({ request, params, locals }) => {
@@ -76,7 +77,7 @@ export const actions: Actions = {
 		});
 
 		if (!entry) {
-			return fail(404, { message: 'Batch not found.' });
+			return fail(404, { message: m.batch_not_found() });
 		}
 
 		return { success: true };

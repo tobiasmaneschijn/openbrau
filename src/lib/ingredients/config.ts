@@ -1,3 +1,4 @@
+import * as m from '$lib/paraglide/messages';
 import type { IngredientKind } from '$lib/server/ingredients';
 
 export const INGREDIENT_KIND_ORDER = [
@@ -8,15 +9,15 @@ export const INGREDIENT_KIND_ORDER = [
 ] as const satisfies readonly IngredientKind[];
 
 export const INGREDIENT_KIND_LABELS: Record<IngredientKind, string> = {
-	fermentables: 'Fermentables',
-	hops: 'Hops',
-	yeasts: 'Yeasts',
-	miscs: 'Other additions'
+	fermentables: m.ingredient_kind_fermentables(),
+	hops: m.ingredient_kind_hops(),
+	yeasts: m.ingredient_kind_yeasts(),
+	miscs: m.ingredient_kind_miscs()
 };
 
 export const INGREDIENT_KIND_DESCRIPTIONS: Record<IngredientKind, string> = {
-	fermentables: 'Malts, sugars, extracts, and other gravity contributors.',
-	hops: 'Bittering, flavor, and aroma additions.',
-	yeasts: 'Liquid, dry, or culture-based fermentation strains.',
-	miscs: 'Nutrients, finings, spices, and other non-core additions.'
+	fermentables: m.ingredient_kind_fermentables_description(),
+	hops: m.ingredient_kind_hops_description(),
+	yeasts: m.ingredient_kind_yeasts_description(),
+	miscs: m.ingredient_kind_miscs_description()
 };

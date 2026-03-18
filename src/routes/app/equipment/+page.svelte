@@ -7,11 +7,12 @@
 	import { DataTable, type DataTableFilterControl } from '$lib/components/data-table';
 	import { Alert, AlertDescription, AlertTitle } from '$lib/components/ui/alert';
 	import { Button } from '$lib/components/ui/button';
+	import * as m from '$lib/paraglide/messages';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
 	const actionItemClass = 'w-full justify-start px-2 py-1.5 text-sm shadow-none';
 	const equipmentHeaderActions: AppPageHeaderAction[] = [
-		{ label: 'Add new', href: resolve('/app/equipment/new'), variant: 'default' }
+		{ label: m.add_new(), href: resolve('/app/equipment/new'), variant: 'default' }
 	];
 
 	type EquipmentTableRow = {
@@ -31,34 +32,34 @@
 	const equipmentColumns: ColumnDef<EquipmentTableRow>[] = [
 		{
 			accessorKey: 'name',
-			header: 'Profile'
+			header: m.profile()
 		},
 		{
 			id: 'batchSize',
-			header: 'Batch size',
+			header: m.batch_size_label(),
 			accessorFn: (row) => row.batchSizeLValue,
 			cell: ({ row }) => row.original.batchSizeLabel
 		},
 		{
 			id: 'boilOffRate',
-			header: 'Boil-off',
+			header: m.boil_off(),
 			accessorFn: (row) => row.boilOffRateLphValue,
 			cell: ({ row }) => row.original.boilOffRateLphLabel
 		},
 		{
 			id: 'efficiency',
-			header: 'Efficiency',
+			header: m.efficiency(),
 			accessorFn: (row) => row.efficiencyPctValue,
 			cell: ({ row }) => row.original.efficiencyPctLabel
 		},
 		{
 			accessorKey: 'defaultStatus',
-			header: 'Default',
+			header: m.default_label(),
 			enableColumnFilter: true
 		},
 		{
 			accessorKey: 'description',
-			header: 'Description',
+			header: m.summary(),
 			enableSorting: false
 		}
 	];
@@ -66,11 +67,11 @@
 	const equipmentFilters: DataTableFilterControl[] = [
 		{
 			columnId: 'defaultStatus',
-			label: 'Default',
+			label: m.default_label(),
 			type: 'select',
 			options: [
-				{ label: 'Default', value: 'Default' },
-				{ label: 'Custom', value: 'Custom' }
+				{ label: m.default_label(), value: m.default_label() },
+				{ label: m.custom_label(), value: m.custom_label() }
 			]
 		}
 	];
@@ -85,7 +86,7 @@
 			boilOffRateLphLabel: `${profile.boilOffRateLph} L/h`,
 			efficiencyPctValue: Number(profile.efficiencyPct),
 			efficiencyPctLabel: `${profile.efficiencyPct}%`,
-			defaultStatus: profile.isDefault ? 'Default' : 'Custom',
+			defaultStatus: profile.isDefault ? m.default_label() : m.custom_label(),
 			description: profile.description || '-',
 			openHref: `/app/equipment/${profile.id}`
 		}))
@@ -94,16 +95,16 @@
 
 <div class="space-y-6">
 	<PageHeaderConfig
-		eyebrow="Brew house"
-		title="Equipment"
-		description="Maintain brew house profiles for sizing, losses, and default brewing setups."
-		meta={`${data.equipment.length} saved profiles`}
+		eyebrow={m.brew_house()}
+		title={m.equipment()}
+		description={m.brew_house_description()}
+		meta={m.saved_profiles({ count: data.equipment.length })}
 		actions={equipmentHeaderActions}
 	/>
 
 	{#if form?.message}
 		<Alert variant="destructive">
-			<AlertTitle>Could not update equipment</AlertTitle>
+			<AlertTitle>{m.could_not_update_equipment()}</AlertTitle>
 			<AlertDescription>{form.message}</AlertDescription>
 		</Alert>
 	{/if}
@@ -113,16 +114,16 @@
 		columns={equipmentColumns}
 		filterControls={equipmentFilters}
 		searchColumnIds={['name', 'description', 'defaultStatus']}
-		searchPlaceholder="Search equipment profiles by name or description"
-		emptyTitle="No equipment yet"
-		emptyDescription="Create an equipment profile so recipes and batches can scale against real-world losses."
+		searchPlaceholder={m.search_equipment()}
+		emptyTitle={m.no_equipment_yet()}
+		emptyDescription={m.create_equipment_profile()}
 	>
 		{#snippet rowActions(profile)}
-			<Button href={profile.openHref} variant="ghost" size="sm" class={actionItemClass}>Open</Button
+			<Button href={profile.openHref} variant="ghost" size="sm" class={actionItemClass}>{m.open()}</Button
 			>
 			<form method="POST" action="?/delete">
 				<input type="hidden" name="id" value={profile.id} />
-				<Button type="submit" variant="ghost" size="sm" class={actionItemClass}>Delete</Button>
+				<Button type="submit" variant="ghost" size="sm" class={actionItemClass}>{m.delete()}</Button>
 			</form>
 		{/snippet}
 	</DataTable>

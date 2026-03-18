@@ -22,6 +22,7 @@
 		YeastRecord
 	} from '$lib/server/ingredients';
 	import { Textarea } from '$lib/components/ui/textarea';
+	import * as m from '$lib/paraglide/messages';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
 
@@ -37,24 +38,22 @@
 	}
 
 	const ingredientDetailHeaderActions: AppPageHeaderAction[] = [
-		{ label: 'Back', href: resolve('/app/ingredients'), variant: 'outline' },
-		{ label: 'Save details', type: 'submit', form: 'ingredient-form', variant: 'default' }
+		{ label: m.back(), href: resolve('/app/ingredients'), variant: 'outline' },
+		{ label: m.save_details(), type: 'submit', form: 'ingredient-form', variant: 'default' }
 	];
 </script>
 
 <div class="space-y-6">
 	<PageHeaderConfig
-		eyebrow="Ingredients"
+		eyebrow={m.ingredients()}
 		title={data.ingredient.name}
-		description={`Edit the remembered details for this ${INGREDIENT_KIND_LABELS[data.kind]
-			.toLowerCase()
-			.slice(0, -1)}.`}
+		description={m.edit_ingredient_description()}
 		actions={ingredientDetailHeaderActions}
 	/>
 
 	{#if form?.message}
 		<Alert variant="destructive">
-			<AlertTitle>Could not save ingredient</AlertTitle>
+			<AlertTitle>{m.could_not_save_ingredient()}</AlertTitle>
 			<AlertDescription>{form.message}</AlertDescription>
 		</Alert>
 	{/if}
@@ -63,32 +62,30 @@
 		<div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
 			<Card class="border-border/70 bg-card/95 shadow-sm">
 				<CardHeader>
-					<CardTitle class="text-xl font-bold">Ingredient details</CardTitle>
-					<CardDescription>
-						Keep supplier, sourcing, and technical information here so recipes can reuse it.
-					</CardDescription>
+					<CardTitle class="text-xl font-bold">{m.ingredient_details()}</CardTitle>
+					<CardDescription>{m.edit_ingredient_description()}</CardDescription>
 				</CardHeader>
 				<CardContent class="grid gap-4 md:grid-cols-2">
 					<div class="space-y-2 md:col-span-2">
-						<label for="name" class="text-sm font-medium">Name</label>
+						<label for="name" class="text-sm font-medium">{m.name_label()}</label>
 						<Input id="name" name="name" value={data.ingredient.name} required />
 					</div>
 
 					{#if fermentable}
 						<div class="space-y-2">
-							<label for="type" class="text-sm font-medium">Type</label>
+							<label for="type" class="text-sm font-medium">{m.type()}</label>
 							<Input id="type" name="type" value={fermentable.type ?? ''} />
 						</div>
 						<div class="space-y-2">
-							<label for="brand" class="text-sm font-medium">Brand</label>
+							<label for="brand" class="text-sm font-medium">{m.brand()}</label>
 							<Input id="brand" name="brand" value={fermentable.brand ?? ''} />
 						</div>
 						<div class="space-y-2">
-							<label for="origin" class="text-sm font-medium">Origin</label>
+							<label for="origin" class="text-sm font-medium">{m.origin()}</label>
 							<Input id="origin" name="origin" value={fermentable.origin ?? ''} />
 						</div>
 						<div class="space-y-2">
-							<label for="yieldPct" class="text-sm font-medium">Yield (%)</label>
+							<label for="yieldPct" class="text-sm font-medium">{m.yield_pct()}</label>
 							<Input
 								id="yieldPct"
 								name="yieldPct"
@@ -99,7 +96,7 @@
 							/>
 						</div>
 						<div class="space-y-2">
-							<label for="colorLovibond" class="text-sm font-medium">Color (Lovibond)</label>
+							<label for="colorLovibond" class="text-sm font-medium">{m.color_lovibond()}</label>
 							<Input
 								id="colorLovibond"
 								name="colorLovibond"
@@ -109,7 +106,7 @@
 							/>
 						</div>
 						<div class="space-y-2">
-							<label for="moisturePct" class="text-sm font-medium">Moisture (%)</label>
+							<label for="moisturePct" class="text-sm font-medium">{m.moisture_pct()}</label>
 							<Input
 								id="moisturePct"
 								name="moisturePct"
@@ -119,7 +116,7 @@
 							/>
 						</div>
 						<div class="space-y-2">
-							<label for="coarseFineDiffPct" class="text-sm font-medium">Coarse/fine diff (%)</label
+							<label for="coarseFineDiffPct" class="text-sm font-medium">{m.coarse_fine_diff_pct()}</label
 							>
 							<Input
 								id="coarseFineDiffPct"
@@ -131,7 +128,7 @@
 						</div>
 						<div class="space-y-2">
 							<label for="diastaticPowerLintner" class="text-sm font-medium"
-								>Diastatic power (Lintner)</label
+								>{m.diastatic_power_lintner()}</label
 							>
 							<Input
 								id="diastaticPowerLintner"
@@ -142,7 +139,7 @@
 							/>
 						</div>
 						<div class="space-y-2">
-							<label for="proteinPct" class="text-sm font-medium">Protein (%)</label>
+							<label for="proteinPct" class="text-sm font-medium">{m.protein_pct()}</label>
 							<Input
 								id="proteinPct"
 								name="proteinPct"
@@ -152,7 +149,7 @@
 							/>
 						</div>
 						<div class="space-y-2">
-							<label for="maxInBatchPct" class="text-sm font-medium">Max in batch (%)</label>
+							<label for="maxInBatchPct" class="text-sm font-medium">{m.max_in_batch_pct()}</label>
 							<Input
 								id="maxInBatchPct"
 								name="maxInBatchPct"
@@ -165,7 +162,7 @@
 							class="flex items-center justify-between gap-3 rounded-2xl border bg-background/80 px-4 py-3 md:col-span-2"
 						>
 							<div>
-								<p class="text-sm font-medium">Recommend mash</p>
+								<p class="text-sm font-medium">{m.recommend_mash()}</p>
 							</div>
 							<Checkbox checked={fermentable.recommendMash} name="recommendMash" value="on" />
 						</label>
@@ -173,7 +170,7 @@
 							class="flex items-center justify-between gap-3 rounded-2xl border bg-background/80 px-4 py-3 md:col-span-2"
 						>
 							<div>
-								<p class="text-sm font-medium">Extract ingredient</p>
+								<p class="text-sm font-medium">{m.extract_ingredient()}</p>
 							</div>
 							<Checkbox checked={fermentable.isExtract} name="isExtract" value="on" />
 						</label>
@@ -181,19 +178,19 @@
 
 					{#if hop}
 						<div class="space-y-2">
-							<label for="type" class="text-sm font-medium">Hop use</label>
+							<label for="type" class="text-sm font-medium">{m.hop_use()}</label>
 							<Input id="type" name="type" value={hop.type ?? ''} />
 						</div>
 						<div class="space-y-2">
-							<label for="form" class="text-sm font-medium">Form</label>
+							<label for="form" class="text-sm font-medium">{m.form_label()}</label>
 							<Input id="form" name="form" value={hop.form ?? ''} />
 						</div>
 						<div class="space-y-2">
-							<label for="origin" class="text-sm font-medium">Origin</label>
+							<label for="origin" class="text-sm font-medium">{m.origin()}</label>
 							<Input id="origin" name="origin" value={hop.origin ?? ''} />
 						</div>
 						<div class="space-y-2">
-							<label for="alphaAcidPct" class="text-sm font-medium">Alpha acid (%)</label>
+							<label for="alphaAcidPct" class="text-sm font-medium">{m.alpha_acid_pct()}</label>
 							<Input
 								id="alphaAcidPct"
 								name="alphaAcidPct"
@@ -204,7 +201,7 @@
 							/>
 						</div>
 						<div class="space-y-2">
-							<label for="betaAcidPct" class="text-sm font-medium">Beta acid (%)</label>
+							<label for="betaAcidPct" class="text-sm font-medium">{m.beta_acid_pct()}</label>
 							<Input
 								id="betaAcidPct"
 								name="betaAcidPct"
@@ -214,11 +211,11 @@
 							/>
 						</div>
 						<div class="space-y-2">
-							<label for="hsiPct" class="text-sm font-medium">HSI (%)</label>
+							<label for="hsiPct" class="text-sm font-medium">{m.hsi_pct()}</label>
 							<Input id="hsiPct" name="hsiPct" type="number" step="0.01" value={hop.hsiPct ?? ''} />
 						</div>
 						<div class="space-y-2">
-							<label for="cohumulonePct" class="text-sm font-medium">Cohumulone (%)</label>
+							<label for="cohumulonePct" class="text-sm font-medium">{m.cohumulone_pct()}</label>
 							<Input
 								id="cohumulonePct"
 								name="cohumulonePct"
@@ -228,7 +225,7 @@
 							/>
 						</div>
 						<div class="space-y-2">
-							<label for="myrcenePct" class="text-sm font-medium">Myrcene (%)</label>
+							<label for="myrcenePct" class="text-sm font-medium">{m.myrcene_pct()}</label>
 							<Input
 								id="myrcenePct"
 								name="myrcenePct"
@@ -238,30 +235,30 @@
 							/>
 						</div>
 						<div class="space-y-2 md:col-span-2">
-							<label for="substitutes" class="text-sm font-medium">Substitutes</label>
+							<label for="substitutes" class="text-sm font-medium">{m.substitutes()}</label>
 							<Input id="substitutes" name="substitutes" value={hop.substitutes ?? ''} />
 						</div>
 					{/if}
 
 					{#if yeast}
 						<div class="space-y-2">
-							<label for="lab" class="text-sm font-medium">Lab</label>
+							<label for="lab" class="text-sm font-medium">{m.lab_label()}</label>
 							<Input id="lab" name="lab" value={yeast.lab ?? ''} />
 						</div>
 						<div class="space-y-2">
-							<label for="productCode" class="text-sm font-medium">Product code</label>
+							<label for="productCode" class="text-sm font-medium">{m.product_code()}</label>
 							<Input id="productCode" name="productCode" value={yeast.productCode ?? ''} />
 						</div>
 						<div class="space-y-2">
-							<label for="type" class="text-sm font-medium">Type</label>
+							<label for="type" class="text-sm font-medium">{m.type()}</label>
 							<Input id="type" name="type" value={yeast.type ?? ''} />
 						</div>
 						<div class="space-y-2">
-							<label for="form" class="text-sm font-medium">Form</label>
+							<label for="form" class="text-sm font-medium">{m.form_label()}</label>
 							<Input id="form" name="form" value={yeast.form ?? ''} />
 						</div>
 						<div class="space-y-2">
-							<label for="attenuationPct" class="text-sm font-medium">Attenuation (%)</label>
+							<label for="attenuationPct" class="text-sm font-medium">{m.attenuation_pct()}</label>
 							<Input
 								id="attenuationPct"
 								name="attenuationPct"
@@ -271,11 +268,11 @@
 							/>
 						</div>
 						<div class="space-y-2">
-							<label for="flocculation" class="text-sm font-medium">Flocculation</label>
+							<label for="flocculation" class="text-sm font-medium">{m.flocculation()}</label>
 							<Input id="flocculation" name="flocculation" value={yeast.flocculation ?? ''} />
 						</div>
 						<div class="space-y-2">
-							<label for="minTemperatureC" class="text-sm font-medium">Min temp (C)</label>
+							<label for="minTemperatureC" class="text-sm font-medium">{m.min_temperature_c()}</label>
 							<Input
 								id="minTemperatureC"
 								name="minTemperatureC"
@@ -285,7 +282,7 @@
 							/>
 						</div>
 						<div class="space-y-2">
-							<label for="maxTemperatureC" class="text-sm font-medium">Max temp (C)</label>
+							<label for="maxTemperatureC" class="text-sm font-medium">{m.max_temperature_c()}</label>
 							<Input
 								id="maxTemperatureC"
 								name="maxTemperatureC"
@@ -295,11 +292,11 @@
 							/>
 						</div>
 						<div class="space-y-2">
-							<label for="bestFor" class="text-sm font-medium">Best for</label>
+							<label for="bestFor" class="text-sm font-medium">{m.best_for()}</label>
 							<Input id="bestFor" name="bestFor" value={yeast.bestFor ?? ''} />
 						</div>
 						<div class="space-y-2">
-							<label for="maxReuse" class="text-sm font-medium">Max reuse</label>
+							<label for="maxReuse" class="text-sm font-medium">{m.max_reuse()}</label>
 							<Input
 								id="maxReuse"
 								name="maxReuse"
@@ -309,11 +306,11 @@
 							/>
 						</div>
 						<div class="space-y-2">
-							<label for="inventory" class="text-sm font-medium">Inventory</label>
+							<label for="inventory" class="text-sm font-medium">{m.inventory()}</label>
 							<Input id="inventory" name="inventory" value={yeast.inventory ?? ''} />
 						</div>
 						<div class="space-y-2">
-							<label for="cultureDate" class="text-sm font-medium">Culture date</label>
+							<label for="cultureDate" class="text-sm font-medium">{m.culture_date()}</label>
 							<Input
 								id="cultureDate"
 								name="cultureDate"
@@ -325,7 +322,7 @@
 							class="flex items-center justify-between gap-3 rounded-2xl border bg-background/80 px-4 py-3 md:col-span-2"
 						>
 							<div>
-								<p class="text-sm font-medium">Add to secondary</p>
+								<p class="text-sm font-medium">{m.add_to_secondary()}</p>
 							</div>
 							<Checkbox checked={yeast.addToSecondary} name="addToSecondary" value="on" />
 						</label>
@@ -333,15 +330,15 @@
 
 					{#if misc}
 						<div class="space-y-2">
-							<label for="type" class="text-sm font-medium">Type</label>
+							<label for="type" class="text-sm font-medium">{m.type()}</label>
 							<Input id="type" name="type" value={misc.type ?? ''} required />
 						</div>
 						<div class="space-y-2">
-							<label for="useFor" class="text-sm font-medium">Use for</label>
+							<label for="useFor" class="text-sm font-medium">{m.use_for()}</label>
 							<Input id="useFor" name="useFor" value={misc.useFor ?? ''} />
 						</div>
 						<div class="space-y-2 md:col-span-2">
-							<label for="description" class="text-sm font-medium">Description</label>
+							<label for="description" class="text-sm font-medium">{m.notes()}</label>
 							<Textarea
 								id="description"
 								name="description"
@@ -352,15 +349,15 @@
 					{/if}
 
 					<div class="space-y-2">
-						<label for="supplier" class="text-sm font-medium">Supplier</label>
+						<label for="supplier" class="text-sm font-medium">{m.supplier_label()}</label>
 						<Input id="supplier" name="supplier" value={data.ingredient.supplier ?? ''} />
 					</div>
 					<div class="space-y-2">
-						<label for="sourceUrl" class="text-sm font-medium">Where to get it</label>
+						<label for="sourceUrl" class="text-sm font-medium">{m.source_url_label()}</label>
 						<Input id="sourceUrl" name="sourceUrl" value={data.ingredient.sourceUrl ?? ''} />
 					</div>
 					<div class="space-y-2 md:col-span-2">
-						<label for="notes" class="text-sm font-medium">Notes</label>
+						<label for="notes" class="text-sm font-medium">{m.notes()}</label>
 						<Textarea id="notes" name="notes" rows={5} value={data.ingredient.notes ?? ''} />
 					</div>
 				</CardContent>
@@ -368,14 +365,14 @@
 
 			<Card class="border-border/70 bg-card/95 shadow-sm xl:sticky xl:top-6 xl:self-start">
 				<CardHeader>
-					<CardTitle class="text-xl font-bold">Remove from library</CardTitle>
+					<CardTitle class="text-xl font-bold">{m.remove_from_library()}</CardTitle>
 				</CardHeader>
 				<CardContent>
 					<p class="mb-4 text-sm text-muted-foreground">
-						Delete this ingredient if you no longer want it available in recipe suggestions.
+						{m.remove_ingredient_description()}
 					</p>
 					<form method="POST" action="?/delete">
-						<Button type="submit" variant="destructive">Delete ingredient</Button>
+						<Button type="submit" variant="destructive">{m.delete_ingredient()}</Button>
 					</form>
 				</CardContent>
 			</Card>

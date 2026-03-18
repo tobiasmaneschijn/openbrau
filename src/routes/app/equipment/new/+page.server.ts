@@ -2,6 +2,7 @@ import { fail, redirect } from '@sveltejs/kit';
 import type { Actions } from './$types';
 import { createEquipment } from '$lib/server/equipment';
 import { booleanField, optionalString, requiredString } from '$lib/server/forms';
+import * as m from '$lib/paraglide/messages';
 
 export const actions: Actions = {
 	create: async ({ request, locals }) => {
@@ -23,7 +24,7 @@ export const actions: Actions = {
 			profileId = profile.id;
 		} catch (error) {
 			if (error instanceof Response) throw error;
-			return fail(400, { message: 'Unable to create equipment profile.' });
+			return fail(400, { message: m.unable_to_create_equipment() });
 		}
 
 		throw redirect(302, `/app/equipment/${profileId}`);

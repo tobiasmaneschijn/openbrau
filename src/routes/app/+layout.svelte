@@ -9,56 +9,68 @@
 	import LayoutDashboardIcon from '@lucide/svelte/icons/layout-dashboard';
 	import PackageIcon from '@lucide/svelte/icons/package';
 	import Settings2Icon from '@lucide/svelte/icons/settings-2';
+	import SlidersHorizontalIcon from '@lucide/svelte/icons/sliders-horizontal';
 	import type { LayoutData } from './$types';
-	import {
-		APP_PAGE_HEADER_CONTEXT,
-		type AppPageHeaderConfig,
-		type SetAppPageHeader
-	} from '$lib/components/app/page-header';
-	import { Badge } from '$lib/components/ui/badge';
-	import { Button } from '$lib/components/ui/button';
-	import { Separator } from '$lib/components/ui/separator';
-	import * as Sidebar from '$lib/components/ui/sidebar';
+import {
+	APP_PAGE_HEADER_CONTEXT,
+	type AppPageHeaderConfig,
+	type SetAppPageHeader
+} from '$lib/components/app/page-header';
+import { Badge } from '$lib/components/ui/badge';
+import { Button } from '$lib/components/ui/button';
+import { Separator } from '$lib/components/ui/separator';
+import * as Sidebar from '$lib/components/ui/sidebar';
+import { readUserSettings } from '$lib/settings';
+import * as m from '$lib/paraglide/messages';
 
-	let { data, children }: { data: LayoutData; children: Snippet } = $props();
+let { data, children }: { data: LayoutData; children: Snippet } = $props();
+const uiLocale = $derived(readUserSettings(data.user?.preferences).language as 'en' | 'da');
 
-	const navItems = [
-		{
-			href: '/app',
-			label: 'Overview',
-			description: 'Dashboard',
-			icon: LayoutDashboardIcon
-		},
-		{
-			href: '/app/recipes',
-			label: 'Recipes',
-			description: 'Brew library',
-			icon: FlaskConicalIcon
-		},
-		{
-			href: '/app/batches',
-			label: 'Batches',
-			description: 'Fermentation log',
-			icon: BarChart3Icon
-		},
-		{
-			href: '/app/ingredients',
-			label: 'Ingredients',
-			description: 'Saved library',
-			icon: PackageIcon
-		},
-		{
-			href: '/app/equipment',
-			label: 'Equipment',
-			description: 'Profiles',
-			icon: Settings2Icon
-		}
-	] as const;
+const navItems = $derived.by(
+	() =>
+		[
+			{
+				href: '/app',
+				label: m.overview({}, { locale: uiLocale }),
+				description: m.dashboard({}, { locale: uiLocale }),
+				icon: LayoutDashboardIcon
+			},
+			{
+				href: '/app/recipes',
+				label: m.recipes({}, { locale: uiLocale }),
+				description: m.brew_library({}, { locale: uiLocale }),
+				icon: FlaskConicalIcon
+			},
+			{
+				href: '/app/batches',
+				label: m.batches({}, { locale: uiLocale }),
+				description: m.fermentation_log({}, { locale: uiLocale }),
+				icon: BarChart3Icon
+			},
+			{
+				href: '/app/ingredients',
+				label: m.ingredients({}, { locale: uiLocale }),
+				description: m.saved_library({}, { locale: uiLocale }),
+				icon: PackageIcon
+			},
+			{
+				href: '/app/equipment',
+				label: m.equipment({}, { locale: uiLocale }),
+				description: m.profiles({}, { locale: uiLocale }),
+				icon: Settings2Icon
+			},
+			{
+				href: '/app/settings',
+				label: m.settings({}, { locale: uiLocale }),
+				description: m.preferences({}, { locale: uiLocale }),
+				icon: SlidersHorizontalIcon
+			}
+		] as const
+);
 
 	let currentPageHeader = $state<AppPageHeaderConfig | null>(null);
 	let registeredHeaderPath = $state<string | null>(null);
 	let lastPathname = $state(page.url.pathname);
-
 	const registerPageHeader: SetAppPageHeader = (config) => {
 		currentPageHeader = config;
 		registeredHeaderPath = page.url.pathname;
@@ -94,7 +106,7 @@
 
 		if (matchedItem) {
 			const header: AppPageHeaderConfig = {
-				eyebrow: 'Workspace',
+				eyebrow: m.app_workspace({}, { locale: uiLocale }),
 				title: matchedItem.label,
 				description: matchedItem.description
 			};
@@ -103,9 +115,9 @@
 		}
 
 		const fallbackHeader: AppPageHeaderConfig = {
-			eyebrow: 'Workspace',
-			title: 'OpenBrau Workspace',
-			description: 'Recipes, batches, and equipment'
+			eyebrow: m.app_workspace({}, { locale: uiLocale }),
+			title: `${m.app_name({}, { locale: uiLocale })} ${m.app_workspace({}, { locale: uiLocale })}`,
+			description: `${m.recipes({}, { locale: uiLocale })}, ${m.batches({}, { locale: uiLocale })}, ${m.equipment({}, { locale: uiLocale })}`
 		};
 
 		return fallbackHeader;
@@ -117,22 +129,21 @@
 <Sidebar.Provider>
 	<Sidebar.Root variant="inset" collapsible="icon">
 		<Sidebar.Header class="gap-4 px-3 py-4">
-			<div class="flex items-center gap-3 px-2">
+			<div class="flex items-center gap-3 px-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
 				<div
 					class="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm"
 				>
 					<BarrelIcon class="size-5" />
 				</div>
-				<div class="min-w-0">
-					<p class="truncate text-sm font-semibold tracking-[0.2em] uppercase">OpenBrau</p>
-					<p class="truncate text-xs text-muted-foreground">Homebrew workspace</p>
+				<div class="min-w-0 group-data-[collapsible=icon]:hidden">
+					<p class="truncate text-sm font-semibold tracking-[0.2em] uppercase">{m.app_name()}</p>
 				</div>
 			</div>
 		</Sidebar.Header>
 
 		<Sidebar.Content class="px-2">
 			<Sidebar.Group>
-				<Sidebar.GroupLabel>Brewery</Sidebar.GroupLabel>
+				<Sidebar.GroupLabel>{m.app_workspace()}</Sidebar.GroupLabel>
 				<Sidebar.GroupContent>
 					<Sidebar.Menu>
 						{#each navItems as item (item.href)}
@@ -147,7 +158,7 @@
 									{#snippet child({ props })}
 										<a {...props} href={resolve(item.href)}>
 											<item.icon />
-											<div class="grid text-left">
+											<div class="grid text-left group-data-[collapsible=icon]:hidden">
 												<span>{item.label}</span>
 												<span class="text-xs font-normal text-muted-foreground">
 													{item.description}
@@ -165,15 +176,16 @@
 
 		<Sidebar.Footer class="gap-3 px-3 py-4">
 			<Separator />
-			<div class="rounded-xl bg-sidebar-accent/60 p-3">
+			<div class="rounded-xl bg-sidebar-accent/60 p-3 group-data-[collapsible=icon]:hidden">
 				<p class="text-sm font-medium">{data.user.username}</p>
-				<p class="text-xs text-muted-foreground">
-					{data.user.preferences.units === 'imperial' ? 'Imperial display' : 'Metric display'}
-				</p>
 			</div>
 
-			<form method="POST" action="/logout">
-				<Button type="submit" variant="outline" class="w-full justify-start">Sign out</Button>
+			<form
+				method="POST"
+				action="/logout"
+				class="group-data-[collapsible=icon]:hidden"
+			>
+				<Button type="submit" variant="outline" class="w-full justify-start">{m.sign_out()}</Button>
 			</form>
 		</Sidebar.Footer>
 		<Sidebar.Rail />
@@ -218,7 +230,7 @@
 					{/each}
 				{/if}
 				<Badge variant="outline" class="rounded-full px-3 py-1">
-					{data.user.preferences.advanced_mode ? 'Advanced mode' : 'Simple mode'}
+					{data.user.preferences.advanced_mode ? m.advanced_mode() : m.simple_mode()}
 				</Badge>
 			</div>
 		</header>

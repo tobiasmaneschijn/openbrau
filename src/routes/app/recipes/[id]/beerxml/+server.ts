@@ -5,6 +5,7 @@ import { buildRecipeDefinition } from '$lib/recipes/engine';
 import { getEquipmentForOwner } from '$lib/server/equipment';
 import { listRecipeIngredientsForAuthor } from '$lib/server/recipe-items';
 import { getRecipeForAuthor } from '$lib/server/recipes';
+import * as m from '$lib/paraglide/messages';
 
 function slugify(value: string) {
 	return value
@@ -17,7 +18,7 @@ function slugify(value: string) {
 export const GET: RequestHandler = async ({ params, locals }) => {
 	const recipe = await getRecipeForAuthor(params.id, locals.user!.id);
 	if (!recipe) {
-		throw error(404, 'Recipe not found.');
+		throw error(404, m.recipe_not_found());
 	}
 
 	const [equipment, ingredients] = await Promise.all([

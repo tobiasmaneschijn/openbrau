@@ -20,26 +20,27 @@
 	} from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
+	import * as m from '$lib/paraglide/messages';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
 	const batchDetailHeaderActions = $derived([
-		{ label: 'Back', href: resolve('/app/batches'), variant: 'outline' },
-		{ label: 'Save log', type: 'submit', form: 'batch-log-form', variant: 'default' }
+		{ label: m.back(), href: resolve('/app/batches'), variant: 'outline' },
+		{ label: m.save_log(), type: 'submit', form: 'batch-log-form', variant: 'default' }
 	] satisfies AppPageHeaderAction[]);
 </script>
 
 <div class="space-y-6">
 	<PageHeaderConfig
-		eyebrow="Batches"
+		eyebrow={m.batches()}
 		title={data.batch.recipeName}
-		description={`${BATCH_STATUS_LABELS[data.batch.status]} batch`}
-		meta={`${data.batch.telemetry.length} telemetry readings`}
+		description={`${BATCH_STATUS_LABELS[data.batch.status]} ${m.batch_summary()}`}
+		meta={`${data.batch.telemetry.length} ${m.readings()}`}
 		actions={batchDetailHeaderActions}
 	/>
 
 	{#if form?.message}
 		<Alert variant="destructive">
-			<AlertTitle>Could not update batch</AlertTitle>
+			<AlertTitle>{m.could_not_update_batch()}</AlertTitle>
 			<AlertDescription>{form.message}</AlertDescription>
 		</Alert>
 	{/if}
@@ -48,10 +49,8 @@
 		<div class="space-y-6">
 			<Card class="border-border/70 bg-card/95 shadow-sm">
 				<CardHeader>
-					<CardTitle class="text-xl font-bold">Progress</CardTitle>
-					<CardDescription
-						>Move the batch through brew day and fermentation in order.</CardDescription
-					>
+					<CardTitle class="text-xl font-bold">{m.progress_through_stages()}</CardTitle>
+					<CardDescription>{m.progress_through_stages()}</CardDescription>
 				</CardHeader>
 				<CardContent class="space-y-4">
 					<div class="grid gap-3 md:grid-cols-5">
@@ -74,11 +73,11 @@
 					{#if data.nextStatus}
 						<form method="POST" action="?/advanceStatus">
 							<input type="hidden" name="nextStatus" value={data.nextStatus} />
-							<Button type="submit">Move to {BATCH_STATUS_LABELS[data.nextStatus]}</Button>
+							<Button type="submit">{m.move_to_status({ status: BATCH_STATUS_LABELS[data.nextStatus] })}</Button>
 						</form>
 					{:else}
 						<div class="rounded-2xl border bg-background/80 p-4 text-sm text-muted-foreground">
-							This batch has completed the full tracking flow.
+							{m.batch_completed()}
 						</div>
 					{/if}
 				</CardContent>
@@ -87,14 +86,12 @@
 			<form id="batch-log-form" method="POST" action="?/saveLog">
 				<Card class="border-border/70 bg-card/95 shadow-sm">
 					<CardHeader>
-						<CardTitle class="text-xl font-bold">Batch log</CardTitle>
-						<CardDescription
-							>Keep practical notes for brew day, fermentation, and packaging.</CardDescription
-						>
+						<CardTitle class="text-xl font-bold">{m.batch_log()}</CardTitle>
+						<CardDescription>{m.batch_log_description()}</CardDescription>
 					</CardHeader>
 					<CardContent class="grid gap-4 md:grid-cols-2">
 						<div class="space-y-2">
-							<label for="brewDate" class="text-sm font-medium">Brew date</label>
+							<label for="brewDate" class="text-sm font-medium">{m.brew_date()}</label>
 							<Input
 								id="brewDate"
 								name="brewDate"
@@ -103,7 +100,7 @@
 							/>
 						</div>
 						<div class="space-y-2">
-							<label for="actualBatchSizeL" class="text-sm font-medium">Actual batch size (L)</label
+							<label for="actualBatchSizeL" class="text-sm font-medium">{m.batch_size_label()} (L)</label
 							>
 							<Input
 								id="actualBatchSizeL"
@@ -114,7 +111,7 @@
 							/>
 						</div>
 						<div class="space-y-2 md:col-span-2">
-							<label for="notes" class="text-sm font-medium">Batch notes</label>
+							<label for="notes" class="text-sm font-medium">{m.batch_notes()}</label>
 							<Textarea id="notes" name="notes" rows={6} value={data.batch.notes ?? ''} />
 						</div>
 					</CardContent>
@@ -123,29 +120,29 @@
 
 			<Card class="border-border/70 bg-card/95 shadow-sm">
 				<CardHeader>
-					<CardTitle class="text-xl font-bold">Fermentation log</CardTitle>
-					<CardDescription>Record gravity and temperature readings over time.</CardDescription>
+					<CardTitle class="text-xl font-bold">{m.fermentation_log()}</CardTitle>
+					<CardDescription>{m.fermentation_log_description()}</CardDescription>
 				</CardHeader>
 				<CardContent class="space-y-6">
 					<form method="POST" action="?/addTelemetry" class="grid gap-4 md:grid-cols-2">
 						<div class="space-y-2">
-							<label for="recordedAt" class="text-sm font-medium">Recorded at</label>
+							<label for="recordedAt" class="text-sm font-medium">{m.recorded_at()}</label>
 							<Input id="recordedAt" name="recordedAt" type="datetime-local" />
 						</div>
 						<div class="space-y-2">
-							<label for="gravity" class="text-sm font-medium">Gravity</label>
+							<label for="gravity" class="text-sm font-medium">{m.gravity_label()}</label>
 							<Input id="gravity" name="gravity" type="number" step="0.001" />
 						</div>
 						<div class="space-y-2">
-							<label for="temperatureC" class="text-sm font-medium">Temperature (C)</label>
+							<label for="temperatureC" class="text-sm font-medium">{m.temperature_label()}</label>
 							<Input id="temperatureC" name="temperatureC" type="number" step="0.01" />
 						</div>
 						<div class="space-y-2 md:col-span-2">
-							<label for="telemetryNotes" class="text-sm font-medium">Reading notes</label>
+							<label for="telemetryNotes" class="text-sm font-medium">{m.reading_notes()}</label>
 							<Textarea id="telemetryNotes" name="telemetryNotes" rows={3} />
 						</div>
 						<div class="md:col-span-2">
-							<Button type="submit">Add reading</Button>
+						<Button type="submit">{m.add_reading()}</Button>
 						</div>
 					</form>
 
@@ -158,11 +155,11 @@
 											<p class="font-medium">
 												{entry.recordedAt.toLocaleString()}
 											</p>
-											<p class="text-sm text-muted-foreground">{entry.notes || 'No notes'}</p>
+											<p class="text-sm text-muted-foreground">{entry.notes || m.no_notes()}</p>
 										</div>
 										<div class="flex flex-wrap gap-4 text-sm">
-											<span>Gravity {entry.gravity ?? '--'}</span>
-											<span>Temp {entry.temperatureC ?? '--'} C</span>
+											<span>{m.gravity_label()} {entry.gravity ?? '--'}</span>
+											<span>{m.temperature_label()} {entry.temperatureC ?? '--'}</span>
 										</div>
 									</div>
 								</div>
@@ -170,7 +167,7 @@
 						</div>
 					{:else}
 						<div class="rounded-2xl border border-dashed p-6 text-sm text-muted-foreground">
-							No readings yet. Add gravity or temperature entries as fermentation progresses.
+							{m.no_readings_yet()}
 						</div>
 					{/if}
 				</CardContent>
@@ -180,24 +177,24 @@
 		<aside class="space-y-6 xl:sticky xl:top-6 xl:self-start">
 			<Card class="border-border/70 bg-card/95 shadow-sm">
 				<CardHeader>
-					<CardTitle class="text-xl font-bold">Batch summary</CardTitle>
+					<CardTitle class="text-xl font-bold">{m.batch_summary()}</CardTitle>
 				</CardHeader>
 				<CardContent class="space-y-4 text-sm text-muted-foreground">
 					<div class="rounded-2xl border bg-background/80 p-4">
-						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">Recipe</p>
+						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">{m.recipe_label()}</p>
 						<p class="mt-2 text-base font-semibold text-foreground">{data.batch.recipeName}</p>
-						<p class="mt-1">{data.batch.recipeStyle || 'No style selected'}</p>
+						<p class="mt-1">{data.batch.recipeStyle || m.no_style_selected()}</p>
 					</div>
 					<div class="rounded-2xl border bg-background/80 p-4">
-						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">Setup</p>
+						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">{m.setup_label()}</p>
 						<p class="mt-2 text-base font-semibold text-foreground">
-							{data.batch.equipmentName || 'Default setup'}
+							{data.batch.equipmentName || m.default_setup()}
 						</p>
 					</div>
 					<div class="rounded-2xl border bg-background/80 p-4">
-						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">Telemetry</p>
+						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">{m.telemetry_label()}</p>
 						<p class="mt-2 text-base font-semibold text-foreground">
-							{data.batch.telemetry.length} readings
+							{data.batch.telemetry.length} {m.readings()}
 						</p>
 					</div>
 				</CardContent>
@@ -205,14 +202,12 @@
 
 			<Card class="border-border/70 bg-card/95 shadow-sm">
 				<CardHeader>
-					<CardTitle class="text-xl font-bold">Delete batch</CardTitle>
+					<CardTitle class="text-xl font-bold">{m.delete_batch()}</CardTitle>
 				</CardHeader>
 				<CardContent>
-					<p class="mb-4 text-sm text-muted-foreground">
-						Remove this batch if it was created by mistake.
-					</p>
+					<p class="mb-4 text-sm text-muted-foreground">{m.remove_batch_description()}</p>
 					<form method="POST" action="?/delete">
-						<Button type="submit" variant="destructive">Delete batch</Button>
+						<Button type="submit" variant="destructive">{m.delete_batch()}</Button>
 					</form>
 				</CardContent>
 			</Card>

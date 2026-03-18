@@ -5,6 +5,7 @@
 	import { Checkbox } from '$lib/components/ui/checkbox';
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
+	import * as m from '$lib/paraglide/messages';
 
 	type Props = {
 		profile?: EquipmentRecord;
@@ -24,16 +25,16 @@
 	<div class="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
 		<Card class="border-border/70 bg-card/95 shadow-sm">
 			<CardHeader>
-				<CardTitle class="text-xl font-bold">Profile</CardTitle>
+				<CardTitle class="text-xl font-bold">{m.profile()}</CardTitle>
 			</CardHeader>
 			<CardContent class="grid gap-4 md:grid-cols-2">
 				<div class="space-y-2 md:col-span-2">
-					<label for="name" class="text-sm font-medium">Name</label>
+					<label for="name" class="text-sm font-medium">{m.name_label()}</label>
 					<Input id="name" name="name" required value={profile?.name ?? ''} />
 				</div>
 
 				<div class="space-y-2">
-					<label for="batchSizeL" class="text-sm font-medium">Batch size (L)</label>
+					<label for="batchSizeL" class="text-sm font-medium">{m.batch_size_label()}</label>
 					<Input
 						id="batchSizeL"
 						name="batchSizeL"
@@ -45,7 +46,7 @@
 				</div>
 
 				<div class="space-y-2">
-					<label for="efficiencyPct" class="text-sm font-medium">Efficiency %</label>
+					<label for="efficiencyPct" class="text-sm font-medium">{m.efficiency()}</label>
 					<Input
 						id="efficiencyPct"
 						name="efficiencyPct"
@@ -57,7 +58,7 @@
 				</div>
 
 				<div class="space-y-2">
-					<label for="boilOffRateLph" class="text-sm font-medium">Boil off (L/h)</label>
+					<label for="boilOffRateLph" class="text-sm font-medium">{m.boil_off()}</label>
 					<Input
 						id="boilOffRateLph"
 						name="boilOffRateLph"
@@ -69,7 +70,7 @@
 				</div>
 
 				<div class="space-y-2">
-					<label for="mashTunLossL" class="text-sm font-medium">Mash loss (L)</label>
+					<label for="mashTunLossL" class="text-sm font-medium">{m.mash_loss()} (L)</label>
 					<Input
 						id="mashTunLossL"
 						name="mashTunLossL"
@@ -80,7 +81,7 @@
 				</div>
 
 				<div class="space-y-2 md:col-span-2">
-					<label for="trubLossL" class="text-sm font-medium">Trub loss (L)</label>
+					<label for="trubLossL" class="text-sm font-medium">{m.trub_loss()} (L)</label>
 					<Input
 						id="trubLossL"
 						name="trubLossL"
@@ -91,7 +92,7 @@
 				</div>
 
 				<div class="space-y-2 md:col-span-2">
-					<label for="description" class="text-sm font-medium">Notes</label>
+					<label for="description" class="text-sm font-medium">{m.notes()}</label>
 					<Textarea
 						id="description"
 						name="description"
@@ -104,13 +105,13 @@
 
 		<Card class="border-border/70 bg-card/95 shadow-sm">
 			<CardHeader>
-				<CardTitle class="text-xl font-bold">Options</CardTitle>
+				<CardTitle class="text-xl font-bold">{m.options()}</CardTitle>
 			</CardHeader>
 			<CardContent class="space-y-4">
 				<label
 					class="flex items-center justify-between gap-3 rounded-2xl border bg-background/80 px-4 py-3"
 				>
-					<p class="text-sm font-medium">Default profile</p>
+					<p class="text-sm font-medium">{m.default_profile()}</p>
 					<Checkbox bind:checked={isDefault} />
 				</label>
 				{#if isDefault}
@@ -119,9 +120,9 @@
 
 				<div class="flex flex-col gap-3">
 					<Button type="submit">{submitLabel}</Button>
-					<Button href={cancelHref} variant="outline">Back</Button>
+					<Button href={cancelHref} variant="outline">{m.back()}</Button>
 					{#if deleteAction}
-						<Button type="submit" formaction={deleteAction} variant="ghost">Delete</Button>
+						<Button type="submit" formaction={deleteAction} variant="ghost">{m.delete()}</Button>
 					{/if}
 				</div>
 			</CardContent>

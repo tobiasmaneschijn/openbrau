@@ -17,6 +17,7 @@ import {
 	updateYeastForOwner
 } from '$lib/server/ingredients';
 import { booleanField, optionalString, requiredString } from '$lib/server/forms';
+import * as m from '$lib/paraglide/messages';
 
 function parseKind(kind: string): IngredientKind {
 	if (!(kind in INGREDIENT_KIND_LABELS)) {
@@ -133,7 +134,7 @@ export const actions: Actions = {
 			}
 		} catch (error) {
 			if (error instanceof Response) throw error;
-			return fail(400, { message: 'Unable to save ingredient.' });
+			return fail(400, { message: m.unable_to_save_ingredient() });
 		}
 
 		return { success: true };

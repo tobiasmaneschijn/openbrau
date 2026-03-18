@@ -1,9 +1,50 @@
 {
-  "id": "63b24849-de56-45d7-8789-fcdf7f873ac7",
-  "prevId": "e30da949-0715-4aa9-b379-3ea5bd7fd779",
+  "id": "9e74e5e7-7b9a-4a03-a9f2-cbacf8be2611",
+  "prevId": "ea11f744-cd89-4895-a7b2-2c3760f48d2e",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
+    "public.app_settings": {
+      "name": "app_settings",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "'global'"
+        },
+        "allow_registrations": {
+          "name": "allow_registrations",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.audit_logs": {
       "name": "audit_logs",
       "schema": "",
@@ -78,9 +119,9 @@
             }
           ],
           "isUnique": false,
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "concurrently": false
         },
         "audit_logs_changed_by_idx": {
           "name": "audit_logs_changed_by_idx",
@@ -93,24 +134,24 @@
             }
           ],
           "isUnique": false,
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "concurrently": false
         }
       },
       "foreignKeys": {
         "audit_logs_changed_by_user_id_users_id_fk": {
           "name": "audit_logs_changed_by_user_id_users_id_fk",
           "tableFrom": "audit_logs",
-          "tableTo": "users",
           "columnsFrom": [
             "changed_by_user_id"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "set null"
         }
       },
       "compositePrimaryKeys": {},
@@ -174,9 +215,9 @@
             }
           ],
           "isUnique": false,
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "concurrently": false
         },
         "batch_telemetry_recorded_at_idx": {
           "name": "batch_telemetry_recorded_at_idx",
@@ -189,24 +230,24 @@
             }
           ],
           "isUnique": false,
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "concurrently": false
         }
       },
       "foreignKeys": {
         "batch_telemetry_batch_id_batches_id_fk": {
           "name": "batch_telemetry_batch_id_batches_id_fk",
           "tableFrom": "batch_telemetry",
-          "tableTo": "batches",
           "columnsFrom": [
             "batch_id"
           ],
+          "tableTo": "batches",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -303,9 +344,9 @@
             }
           ],
           "isUnique": false,
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "concurrently": false
         },
         "batches_status_idx": {
           "name": "batches_status_idx",
@@ -318,37 +359,37 @@
             }
           ],
           "isUnique": false,
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "concurrently": false
         }
       },
       "foreignKeys": {
         "batches_recipe_id_recipes_id_fk": {
           "name": "batches_recipe_id_recipes_id_fk",
           "tableFrom": "batches",
-          "tableTo": "recipes",
           "columnsFrom": [
             "recipe_id"
           ],
+          "tableTo": "recipes",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         },
         "batches_equipment_id_equipment_id_fk": {
           "name": "batches_equipment_id_equipment_id_fk",
           "tableFrom": "batches",
-          "tableTo": "equipment",
           "columnsFrom": [
             "equipment_id"
           ],
+          "tableTo": "equipment",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "set null"
         }
       },
       "compositePrimaryKeys": {},
@@ -453,24 +494,24 @@
             }
           ],
           "isUnique": false,
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "concurrently": false
         }
       },
       "foreignKeys": {
         "equipment_owner_id_users_id_fk": {
           "name": "equipment_owner_id_users_id_fk",
           "tableFrom": "equipment",
-          "tableTo": "users",
           "columnsFrom": [
             "owner_id"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -502,8 +543,33 @@
           "primaryKey": false,
           "notNull": true
         },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'grain'"
+        },
         "brand": {
           "name": "brand",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "origin": {
+          "name": "origin",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "supplier": {
+          "name": "supplier",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "source_url": {
+          "name": "source_url",
           "type": "text",
           "primaryKey": false,
           "notNull": false
@@ -527,12 +593,49 @@
           "primaryKey": false,
           "notNull": false
         },
+        "coarse_fine_diff_pct": {
+          "name": "coarse_fine_diff_pct",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "diastatic_power_lintner": {
+          "name": "diastatic_power_lintner",
+          "type": "numeric(8, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "protein_pct": {
+          "name": "protein_pct",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "max_in_batch_pct": {
+          "name": "max_in_batch_pct",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "recommend_mash": {
+          "name": "recommend_mash",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
         "is_extract": {
           "name": "is_extract",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
           "default": false
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         },
         "created_at": {
           "name": "created_at",
@@ -561,24 +664,24 @@
             }
           ],
           "isUnique": false,
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "concurrently": false
         }
       },
       "foreignKeys": {
         "fermentables_owner_id_users_id_fk": {
           "name": "fermentables_owner_id_users_id_fk",
           "tableFrom": "fermentables",
-          "tableTo": "users",
           "columnsFrom": [
             "owner_id"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -616,6 +719,18 @@
           "primaryKey": false,
           "notNull": false
         },
+        "supplier": {
+          "name": "supplier",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "source_url": {
+          "name": "source_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "alpha_acid_pct": {
           "name": "alpha_acid_pct",
           "type": "numeric(5, 2)",
@@ -634,6 +749,43 @@
           "primaryKey": false,
           "notNull": true,
           "default": "'pellet'"
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'bittering'"
+        },
+        "hsi_pct": {
+          "name": "hsi_pct",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cohumulone_pct": {
+          "name": "cohumulone_pct",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "myrcene_pct": {
+          "name": "myrcene_pct",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "substitutes": {
+          "name": "substitutes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         },
         "created_at": {
           "name": "created_at",
@@ -662,24 +814,24 @@
             }
           ],
           "isUnique": false,
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "concurrently": false
         }
       },
       "foreignKeys": {
         "hops_owner_id_users_id_fk": {
           "name": "hops_owner_id_users_id_fk",
           "tableFrom": "hops",
-          "tableTo": "users",
           "columnsFrom": [
             "owner_id"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -717,8 +869,32 @@
           "primaryKey": false,
           "notNull": true
         },
+        "use_for": {
+          "name": "use_for",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "supplier": {
+          "name": "supplier",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "source_url": {
+          "name": "source_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "description": {
           "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "notes": {
+          "name": "notes",
           "type": "text",
           "primaryKey": false,
           "notNull": false
@@ -750,24 +926,24 @@
             }
           ],
           "isUnique": false,
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "concurrently": false
         }
       },
       "foreignKeys": {
         "miscs_owner_id_users_id_fk": {
           "name": "miscs_owner_id_users_id_fk",
           "tableFrom": "miscs",
-          "tableTo": "users",
           "columnsFrom": [
             "owner_id"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -834,10 +1010,10 @@
       "uniqueConstraints": {
         "plugins_registry_plugin_name_unique": {
           "name": "plugins_registry_plugin_name_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "plugin_name"
-          ]
+          ],
+          "nullsNotDistinct": false
         }
       },
       "policies": {},
@@ -892,28 +1068,28 @@
         "recipe_fermentables_recipe_id_recipes_id_fk": {
           "name": "recipe_fermentables_recipe_id_recipes_id_fk",
           "tableFrom": "recipe_fermentables",
-          "tableTo": "recipes",
           "columnsFrom": [
             "recipe_id"
           ],
+          "tableTo": "recipes",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         },
         "recipe_fermentables_fermentable_id_fermentables_id_fk": {
           "name": "recipe_fermentables_fermentable_id_fermentables_id_fk",
           "tableFrom": "recipe_fermentables",
-          "tableTo": "fermentables",
           "columnsFrom": [
             "fermentable_id"
           ],
+          "tableTo": "fermentables",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "restrict",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "restrict"
         }
       },
       "compositePrimaryKeys": {
@@ -986,28 +1162,28 @@
         "recipe_hops_recipe_id_recipes_id_fk": {
           "name": "recipe_hops_recipe_id_recipes_id_fk",
           "tableFrom": "recipe_hops",
-          "tableTo": "recipes",
           "columnsFrom": [
             "recipe_id"
           ],
+          "tableTo": "recipes",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         },
         "recipe_hops_hop_id_hops_id_fk": {
           "name": "recipe_hops_hop_id_hops_id_fk",
           "tableFrom": "recipe_hops",
-          "tableTo": "hops",
           "columnsFrom": [
             "hop_id"
           ],
+          "tableTo": "hops",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "restrict",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "restrict"
         }
       },
       "compositePrimaryKeys": {
@@ -1054,6 +1230,19 @@
           "primaryKey": false,
           "notNull": false
         },
+        "amount_l": {
+          "name": "amount_l",
+          "type": "numeric(8, 4)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "amount_is_weight": {
+          "name": "amount_is_weight",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
         "time_min": {
           "name": "time_min",
           "type": "integer",
@@ -1080,28 +1269,28 @@
         "recipe_miscs_recipe_id_recipes_id_fk": {
           "name": "recipe_miscs_recipe_id_recipes_id_fk",
           "tableFrom": "recipe_miscs",
-          "tableTo": "recipes",
           "columnsFrom": [
             "recipe_id"
           ],
+          "tableTo": "recipes",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         },
         "recipe_miscs_misc_id_miscs_id_fk": {
           "name": "recipe_miscs_misc_id_miscs_id_fk",
           "tableFrom": "recipe_miscs",
-          "tableTo": "miscs",
           "columnsFrom": [
             "misc_id"
           ],
+          "tableTo": "miscs",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "restrict",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "restrict"
         }
       },
       "compositePrimaryKeys": {
@@ -1148,6 +1337,19 @@
           "primaryKey": false,
           "notNull": false
         },
+        "amount_l": {
+          "name": "amount_l",
+          "type": "numeric(8, 4)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "amount_is_weight": {
+          "name": "amount_is_weight",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
         "cells_billions": {
           "name": "cells_billions",
           "type": "numeric(10, 2)",
@@ -1173,28 +1375,28 @@
         "recipe_yeasts_recipe_id_recipes_id_fk": {
           "name": "recipe_yeasts_recipe_id_recipes_id_fk",
           "tableFrom": "recipe_yeasts",
-          "tableTo": "recipes",
           "columnsFrom": [
             "recipe_id"
           ],
+          "tableTo": "recipes",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         },
         "recipe_yeasts_yeast_id_yeasts_id_fk": {
           "name": "recipe_yeasts_yeast_id_yeasts_id_fk",
           "tableFrom": "recipe_yeasts",
-          "tableTo": "yeasts",
           "columnsFrom": [
             "yeast_id"
           ],
+          "tableTo": "yeasts",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "restrict",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "restrict"
         }
       },
       "compositePrimaryKeys": {
@@ -1247,6 +1449,14 @@
           "primaryKey": false,
           "notNull": true
         },
+        "brew_type": {
+          "name": "brew_type",
+          "type": "brew_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'beer'"
+        },
         "style": {
           "name": "style",
           "type": "text",
@@ -1266,6 +1476,20 @@
           "notNull": true,
           "default": false
         },
+        "enabled_modules": {
+          "name": "enabled_modules",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[\"core\"]'::jsonb"
+        },
+        "hidden_fields": {
+          "name": "hidden_fields",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[]'::jsonb"
+        },
         "target_batch_size_l": {
           "name": "target_batch_size_l",
           "type": "numeric(8, 3)",
@@ -1278,6 +1502,14 @@
           "primaryKey": false,
           "notNull": true,
           "default": 60
+        },
+        "ibu_formula": {
+          "name": "ibu_formula",
+          "type": "ibu_formula",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'tinseth'"
         },
         "target_og": {
           "name": "target_og",
@@ -1330,9 +1562,9 @@
             }
           ],
           "isUnique": false,
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "concurrently": false
         },
         "recipes_equipment_idx": {
           "name": "recipes_equipment_idx",
@@ -1345,50 +1577,50 @@
             }
           ],
           "isUnique": false,
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "concurrently": false
         }
       },
       "foreignKeys": {
         "recipes_author_id_users_id_fk": {
           "name": "recipes_author_id_users_id_fk",
           "tableFrom": "recipes",
-          "tableTo": "users",
           "columnsFrom": [
             "author_id"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         },
         "recipes_equipment_id_equipment_id_fk": {
           "name": "recipes_equipment_id_equipment_id_fk",
           "tableFrom": "recipes",
-          "tableTo": "equipment",
           "columnsFrom": [
             "equipment_id"
           ],
+          "tableTo": "equipment",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "set null"
         },
         "recipes_source_water_profile_id_water_profiles_id_fk": {
           "name": "recipes_source_water_profile_id_water_profiles_id_fk",
           "tableFrom": "recipes",
-          "tableTo": "water_profiles",
           "columnsFrom": [
             "source_water_profile_id"
           ],
+          "tableTo": "water_profiles",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "set null"
         }
       },
       "compositePrimaryKeys": {},
@@ -1453,9 +1685,9 @@
             }
           ],
           "isUnique": false,
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "concurrently": false
         },
         "sessions_expires_at_idx": {
           "name": "sessions_expires_at_idx",
@@ -1468,34 +1700,34 @@
             }
           ],
           "isUnique": false,
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "concurrently": false
         }
       },
       "foreignKeys": {
         "sessions_user_id_users_id_fk": {
           "name": "sessions_user_id_users_id_fk",
           "tableFrom": "sessions",
-          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "sessions_token_hash_unique": {
           "name": "sessions_token_hash_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "token_hash"
-          ]
+          ],
+          "nullsNotDistinct": false
         }
       },
       "policies": {},
@@ -1525,6 +1757,13 @@
           "primaryKey": false,
           "notNull": true
         },
+        "is_admin": {
+          "name": "is_admin",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
         "preferences": {
           "name": "preferences",
           "type": "jsonb",
@@ -1553,10 +1792,10 @@
       "uniqueConstraints": {
         "users_username_unique": {
           "name": "users_username_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "username"
-          ]
+          ],
+          "nullsNotDistinct": false
         }
       },
       "policies": {},
@@ -1655,24 +1894,24 @@
             }
           ],
           "isUnique": false,
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "concurrently": false
         }
       },
       "foreignKeys": {
         "water_profiles_owner_id_users_id_fk": {
           "name": "water_profiles_owner_id_users_id_fk",
           "tableFrom": "water_profiles",
-          "tableTo": "users",
           "columnsFrom": [
             "owner_id"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -1710,11 +1949,37 @@
           "primaryKey": false,
           "notNull": false
         },
+        "supplier": {
+          "name": "supplier",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "source_url": {
+          "name": "source_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "product_code": {
           "name": "product_code",
           "type": "text",
           "primaryKey": false,
           "notNull": false
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'ale'"
+        },
+        "form": {
+          "name": "form",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'dry'"
         },
         "attenuation_pct": {
           "name": "attenuation_pct",
@@ -1736,6 +2001,43 @@
         },
         "flocculation": {
           "name": "flocculation",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "best_for": {
+          "name": "best_for",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "max_reuse": {
+          "name": "max_reuse",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "inventory": {
+          "name": "inventory",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "culture_date": {
+          "name": "culture_date",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "add_to_secondary": {
+          "name": "add_to_secondary",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "notes": {
+          "name": "notes",
           "type": "text",
           "primaryKey": false,
           "notNull": false
@@ -1767,24 +2069,24 @@
             }
           ],
           "isUnique": false,
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "concurrently": false
         }
       },
       "foreignKeys": {
         "yeasts_owner_id_users_id_fk": {
           "name": "yeasts_owner_id_users_id_fk",
           "tableFrom": "yeasts",
-          "tableTo": "users",
           "columnsFrom": [
             "owner_id"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -1816,6 +2118,15 @@
         "finished"
       ]
     },
+    "public.brew_type": {
+      "name": "brew_type",
+      "schema": "public",
+      "values": [
+        "beer",
+        "wine",
+        "mead"
+      ]
+    },
     "public.hop_use_phase": {
       "name": "hop_use_phase",
       "schema": "public",
@@ -1825,6 +2136,14 @@
         "boil",
         "whirlpool",
         "dry_hop"
+      ]
+    },
+    "public.ibu_formula": {
+      "name": "ibu_formula",
+      "schema": "public",
+      "values": [
+        "tinseth",
+        "rager"
       ]
     },
     "public.misc_use_phase": {
@@ -1840,10 +2159,10 @@
     }
   },
   "schemas": {},
+  "views": {},
   "sequences": {},
   "roles": {},
   "policies": {},
-  "views": {},
   "_meta": {
     "columns": {},
     "schemas": {},

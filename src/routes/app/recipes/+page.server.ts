@@ -10,6 +10,7 @@ import {
 import { deleteRecipeForAuthor, listRecipesByAuthor } from '$lib/server/recipes';
 import { createRecipe } from '$lib/server/recipes';
 import { optionalString, requiredString } from '$lib/server/forms';
+import * as m from '$lib/paraglide/messages';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const recipes = await listRecipesByAuthor(locals.user!.id);
@@ -27,7 +28,7 @@ async function readBeerXmlSource(formData: FormData) {
 		return file.text();
 	}
 
-	throw fail(400, { message: 'Paste BeerXML or choose an XML file to import.' });
+	throw fail(400, { message: m.unable_to_import_beerxml() });
 }
 
 export const actions: Actions = {
@@ -161,7 +162,7 @@ export const actions: Actions = {
 			}
 		} catch (error) {
 			if (error instanceof Response) throw error;
-			return fail(400, { message: 'Unable to import BeerXML.' });
+			return fail(400, { message: m.unable_to_import_beerxml() });
 		}
 
 		return { success: true };
@@ -172,7 +173,7 @@ export const actions: Actions = {
 
 		const deleted = await deleteRecipeForAuthor(id, locals.user!.id);
 		if (!deleted) {
-			return fail(404, { message: 'Recipe not found.' });
+			return fail(404, { message: m.recipe_not_found() });
 		}
 
 		return { success: true };

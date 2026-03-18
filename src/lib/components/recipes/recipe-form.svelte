@@ -18,6 +18,7 @@
 	import { Checkbox } from '$lib/components/ui/checkbox';
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
+	import * as m from '$lib/paraglide/messages';
 
 	type EquipmentOption = {
 		id: string;
@@ -126,7 +127,7 @@
 				<CardContent class="space-y-5">
 					<section class="grid gap-4 md:grid-cols-2">
 						<div class="space-y-2 md:col-span-2">
-							<label for="name" class="text-sm font-medium">Recipe name</label>
+							<label for="name" class="text-sm font-medium">{m.recipe_name()}</label>
 							<Input id="name" name="name" required value={recipe?.name ?? ''} />
 						</div>
 
@@ -138,7 +139,7 @@
 						{/if}
 
 						<div class="space-y-2">
-							<label for="targetBatchSizeL" class="text-sm font-medium">Batch size (L)</label>
+							<label for="targetBatchSizeL" class="text-sm font-medium">{m.batch_size_label()} (L)</label>
 							<Input
 								id="targetBatchSizeL"
 								name="targetBatchSizeL"
@@ -167,7 +168,7 @@
 
 						{#if isVisible('targetOg')}
 							<div class="space-y-2">
-								<label for="targetOg" class="text-sm font-medium">Original gravity target</label>
+								<label for="targetOg" class="text-sm font-medium">{m.target_og_label()}</label>
 								<Input
 									id="targetOg"
 									name="targetOg"
@@ -180,7 +181,7 @@
 
 						{#if isVisible('targetFg')}
 							<div class="space-y-2">
-								<label for="targetFg" class="text-sm font-medium">Final gravity target</label>
+								<label for="targetFg" class="text-sm font-medium">{m.target_fg_label()}</label>
 								<Input
 									id="targetFg"
 									name="targetFg"
@@ -193,7 +194,7 @@
 
 						{#if isVisible('targetIbu')}
 							<div class="space-y-2">
-								<label for="targetIbu" class="text-sm font-medium">Bitterness target (IBU)</label>
+								<label for="targetIbu" class="text-sm font-medium">{m.target_ibu_label()}</label>
 								<Input
 									id="targetIbu"
 									name="targetIbu"
@@ -206,7 +207,7 @@
 
 						{#if isVisible('targetSrm')}
 							<div class="space-y-2">
-								<label for="targetSrm" class="text-sm font-medium">Color target (SRM)</label>
+								<label for="targetSrm" class="text-sm font-medium">{m.target_srm_label()}</label>
 								<Input
 									id="targetSrm"
 									name="targetSrm"
@@ -219,13 +220,13 @@
 
 						{#if isVisible('equipmentId')}
 							<div class="space-y-2 md:col-span-2">
-								<label for="equipmentId" class="text-sm font-medium">Brewing setup</label>
+								<label for="equipmentId" class="text-sm font-medium">{m.brewing_setup_label()}</label>
 								<select
 									id="equipmentId"
 									name="equipmentId"
 									class="flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm shadow-xs ring-offset-background transition-[color,box-shadow] outline-none focus-visible:ring-1 focus-visible:ring-ring"
 								>
-									<option value="">Use default setup</option>
+									<option value="">{m.use_default_setup()}</option>
 									{#each equipment as profile (profile.id)}
 										<option value={profile.id} selected={profile.id === recipe?.equipmentId}
 											>{profile.name}</option
@@ -237,7 +238,7 @@
 
 						{#if isVisible('notes')}
 							<div class="space-y-2 md:col-span-2">
-								<label for="notes" class="text-sm font-medium">Brewer's notes</label>
+								<label for="notes" class="text-sm font-medium">{m.brewer_notes()}</label>
 								<Textarea id="notes" name="notes" rows={5} value={recipe?.notes ?? ''} />
 							</div>
 						{/if}
@@ -250,15 +251,13 @@
 	<aside class="space-y-6 xl:sticky xl:top-6 xl:self-start">
 		<Card class="border-border/70 bg-card/95 shadow-sm">
 			<CardHeader>
-				<CardTitle class="text-xl font-bold">Recipe settings</CardTitle>
+				<CardTitle class="text-xl font-bold">{m.recipe_settings()}</CardTitle>
 			</CardHeader>
 			<CardContent class="space-y-6">
 				<div class="space-y-3">
 					<div>
-						<p class="text-sm font-semibold">Visible sections</p>
-						<p class="text-sm text-muted-foreground">
-							Choose which planning details appear in this recipe.
-						</p>
+						<p class="text-sm font-semibold">{m.visible_sections()}</p>
+						<p class="text-sm text-muted-foreground">{m.choose_planning_details()}</p>
 					</div>
 					<div class="grid gap-3">
 						{#each RECIPE_FIELD_KEYS as field}
@@ -288,18 +287,16 @@
 						class="flex items-center justify-between gap-3 rounded-2xl border bg-background/80 px-4 py-3"
 					>
 						<div>
-							<p class="text-sm font-medium">Show advanced planning tools</p>
-							<p class="text-xs text-muted-foreground">Keep this off for a simpler recipe sheet.</p>
+							<p class="text-sm font-medium">{m.show_advanced_planning_tools()}</p>
+							<p class="text-xs text-muted-foreground">{m.keep_simple_recipe_sheet()}</p>
 						</div>
 						<Checkbox bind:checked={advancedMode} />
 					</label>
 
 					<div class="space-y-3">
 						<div>
-							<p class="text-sm font-semibold">Bitterness estimate</p>
-							<p class="text-sm text-muted-foreground">
-								Choose the bitterness method that best matches how you like to plan recipes.
-							</p>
+							<p class="text-sm font-semibold">{m.bitterness_estimate()}</p>
+							<p class="text-sm text-muted-foreground">{m.choose_bitterness_method()}</p>
 						</div>
 						<div class="grid gap-2">
 							{#each IBU_FORMULAS as formula}
@@ -314,9 +311,7 @@
 								>
 									<span class="font-medium">{IBU_FORMULA_LABELS[formula]}</span>
 									<span class="text-xs opacity-80">
-										{formula === 'tinseth'
-											? 'A dependable default for most modern recipes.'
-											: 'A classic estimate often used in older brewing software.'}
+										{formula === 'tinseth' ? m.balanced_bitterness() : m.classic_bitterness()}
 									</span>
 								</button>
 							{/each}
@@ -325,10 +320,8 @@
 
 					<div class="space-y-3">
 						<div>
-							<p class="text-sm font-semibold">Extra planning tools</p>
-							<p class="text-sm text-muted-foreground">
-								Turn on only the tools you want to use for this recipe.
-							</p>
+							<p class="text-sm font-semibold">{m.extra_planning_tools()}</p>
+							<p class="text-sm text-muted-foreground">{m.turn_on_only_tools()}</p>
 						</div>
 						<div class="grid gap-3">
 							{#each RECIPE_MODULE_KEYS as module}
@@ -357,18 +350,16 @@
 		{#if deleteAction}
 			<Card class="border-border/70 bg-card/95 shadow-sm">
 				<CardHeader>
-					<CardTitle class="text-xl font-bold">Delete recipe</CardTitle>
+					<CardTitle class="text-xl font-bold">{m.delete_recipe()}</CardTitle>
 				</CardHeader>
 				<CardContent>
-					<p class="mb-4 text-sm text-muted-foreground">
-						Remove this recipe if you no longer need it.
-					</p>
+					<p class="mb-4 text-sm text-muted-foreground">{m.remove_recipe_description()}</p>
 					<form method="POST" action={deleteAction}>
 						<button
 							type="submit"
 							class="inline-flex h-9 items-center justify-center rounded-md bg-destructive px-4 py-2 text-sm font-medium text-white shadow-xs transition hover:bg-destructive/90"
 						>
-							Delete recipe
+							{m.delete_recipe()}
 						</button>
 					</form>
 				</CardContent>

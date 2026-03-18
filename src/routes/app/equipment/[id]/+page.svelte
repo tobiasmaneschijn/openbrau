@@ -4,25 +4,26 @@
 	import PageHeaderConfig from '$lib/components/app/page-header-config.svelte';
 	import { Alert, AlertDescription, AlertTitle } from '$lib/components/ui/alert';
 	import EquipmentForm from '$lib/components/equipment/equipment-form.svelte';
+	import * as m from '$lib/paraglide/messages';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
 	const equipmentDetailHeaderActions = $derived([
-		{ label: 'Back', href: '/app/equipment', variant: 'outline' },
-		{ label: 'Save changes', type: 'submit', form: 'equipment-edit-form', variant: 'default' }
+		{ label: m.back(), href: '/app/equipment', variant: 'outline' },
+		{ label: m.save_changes(), type: 'submit', form: 'equipment-edit-form', variant: 'default' }
 	] satisfies AppPageHeaderAction[]);
 </script>
 
 <div class="space-y-6">
 	<PageHeaderConfig
-		eyebrow="Equipment"
+		eyebrow={m.equipment()}
 		title={data.profile.name}
-		description="Update batch sizing, losses, efficiency, and default brewing setup details."
+		description={m.brewhouse_defaults()}
 		actions={equipmentDetailHeaderActions}
 	/>
 
 	{#if form?.message}
 		<Alert variant="destructive">
-			<AlertTitle>Could not save equipment</AlertTitle>
+			<AlertTitle>{m.could_not_save_equipment()}</AlertTitle>
 			<AlertDescription>{form.message}</AlertDescription>
 		</Alert>
 	{/if}
@@ -31,7 +32,7 @@
 		formId="equipment-edit-form"
 		profile={data.profile}
 		formAction="?/update"
-		submitLabel="Save changes"
+		submitLabel={m.save_changes()}
 		cancelHref="/app/equipment"
 		deleteAction="?/delete"
 	/>

@@ -10,6 +10,7 @@ import {
 	requiredString,
 	stringArrayField
 } from '$lib/server/forms';
+import * as m from '$lib/paraglide/messages';
 
 export const load: PageServerLoad = async ({ locals }) => ({
 	equipment: await listEquipmentByOwner(locals.user!.id)
@@ -55,7 +56,7 @@ export const actions: Actions = {
 			recipeId = recipe.id;
 		} catch (error) {
 			if (error instanceof Response) throw error;
-			return fail(400, { message: 'Unable to create recipe.' });
+			return fail(400, { message: m.unable_to_create_recipe() });
 		}
 
 		throw redirect(302, `/app/recipes/${recipeId}`);

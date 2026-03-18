@@ -6,6 +6,7 @@ export const load: LayoutServerLoad = async ({ locals }) => ({
 		? {
 				id: locals.user.id,
 				username: locals.user.username,
+				isAdmin: locals.user.isAdmin,
 				preferences: locals.user.preferences
 			}
 		: null
