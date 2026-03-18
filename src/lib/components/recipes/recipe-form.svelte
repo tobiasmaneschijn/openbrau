@@ -139,7 +139,9 @@
 						{/if}
 
 						<div class="space-y-2">
-							<label for="targetBatchSizeL" class="text-sm font-medium">{m.batch_size_label()} (L)</label>
+							<label for="targetBatchSizeL" class="text-sm font-medium"
+								>{m.batch_size_label()} (L)</label
+							>
 							<Input
 								id="targetBatchSizeL"
 								name="targetBatchSizeL"
@@ -220,7 +222,9 @@
 
 						{#if isVisible('equipmentId')}
 							<div class="space-y-2 md:col-span-2">
-								<label for="equipmentId" class="text-sm font-medium">{m.brewing_setup_label()}</label>
+								<label for="equipmentId" class="text-sm font-medium"
+									>{m.brewing_setup_label()}</label
+								>
 								<select
 									id="equipmentId"
 									name="equipmentId"

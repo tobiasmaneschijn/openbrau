@@ -401,7 +401,8 @@
 							<Input
 								value={String(table.getColumn(control.columnId)?.getFilterValue() ?? '')}
 								oninput={(event) => handleTextFilterInput(control.columnId, event)}
-								placeholder={control.placeholder ?? m.filter_label({ label: control.label.toLowerCase() })}
+								placeholder={control.placeholder ??
+									m.filter_label({ label: control.label.toLowerCase() })}
 							/>
 						{/if}
 					</label>
@@ -482,7 +483,7 @@
 	<div
 		class="flex flex-col gap-2 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between"
 	>
-			<p>{m.showing_rows({ shown: rows.length, total: filteredRowCount })}</p>
+		<p>{m.showing_rows({ shown: rows.length, total: filteredRowCount })}</p>
 	</div>
 
 	<div class="rounded-2xl border">

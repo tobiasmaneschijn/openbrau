@@ -24,10 +24,7 @@
 
 <svelte:head>
 	<title>{m.app_name()}</title>
-	<meta
-		name="description"
-		content={m.landing_description()}
-	/>
+	<meta name="description" content={m.landing_description()} />
 </svelte:head>
 
 <div

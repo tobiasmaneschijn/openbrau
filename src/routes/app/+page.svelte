@@ -166,7 +166,8 @@
 				<div class="flex flex-wrap items-center gap-2">
 					<h2 class="text-2xl font-black tracking-tight">{m.live_batch_overview()}</h2>
 					<Badge variant="secondary" class="rounded-full px-3 py-1">
-						{m.active()} {data.activeBatchCount}
+						{m.active()}
+						{data.activeBatchCount}
 					</Badge>
 				</div>
 				<p class="max-w-2xl text-sm leading-6 text-muted-foreground">
@@ -204,13 +205,17 @@
 						</div>
 						<div class="mt-4 grid gap-3 text-sm sm:grid-cols-2 xl:grid-cols-1">
 							<div>
-								<p class="text-xs tracking-[0.18em] text-muted-foreground uppercase">{m.brew_day()}</p>
+								<p class="text-xs tracking-[0.18em] text-muted-foreground uppercase">
+									{m.brew_day()}
+								</p>
 								<p class="mt-1">
 									{batch.brewDate ? dateFormatter.format(batch.brewDate) : m.not_scheduled()}
 								</p>
 							</div>
 							<div>
-								<p class="text-xs tracking-[0.18em] text-muted-foreground uppercase">{m.last_update()}</p>
+								<p class="text-xs tracking-[0.18em] text-muted-foreground uppercase">
+									{m.last_update()}
+								</p>
 								<p class="mt-1">{timeFormatter.format(batch.updatedAt)}</p>
 							</div>
 						</div>
@@ -230,7 +235,9 @@
 	<section class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
 		{#each summaryCards as item (item.title)}
 			<a href={resolve(item.route)} class="group block">
-				<Card class="h-full border-border/70 bg-card/95 transition hover:border-primary/30 hover:bg-accent/20">
+				<Card
+					class="h-full border-border/70 bg-card/95 transition hover:border-primary/30 hover:bg-accent/20"
+				>
 					<CardContent class="flex h-full flex-col gap-5 p-5">
 						<div class="flex items-start justify-between gap-4">
 							<div class="space-y-2">
@@ -260,7 +267,8 @@
 						<CardTitle class="text-2xl font-bold">{m.recent_recipes()}</CardTitle>
 						<CardDescription>{m.summary_recipes_description()}</CardDescription>
 					</div>
-					<Button href={resolve('/app/recipes')} variant="ghost" size="sm">{m.all_recipes()}</Button>
+					<Button href={resolve('/app/recipes')} variant="ghost" size="sm">{m.all_recipes()}</Button
+					>
 				</CardHeader>
 				<CardContent class="space-y-3">
 					{#if data.recentRecipes.length}
@@ -300,7 +308,8 @@
 						<CardTitle class="text-2xl font-bold">{m.recent_batches()}</CardTitle>
 						<CardDescription>{m.summary_batches_description()}</CardDescription>
 					</div>
-					<Button href={resolve('/app/batches')} variant="ghost" size="sm">{m.all_batches()}</Button>
+					<Button href={resolve('/app/batches')} variant="ghost" size="sm">{m.all_batches()}</Button
+					>
 				</CardHeader>
 				<CardContent class="space-y-3">
 					{#if data.recentBatches.length}
@@ -345,7 +354,9 @@
 				</CardHeader>
 				<CardContent class="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
 					{#each statusCards as item (item.status)}
-						<div class="flex items-center justify-between rounded-2xl border border-border/70 bg-background/60 px-4 py-3">
+						<div
+							class="flex items-center justify-between rounded-2xl border border-border/70 bg-background/60 px-4 py-3"
+						>
 							<div>
 								<p class="font-medium">{item.label}</p>
 								<p class="text-xs text-muted-foreground">{m.tracked_batches_in_this_stage()}</p>
@@ -362,7 +373,9 @@
 						<CardTitle class="text-2xl font-bold">{m.recent_equipment()}</CardTitle>
 						<CardDescription>{m.summary_equipment_description()}</CardDescription>
 					</div>
-					<Button href={resolve('/app/equipment')} variant="ghost" size="sm">{m.all_equipment()}</Button>
+					<Button href={resolve('/app/equipment')} variant="ghost" size="sm"
+						>{m.all_equipment()}</Button
+					>
 				</CardHeader>
 				<CardContent class="space-y-3">
 					{#if data.recentEquipment.length}
@@ -378,7 +391,8 @@
 											{profile.batchSizeL} L batch • {profile.boilOffRateLph} L/h boil-off
 										</p>
 										<p class="text-xs text-muted-foreground">
-											{profile.description || m.open_this_profile_to_review_efficiency_losses_and_defaults()}
+											{profile.description ||
+												m.open_this_profile_to_review_efficiency_losses_and_defaults()}
 										</p>
 									</div>
 									{#if profile.isDefault}

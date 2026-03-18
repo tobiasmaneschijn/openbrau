@@ -119,11 +119,13 @@
 		emptyDescription={m.create_equipment_profile()}
 	>
 		{#snippet rowActions(profile)}
-			<Button href={profile.openHref} variant="ghost" size="sm" class={actionItemClass}>{m.open()}</Button
+			<Button href={profile.openHref} variant="ghost" size="sm" class={actionItemClass}
+				>{m.open()}</Button
 			>
 			<form method="POST" action="?/delete">
 				<input type="hidden" name="id" value={profile.id} />
-				<Button type="submit" variant="ghost" size="sm" class={actionItemClass}>{m.delete()}</Button>
+				<Button type="submit" variant="ghost" size="sm" class={actionItemClass}>{m.delete()}</Button
+				>
 			</form>
 		{/snippet}
 	</DataTable>

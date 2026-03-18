@@ -73,7 +73,9 @@
 					{#if data.nextStatus}
 						<form method="POST" action="?/advanceStatus">
 							<input type="hidden" name="nextStatus" value={data.nextStatus} />
-							<Button type="submit">{m.move_to_status({ status: BATCH_STATUS_LABELS[data.nextStatus] })}</Button>
+							<Button type="submit"
+								>{m.move_to_status({ status: BATCH_STATUS_LABELS[data.nextStatus] })}</Button
+							>
 						</form>
 					{:else}
 						<div class="rounded-2xl border bg-background/80 p-4 text-sm text-muted-foreground">
@@ -100,7 +102,8 @@
 							/>
 						</div>
 						<div class="space-y-2">
-							<label for="actualBatchSizeL" class="text-sm font-medium">{m.batch_size_label()} (L)</label
+							<label for="actualBatchSizeL" class="text-sm font-medium"
+								>{m.batch_size_label()} (L)</label
 							>
 							<Input
 								id="actualBatchSizeL"
@@ -142,7 +145,7 @@
 							<Textarea id="telemetryNotes" name="telemetryNotes" rows={3} />
 						</div>
 						<div class="md:col-span-2">
-						<Button type="submit">{m.add_reading()}</Button>
+							<Button type="submit">{m.add_reading()}</Button>
 						</div>
 					</form>
 
@@ -181,20 +184,27 @@
 				</CardHeader>
 				<CardContent class="space-y-4 text-sm text-muted-foreground">
 					<div class="rounded-2xl border bg-background/80 p-4">
-						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">{m.recipe_label()}</p>
+						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">
+							{m.recipe_label()}
+						</p>
 						<p class="mt-2 text-base font-semibold text-foreground">{data.batch.recipeName}</p>
 						<p class="mt-1">{data.batch.recipeStyle || m.no_style_selected()}</p>
 					</div>
 					<div class="rounded-2xl border bg-background/80 p-4">
-						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">{m.setup_label()}</p>
+						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">
+							{m.setup_label()}
+						</p>
 						<p class="mt-2 text-base font-semibold text-foreground">
 							{data.batch.equipmentName || m.default_setup()}
 						</p>
 					</div>
 					<div class="rounded-2xl border bg-background/80 p-4">
-						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">{m.telemetry_label()}</p>
+						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">
+							{m.telemetry_label()}
+						</p>
 						<p class="mt-2 text-base font-semibold text-foreground">
-							{data.batch.telemetry.length} {m.readings()}
+							{data.batch.telemetry.length}
+							{m.readings()}
 						</p>
 					</div>
 				</CardContent>

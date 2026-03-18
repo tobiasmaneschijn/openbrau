@@ -56,8 +56,12 @@
 		registrationEnabled = data.appSettings?.allowRegistrations ?? true;
 	});
 
-	const editingUser = $derived.by(() => data.users.find((user) => user.id === editingUserId) ?? null);
-	const deletingUser = $derived.by(() => data.users.find((user) => user.id === deleteUserId) ?? null);
+	const editingUser = $derived.by(
+		() => data.users.find((user) => user.id === editingUserId) ?? null
+	);
+	const deletingUser = $derived.by(
+		() => data.users.find((user) => user.id === deleteUserId) ?? null
+	);
 
 	function openEditUser(user: PageData['users'][number]) {
 		editingUserId = user.id;
@@ -248,28 +252,42 @@
 				</CardHeader>
 				<CardContent class="space-y-4 text-sm">
 					<div class="rounded-2xl border border-border/70 bg-background/60 p-4">
-						<p class="text-xs font-semibold tracking-wide text-muted-foreground uppercase">{m.date_and_time()}</p>
+						<p class="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+							{m.date_and_time()}
+						</p>
 						<p class="mt-2 font-medium">{datePreview}</p>
 						<p class="mt-1 text-xs text-muted-foreground">
-							{m.current_locale({ locale: getEffectiveDateLocale(previewSettings) })} | {m.current_time_zone({ timeZone: getEffectiveTimeZone(previewSettings) })}
+							{m.current_locale({ locale: getEffectiveDateLocale(previewSettings) })} | {m.current_time_zone(
+								{ timeZone: getEffectiveTimeZone(previewSettings) }
+							)}
 						</p>
 					</div>
 
 					<div class="rounded-2xl border border-border/70 bg-background/60 p-4">
-						<p class="text-xs font-semibold tracking-wide text-muted-foreground uppercase">{m.number_formatting()}</p>
+						<p class="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+							{m.number_formatting()}
+						</p>
 						<p class="mt-2 font-medium">{m.original_gravity_label({ value: numberPreview })}</p>
-						<p class="mt-1 text-xs text-muted-foreground">{m.current_locale({ locale: getEffectiveNumberLocale(previewSettings) })}</p>
+						<p class="mt-1 text-xs text-muted-foreground">
+							{m.current_locale({ locale: getEffectiveNumberLocale(previewSettings) })}
+						</p>
 					</div>
 
 					<div class="rounded-2xl border border-border/70 bg-background/60 p-4">
-						<p class="text-xs font-semibold tracking-wide text-muted-foreground uppercase">{m.brewhouse_defaults()}</p>
+						<p class="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+							{m.brewhouse_defaults()}
+						</p>
 						<p class="mt-2 font-medium">
 							{m.volume_example({ value: volumePreview, unit: units === 'imperial' ? 'gal' : 'L' })}
 						</p>
-						<p class="mt-1 text-xs text-muted-foreground">{m.mode_label({ mode: advancedMode ? m.advanced_mode() : m.simple_mode() })}</p>
+						<p class="mt-1 text-xs text-muted-foreground">
+							{m.mode_label({ mode: advancedMode ? m.advanced_mode() : m.simple_mode() })}
+						</p>
 					</div>
 
-					<div class="rounded-2xl border border-dashed border-border/70 bg-background/40 p-4 text-xs text-muted-foreground">
+					<div
+						class="rounded-2xl border border-dashed border-border/70 bg-background/40 p-4 text-xs text-muted-foreground"
+					>
 						{m.preview_language_note()}
 					</div>
 				</CardContent>
@@ -297,7 +315,9 @@
 					<form method="POST" action="?/updateRegistration" class="flex flex-wrap items-end gap-4">
 						<label class="space-y-2">
 							<span class="text-sm font-medium">Allow new registrations</span>
-							<div class="flex h-10 items-center gap-3 rounded-xl border border-input bg-background px-3">
+							<div
+								class="flex h-10 items-center gap-3 rounded-xl border border-input bg-background px-3"
+							>
 								<input
 									name="allowRegistrations"
 									type="checkbox"
@@ -341,7 +361,9 @@
 						</label>
 
 						<div class="flex items-end">
-							<label class="flex h-10 items-center gap-2 rounded-xl border border-input bg-background px-3 text-sm">
+							<label
+								class="flex h-10 items-center gap-2 rounded-xl border border-input bg-background px-3 text-sm"
+							>
 								<input
 									name="isAdmin"
 									type="checkbox"
@@ -365,7 +387,7 @@
 										<th class="px-4 py-3 font-medium">Account</th>
 										<th class="px-4 py-3 font-medium">Role</th>
 										<th class="px-4 py-3 font-medium">Created</th>
-										<th class="px-4 py-3 font-medium text-right">Actions</th>
+										<th class="px-4 py-3 text-right font-medium">Actions</th>
 									</tr>
 								</thead>
 								<tbody>
@@ -376,7 +398,10 @@
 												<div class="text-xs text-muted-foreground">{user.id}</div>
 											</td>
 											<td class="px-4 py-3">
-												<Badge variant={user.isAdmin ? 'default' : 'outline'} class="rounded-full px-3 py-1">
+												<Badge
+													variant={user.isAdmin ? 'default' : 'outline'}
+													class="rounded-full px-3 py-1"
+												>
 													{user.isAdmin ? 'Admin' : 'User'}
 												</Badge>
 											</td>
@@ -388,7 +413,12 @@
 											</td>
 											<td class="px-4 py-3">
 												<div class="flex justify-end gap-2">
-													<Button type="button" variant="outline" size="sm" onclick={() => openEditUser(user)}>
+													<Button
+														type="button"
+														variant="outline"
+														size="sm"
+														onclick={() => openEditUser(user)}
+													>
 														Edit
 													</Button>
 													<Button
@@ -445,7 +475,9 @@
 						/>
 					</label>
 
-					<label class="flex items-center gap-2 rounded-2xl border border-border/70 bg-muted/20 px-4 py-3">
+					<label
+						class="flex items-center gap-2 rounded-2xl border border-border/70 bg-muted/20 px-4 py-3"
+					>
 						<input
 							name="isAdmin"
 							type="checkbox"
@@ -485,9 +517,7 @@
 				<form method="POST" action="?/deleteUser" class="flex flex-wrap justify-end gap-3">
 					<input type="hidden" name="id" value={deletingUser.id} />
 					<Button type="button" variant="outline" onclick={closeDeleteUser}>Cancel</Button>
-					<Button type="submit" variant="destructive">
-						Delete account
-					</Button>
+					<Button type="submit" variant="destructive">Delete account</Button>
 				</form>
 			</div>
 		</div>

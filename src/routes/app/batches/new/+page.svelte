@@ -68,13 +68,15 @@
 					</div>
 
 					<div class="space-y-2">
-						<label for="actualBatchSizeL" class="text-sm font-medium">{m.expected_batch_size()}</label
+						<label for="actualBatchSizeL" class="text-sm font-medium"
+							>{m.expected_batch_size()}</label
 						>
 						<Input id="actualBatchSizeL" name="actualBatchSizeL" type="number" step="0.001" />
 					</div>
 
 					<div class="space-y-2 md:col-span-2">
-						<label for="equipmentId" class="text-sm font-medium">{m.brewing_setup_override()}</label>
+						<label for="equipmentId" class="text-sm font-medium">{m.brewing_setup_override()}</label
+						>
 						<select
 							id="equipmentId"
 							name="equipmentId"
@@ -89,12 +91,7 @@
 
 					<div class="space-y-2 md:col-span-2">
 						<label for="notes" class="text-sm font-medium">{m.batch_notes()}</label>
-						<Textarea
-							id="notes"
-							name="notes"
-							rows={5}
-							placeholder={m.batch_notes_description()}
-						/>
+						<Textarea id="notes" name="notes" rows={5} placeholder={m.batch_notes_description()} />
 					</div>
 				</CardContent>
 			</Card>
