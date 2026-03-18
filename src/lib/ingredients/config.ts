@@ -1,6 +1,11 @@
 import type { IngredientKind } from '$lib/server/ingredients';
 
-export const INGREDIENT_KIND_ORDER = ['fermentables', 'hops', 'yeasts', 'miscs'] as const satisfies readonly IngredientKind[];
+export const INGREDIENT_KIND_ORDER = [
+	'fermentables',
+	'hops',
+	'yeasts',
+	'miscs'
+] as const satisfies readonly IngredientKind[];
 
 export const INGREDIENT_KIND_LABELS: Record<IngredientKind, string> = {
 	fermentables: 'Fermentables',

@@ -92,7 +92,10 @@ async function ensureRecipeOwned(recipeId: string, ownerId: string) {
 	return recipe;
 }
 
-async function nextSortOrder(table: typeof recipeFermentables | typeof recipeHops | typeof recipeYeasts | typeof recipeMiscs, recipeId: string) {
+async function nextSortOrder(
+	table: typeof recipeFermentables | typeof recipeHops | typeof recipeYeasts | typeof recipeMiscs,
+	recipeId: string
+) {
 	const [row] = await db
 		.select({ value: max(table.sortOrder) })
 		.from(table)
@@ -101,7 +104,10 @@ async function nextSortOrder(table: typeof recipeFermentables | typeof recipeHop
 	return (row?.value ?? -1) + 1;
 }
 
-export async function listRecipeIngredientsForAuthor(recipeId: string, ownerId: string): Promise<RecipeIngredients> {
+export async function listRecipeIngredientsForAuthor(
+	recipeId: string,
+	ownerId: string
+): Promise<RecipeIngredients> {
 	await ensureRecipeOwned(recipeId, ownerId);
 
 	const [fermentableRows, hopRows, yeastRows, miscRows] = await Promise.all([

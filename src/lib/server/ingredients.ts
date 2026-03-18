@@ -80,7 +80,11 @@ export type CreateMiscInput = {
 };
 
 export async function listFermentablesByOwner(ownerId: string) {
-	return db.select().from(fermentables).where(eq(fermentables.ownerId, ownerId)).orderBy(asc(fermentables.name));
+	return db
+		.select()
+		.from(fermentables)
+		.where(eq(fermentables.ownerId, ownerId))
+		.orderBy(asc(fermentables.name));
 }
 
 export async function listHopsByOwner(ownerId: string) {

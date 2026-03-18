@@ -1,28 +1,33 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import type { ActionData, PageData } from './$types';
+	import type { AppPageHeaderAction } from '$lib/components/app/page-header';
+	import PageHeaderConfig from '$lib/components/app/page-header-config.svelte';
 	import { Alert, AlertDescription, AlertTitle } from '$lib/components/ui/alert';
-	import { Button } from '$lib/components/ui/button';
-	import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
+	import {
+		Card,
+		CardContent,
+		CardDescription,
+		CardHeader,
+		CardTitle
+	} from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
+	const newBatchHeaderActions: AppPageHeaderAction[] = [
+		{ label: 'Back', href: resolve('/app/batches'), variant: 'outline' },
+		{ label: 'Create batch', type: 'submit', form: 'batch-create-form', variant: 'default' }
+	];
 </script>
 
 <div class="space-y-6">
-	<div class="flex flex-col gap-4 rounded-3xl border bg-card/95 p-5 shadow-sm md:flex-row md:items-start md:justify-between">
-		<div class="space-y-2">
-			<h1 class="text-3xl font-black tracking-tight">Start a batch</h1>
-			<p class="text-sm text-muted-foreground">
-				Choose a recipe, confirm the setup, and create a batch log for brew day and fermentation.
-			</p>
-		</div>
-		<div class="flex flex-wrap items-center gap-3 md:justify-end">
-			<Button href={resolve('/app/batches')} variant="outline">Back</Button>
-			<Button type="submit" form="batch-create-form">Create batch</Button>
-		</div>
-	</div>
+	<PageHeaderConfig
+		eyebrow="Batches"
+		title="Start a batch"
+		description="Choose a recipe, confirm the setup, and create a batch log for brew day and fermentation."
+		actions={newBatchHeaderActions}
+	/>
 
 	{#if form?.message}
 		<Alert variant="destructive">
@@ -36,7 +41,9 @@
 			<Card class="border-border/70 bg-card/95 shadow-sm">
 				<CardHeader>
 					<CardTitle class="text-xl font-bold">Batch details</CardTitle>
-					<CardDescription>Start with the recipe you are brewing and add optional brew-day notes.</CardDescription>
+					<CardDescription
+						>Start with the recipe you are brewing and add optional brew-day notes.</CardDescription
+					>
 				</CardHeader>
 				<CardContent class="grid gap-4 md:grid-cols-2">
 					<div class="space-y-2 md:col-span-2">
@@ -62,7 +69,8 @@
 					</div>
 
 					<div class="space-y-2">
-						<label for="actualBatchSizeL" class="text-sm font-medium">Expected batch size (L)</label>
+						<label for="actualBatchSizeL" class="text-sm font-medium">Expected batch size (L)</label
+						>
 						<Input id="actualBatchSizeL" name="actualBatchSizeL" type="number" step="0.001" />
 					</div>
 
@@ -98,8 +106,13 @@
 				</CardHeader>
 				<CardContent class="space-y-4 text-sm text-muted-foreground">
 					<p>Your new batch starts in Draft so you can finish planning before brew day.</p>
-					<p>Once you begin brewing, move it through Brewing, Fermenting, Conditioning, and Finished.</p>
-					<p>You can add gravity and temperature entries from the batch page as fermentation progresses.</p>
+					<p>
+						Once you begin brewing, move it through Brewing, Fermenting, Conditioning, and Finished.
+					</p>
+					<p>
+						You can add gravity and temperature entries from the batch page as fermentation
+						progresses.
+					</p>
 				</CardContent>
 			</Card>
 		</div>

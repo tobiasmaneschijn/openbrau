@@ -164,17 +164,23 @@ export function calculateRecipeSummary(recipe: RecipeDefinition): RecipeEngineSu
 	const computedOg =
 		recipe.fermentables.length > 0
 			? round(specificGravityFromPoints(gravityPoints), 3)
-			: recipe.targets.og ?? null;
+			: (recipe.targets.og ?? null);
 
 	const totalMcu = recipe.fermentables.reduce(
 		(sum, fermentable) =>
 			sum +
-			maltColorUnits(fermentable.colorLovibond, fermentable.amountKg, recipe.process.targetBatchSizeL),
+			maltColorUnits(
+				fermentable.colorLovibond,
+				fermentable.amountKg,
+				recipe.process.targetBatchSizeL
+			),
 		0
 	);
 
 	const computedSrm =
-		recipe.fermentables.length > 0 && totalMcu > 0 ? round(moreySrm(totalMcu), 1) : recipe.targets.srm ?? null;
+		recipe.fermentables.length > 0 && totalMcu > 0
+			? round(moreySrm(totalMcu), 1)
+			: (recipe.targets.srm ?? null);
 
 	const attenuationPct = average(
 		recipe.yeasts
@@ -184,8 +190,11 @@ export function calculateRecipeSummary(recipe: RecipeDefinition): RecipeEngineSu
 
 	const computedFg =
 		computedOg != null
-			? round(estimateFinalGravity(computedOg, attenuationPct) ?? (recipe.targets.fg ?? computedOg), 3)
-			: recipe.targets.fg ?? null;
+			? round(
+					estimateFinalGravity(computedOg, attenuationPct) ?? recipe.targets.fg ?? computedOg,
+					3
+				)
+			: (recipe.targets.fg ?? null);
 
 	const computedAbv =
 		computedOg != null && computedFg != null ? round(estimateAbv(computedOg, computedFg), 2) : null;
@@ -211,14 +220,16 @@ export function calculateRecipeSummary(recipe: RecipeDefinition): RecipeEngineSu
 		);
 	}, 0);
 
-	const computedIbu = recipe.hops.length > 0 ? round(computedIbuRaw, 1) : recipe.targets.ibu ?? null;
+	const computedIbu =
+		recipe.hops.length > 0 ? round(computedIbuRaw, 1) : (recipe.targets.ibu ?? null);
 
 	const warnings: RecipeEngineWarning[] = [];
 
 	if (equipment?.isGeneric) {
 		warnings.push({
 			code: 'generic-equipment-profile',
-			message: 'This recipe is using the default setup until you choose one of your equipment profiles.'
+			message:
+				'This recipe is using the default setup until you choose one of your equipment profiles.'
 		});
 	}
 
@@ -304,7 +315,10 @@ export function calculateRecipeSummary(recipe: RecipeDefinition): RecipeEngineSu
 				recipe.fermentables.reduce((sum, fermentable) => sum + fermentable.amountKg, 0),
 				3
 			),
-			hopsKg: round(recipe.hops.reduce((sum, hop) => sum + hop.amountKg, 0), 3),
+			hopsKg: round(
+				recipe.hops.reduce((sum, hop) => sum + hop.amountKg, 0),
+				3
+			),
 			yeastCount: recipe.yeasts.length,
 			miscCount: recipe.miscs.length
 		},

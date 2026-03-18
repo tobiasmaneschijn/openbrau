@@ -20,7 +20,9 @@ export const actions: Actions = {
 				userId: locals.user!.id,
 				recipeId: requiredString(formData, 'recipeId'),
 				equipmentId: optionalString(formData, 'equipmentId'),
-				brewDate: optionalString(formData, 'brewDate') ? new Date(requiredString(formData, 'brewDate')) : null,
+				brewDate: optionalString(formData, 'brewDate')
+					? new Date(requiredString(formData, 'brewDate'))
+					: null,
 				actualBatchSizeL: optionalString(formData, 'actualBatchSizeL'),
 				notes: optionalString(formData, 'notes')
 			});

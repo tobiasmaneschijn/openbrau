@@ -115,10 +115,8 @@ export const actions: Actions = {
 					recipeId: created.id,
 					name: yeast.name,
 					attenuationPct: yeast.attenuationPct?.toString() ?? null,
-					amountKg:
-						yeast.amountIsWeight === false ? null : (yeast.amount?.toString() ?? null),
-					amountL:
-						yeast.amountIsWeight === false ? (yeast.amount?.toString() ?? null) : null,
+					amountKg: yeast.amountIsWeight === false ? null : (yeast.amount?.toString() ?? null),
+					amountL: yeast.amountIsWeight === false ? (yeast.amount?.toString() ?? null) : null,
 					amountIsWeight: yeast.amountIsWeight ?? true,
 					notes: yeast.notes ?? null,
 					lab: yeast.laboratory ?? null,
@@ -142,10 +140,8 @@ export const actions: Actions = {
 					recipeId: created.id,
 					name: misc.name,
 					type: misc.type ?? 'other',
-					amountKg:
-						misc.amountIsWeight === false ? null : (misc.amount?.toString() ?? null),
-					amountL:
-						misc.amountIsWeight === false ? (misc.amount?.toString() ?? null) : null,
+					amountKg: misc.amountIsWeight === false ? null : (misc.amount?.toString() ?? null),
+					amountL: misc.amountIsWeight === false ? (misc.amount?.toString() ?? null) : null,
 					amountIsWeight: misc.amountIsWeight ?? true,
 					timeMin: misc.timeMin ?? null,
 					notes: misc.notes ?? null,

@@ -1,31 +1,41 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import type { ActionData, PageData } from './$types';
-	import { BATCH_STATUS_DESCRIPTIONS, BATCH_STATUS_LABELS, BATCH_STATUS_ORDER } from '$lib/batches/config';
+	import type { AppPageHeaderAction } from '$lib/components/app/page-header';
+	import {
+		BATCH_STATUS_DESCRIPTIONS,
+		BATCH_STATUS_LABELS,
+		BATCH_STATUS_ORDER
+	} from '$lib/batches/config';
+	import PageHeaderConfig from '$lib/components/app/page-header-config.svelte';
 	import { Alert, AlertDescription, AlertTitle } from '$lib/components/ui/alert';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
-	import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
+	import {
+		Card,
+		CardContent,
+		CardDescription,
+		CardHeader,
+		CardTitle
+	} from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
+	const batchDetailHeaderActions = $derived([
+		{ label: 'Back', href: resolve('/app/batches'), variant: 'outline' },
+		{ label: 'Save log', type: 'submit', form: 'batch-log-form', variant: 'default' }
+	] satisfies AppPageHeaderAction[]);
 </script>
 
 <div class="space-y-6">
-	<div class="flex flex-col gap-4 rounded-3xl border bg-card/95 p-5 shadow-sm md:flex-row md:items-start md:justify-between">
-		<div class="space-y-2">
-			<div class="flex flex-wrap items-center gap-2">
-				<h1 class="text-3xl font-black tracking-tight">{data.batch.recipeName}</h1>
-				<Badge>{BATCH_STATUS_LABELS[data.batch.status]}</Badge>
-			</div>
-			<p class="text-sm text-muted-foreground">{BATCH_STATUS_DESCRIPTIONS[data.batch.status]}</p>
-		</div>
-		<div class="flex flex-wrap items-center gap-3 md:justify-end">
-			<Button href={resolve('/app/batches')} variant="outline">Back</Button>
-			<Button type="submit" form="batch-log-form">Save log</Button>
-		</div>
-	</div>
+	<PageHeaderConfig
+		eyebrow="Batches"
+		title={data.batch.recipeName}
+		description={`${BATCH_STATUS_LABELS[data.batch.status]} batch`}
+		meta={`${data.batch.telemetry.length} telemetry readings`}
+		actions={batchDetailHeaderActions}
+	/>
 
 	{#if form?.message}
 		<Alert variant="destructive">
@@ -39,16 +49,19 @@
 			<Card class="border-border/70 bg-card/95 shadow-sm">
 				<CardHeader>
 					<CardTitle class="text-xl font-bold">Progress</CardTitle>
-					<CardDescription>Move the batch through brew day and fermentation in order.</CardDescription>
+					<CardDescription
+						>Move the batch through brew day and fermentation in order.</CardDescription
+					>
 				</CardHeader>
 				<CardContent class="space-y-4">
 					<div class="grid gap-3 md:grid-cols-5">
-						{#each BATCH_STATUS_ORDER as status}
+						{#each BATCH_STATUS_ORDER as status (status)}
 							<div
 								class={`rounded-2xl border px-4 py-3 text-sm ${
 									status === data.batch.status
 										? 'border-primary bg-primary text-primary-foreground'
-										: BATCH_STATUS_ORDER.indexOf(status) < BATCH_STATUS_ORDER.indexOf(data.batch.status)
+										: BATCH_STATUS_ORDER.indexOf(status) <
+											  BATCH_STATUS_ORDER.indexOf(data.batch.status)
 											? 'border-border bg-accent/50'
 											: 'bg-background/80'
 								}`}
@@ -75,7 +88,9 @@
 				<Card class="border-border/70 bg-card/95 shadow-sm">
 					<CardHeader>
 						<CardTitle class="text-xl font-bold">Batch log</CardTitle>
-						<CardDescription>Keep practical notes for brew day, fermentation, and packaging.</CardDescription>
+						<CardDescription
+							>Keep practical notes for brew day, fermentation, and packaging.</CardDescription
+						>
 					</CardHeader>
 					<CardContent class="grid gap-4 md:grid-cols-2">
 						<div class="space-y-2">
@@ -88,7 +103,8 @@
 							/>
 						</div>
 						<div class="space-y-2">
-							<label for="actualBatchSizeL" class="text-sm font-medium">Actual batch size (L)</label>
+							<label for="actualBatchSizeL" class="text-sm font-medium">Actual batch size (L)</label
+							>
 							<Input
 								id="actualBatchSizeL"
 								name="actualBatchSizeL"
@@ -168,17 +184,21 @@
 				</CardHeader>
 				<CardContent class="space-y-4 text-sm text-muted-foreground">
 					<div class="rounded-2xl border bg-background/80 p-4">
-						<p class="text-xs uppercase tracking-[0.2em] text-muted-foreground">Recipe</p>
+						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">Recipe</p>
 						<p class="mt-2 text-base font-semibold text-foreground">{data.batch.recipeName}</p>
 						<p class="mt-1">{data.batch.recipeStyle || 'No style selected'}</p>
 					</div>
 					<div class="rounded-2xl border bg-background/80 p-4">
-						<p class="text-xs uppercase tracking-[0.2em] text-muted-foreground">Setup</p>
-						<p class="mt-2 text-base font-semibold text-foreground">{data.batch.equipmentName || 'Default setup'}</p>
+						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">Setup</p>
+						<p class="mt-2 text-base font-semibold text-foreground">
+							{data.batch.equipmentName || 'Default setup'}
+						</p>
 					</div>
 					<div class="rounded-2xl border bg-background/80 p-4">
-						<p class="text-xs uppercase tracking-[0.2em] text-muted-foreground">Telemetry</p>
-						<p class="mt-2 text-base font-semibold text-foreground">{data.batch.telemetry.length} readings</p>
+						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">Telemetry</p>
+						<p class="mt-2 text-base font-semibold text-foreground">
+							{data.batch.telemetry.length} readings
+						</p>
 					</div>
 				</CardContent>
 			</Card>

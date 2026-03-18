@@ -137,9 +137,11 @@ function dateTag(tag: string, value: Date | string | null | undefined) {
 }
 
 function wrapBlock(tag: string, lines: string[], indent = '      ') {
-	return [`${indent}<${tag}>`, ...lines.map((line) => `${indent}  ${line}`), `${indent}</${tag}>`].join(
-		'\n'
-	);
+	return [
+		`${indent}<${tag}>`,
+		...lines.map((line) => `${indent}  ${line}`),
+		`${indent}</${tag}>`
+	].join('\n');
 }
 
 function extractTagValue(source: string, tag: string) {
@@ -278,7 +280,7 @@ export function toBeerXmlRecord(recipe: RecipeDefinition): BeerXmlRecipeRecord {
 			name: yeast.name,
 			type: yeast.type ?? null,
 			form: yeast.form ?? null,
-			amount: yeast.amountIsWeight === false ? yeast.amountL ?? null : yeast.amountKg ?? null,
+			amount: yeast.amountIsWeight === false ? (yeast.amountL ?? null) : (yeast.amountKg ?? null),
 			amountIsWeight: yeast.amountIsWeight ?? null,
 			laboratory: yeast.lab ?? null,
 			productId: yeast.productCode ?? null,
@@ -299,7 +301,7 @@ export function toBeerXmlRecord(recipe: RecipeDefinition): BeerXmlRecipeRecord {
 			use: miscUseToBeerXml(misc.usePhase),
 			useFor: misc.useFor ?? null,
 			timeMin: misc.timeMin ?? null,
-			amount: misc.amountIsWeight === false ? misc.amountL ?? null : misc.amountKg ?? null,
+			amount: misc.amountIsWeight === false ? (misc.amountL ?? null) : (misc.amountKg ?? null),
 			amountIsWeight: misc.amountIsWeight ?? null,
 			notes: misc.notes ?? misc.description ?? null
 		}))
@@ -376,8 +378,8 @@ export function fromBeerXmlRecord(record: BeerXmlRecipeRecord): RecipeDefinition
 			cultureDate: yeast.cultureDate ? new Date(yeast.cultureDate) : null,
 			addToSecondary: yeast.addToSecondary ?? undefined,
 			notes: yeast.notes ?? null,
-			amountKg: yeast.amountIsWeight === false ? null : yeast.amount ?? null,
-			amountL: yeast.amountIsWeight === false ? yeast.amount ?? null : null,
+			amountKg: yeast.amountIsWeight === false ? null : (yeast.amount ?? null),
+			amountL: yeast.amountIsWeight === false ? (yeast.amount ?? null) : null,
 			amountIsWeight: yeast.amountIsWeight ?? undefined
 		})),
 		miscs: record.miscs.map((misc) => ({
@@ -388,8 +390,8 @@ export function fromBeerXmlRecord(record: BeerXmlRecipeRecord): RecipeDefinition
 			notes: misc.notes ?? null,
 			timeMin: misc.timeMin ?? null,
 			usePhase: miscUseFromBeerXml(misc.use),
-			amountKg: misc.amountIsWeight === false ? null : misc.amount ?? null,
-			amountL: misc.amountIsWeight === false ? misc.amount ?? null : null,
+			amountKg: misc.amountIsWeight === false ? null : (misc.amount ?? null),
+			amountL: misc.amountIsWeight === false ? (misc.amount ?? null) : null,
 			amountIsWeight: misc.amountIsWeight ?? undefined
 		}))
 	};
@@ -411,81 +413,93 @@ export function serializeBeerXmlRecipe(record: BeerXmlRecipeRecord) {
 		record.notes ? `    <NOTES>${escapeXml(record.notes)}</NOTES>` : '',
 		'    <FERMENTABLES>',
 		...record.fermentables.map((fermentable) =>
-			wrapBlock('FERMENTABLE', [
-				textTag('NAME', fermentable.name),
-				textTag('TYPE', fermentable.type ?? null),
-				numberTag('AMOUNT', fermentable.amountKg),
-				numberTag('YIELD', fermentable.yieldPct),
-				numberTag('COLOR', fermentable.colorLovibond),
-				textTag('ORIGIN', fermentable.origin ?? null),
-				textTag('SUPPLIER', fermentable.supplier ?? null),
-				textTag('NOTES', fermentable.notes ?? null),
-				numberTag('COARSE_FINE_DIFF', fermentable.coarseFineDiffPct ?? null),
-				numberTag('MOISTURE', fermentable.moisturePct ?? null),
-				numberTag('DIASTATIC_POWER', fermentable.diastaticPowerLintner ?? null),
-				numberTag('PROTEIN', fermentable.proteinPct ?? null),
-				numberTag('MAX_IN_BATCH', fermentable.maxInBatchPct ?? null),
-				booleanTag('RECOMMEND_MASH', fermentable.recommendMash ?? null),
-				booleanTag('ADD_AFTER_BOIL', fermentable.addAfterBoil ?? null)
-			].filter(Boolean))
+			wrapBlock(
+				'FERMENTABLE',
+				[
+					textTag('NAME', fermentable.name),
+					textTag('TYPE', fermentable.type ?? null),
+					numberTag('AMOUNT', fermentable.amountKg),
+					numberTag('YIELD', fermentable.yieldPct),
+					numberTag('COLOR', fermentable.colorLovibond),
+					textTag('ORIGIN', fermentable.origin ?? null),
+					textTag('SUPPLIER', fermentable.supplier ?? null),
+					textTag('NOTES', fermentable.notes ?? null),
+					numberTag('COARSE_FINE_DIFF', fermentable.coarseFineDiffPct ?? null),
+					numberTag('MOISTURE', fermentable.moisturePct ?? null),
+					numberTag('DIASTATIC_POWER', fermentable.diastaticPowerLintner ?? null),
+					numberTag('PROTEIN', fermentable.proteinPct ?? null),
+					numberTag('MAX_IN_BATCH', fermentable.maxInBatchPct ?? null),
+					booleanTag('RECOMMEND_MASH', fermentable.recommendMash ?? null),
+					booleanTag('ADD_AFTER_BOIL', fermentable.addAfterBoil ?? null)
+				].filter(Boolean)
+			)
 		),
 		'    </FERMENTABLES>',
 		'    <HOPS>',
 		...record.hops.map((hop) =>
-			wrapBlock('HOP', [
-				textTag('NAME', hop.name),
-				numberTag('ALPHA', hop.alphaAcidPct),
-				numberTag('AMOUNT', hop.amountKg),
-				textTag('USE', hop.use),
-				numberTag('TIME', hop.timeMin),
-				textTag('NOTES', hop.notes ?? null),
-				textTag('TYPE', hop.type ?? null),
-				textTag('FORM', hop.form ?? null),
-				textTag('ORIGIN', hop.origin ?? null),
-				textTag('SUPPLIER', hop.supplier ?? null),
-				numberTag('BETA', hop.betaAcidPct ?? null),
-				numberTag('HSI', hop.hsiPct ?? null),
-				textTag('SUBSTITUTES', hop.substitutes ?? null),
-				numberTag('COHUMULONE', hop.cohumulonePct ?? null),
-				numberTag('MYRCENE', hop.myrcenePct ?? null)
-			].filter(Boolean))
+			wrapBlock(
+				'HOP',
+				[
+					textTag('NAME', hop.name),
+					numberTag('ALPHA', hop.alphaAcidPct),
+					numberTag('AMOUNT', hop.amountKg),
+					textTag('USE', hop.use),
+					numberTag('TIME', hop.timeMin),
+					textTag('NOTES', hop.notes ?? null),
+					textTag('TYPE', hop.type ?? null),
+					textTag('FORM', hop.form ?? null),
+					textTag('ORIGIN', hop.origin ?? null),
+					textTag('SUPPLIER', hop.supplier ?? null),
+					numberTag('BETA', hop.betaAcidPct ?? null),
+					numberTag('HSI', hop.hsiPct ?? null),
+					textTag('SUBSTITUTES', hop.substitutes ?? null),
+					numberTag('COHUMULONE', hop.cohumulonePct ?? null),
+					numberTag('MYRCENE', hop.myrcenePct ?? null)
+				].filter(Boolean)
+			)
 		),
 		'    </HOPS>',
 		'    <YEASTS>',
 		...record.yeasts.map((yeast) =>
-			wrapBlock('YEAST', [
-				textTag('NAME', yeast.name),
-				textTag('TYPE', yeast.type ?? null),
-				textTag('FORM', yeast.form ?? null),
-				numberTag('AMOUNT', yeast.amount ?? null),
-				booleanTag('AMOUNT_IS_WEIGHT', yeast.amountIsWeight ?? null),
-				textTag('LABORATORY', yeast.laboratory ?? null),
-				textTag('PRODUCT_ID', yeast.productId ?? null),
-				numberTag('MIN_TEMPERATURE', yeast.minTemperatureC ?? null),
-				numberTag('MAX_TEMPERATURE', yeast.maxTemperatureC ?? null),
-				textTag('FLOCCULATION', yeast.flocculation ?? null),
-				numberTag('ATTENUATION', yeast.attenuationPct ?? null),
-				textTag('NOTES', yeast.notes ?? null),
-				textTag('BEST_FOR', yeast.bestFor ?? null),
-				numberTag('MAX_REUSE', yeast.maxReuse ?? null),
-				booleanTag('ADD_TO_SECONDARY', yeast.addToSecondary ?? null),
-				textTag('INVENTORY', yeast.inventory ?? null),
-				dateTag('CULTURE_DATE', yeast.cultureDate ?? null)
-			].filter(Boolean))
+			wrapBlock(
+				'YEAST',
+				[
+					textTag('NAME', yeast.name),
+					textTag('TYPE', yeast.type ?? null),
+					textTag('FORM', yeast.form ?? null),
+					numberTag('AMOUNT', yeast.amount ?? null),
+					booleanTag('AMOUNT_IS_WEIGHT', yeast.amountIsWeight ?? null),
+					textTag('LABORATORY', yeast.laboratory ?? null),
+					textTag('PRODUCT_ID', yeast.productId ?? null),
+					numberTag('MIN_TEMPERATURE', yeast.minTemperatureC ?? null),
+					numberTag('MAX_TEMPERATURE', yeast.maxTemperatureC ?? null),
+					textTag('FLOCCULATION', yeast.flocculation ?? null),
+					numberTag('ATTENUATION', yeast.attenuationPct ?? null),
+					textTag('NOTES', yeast.notes ?? null),
+					textTag('BEST_FOR', yeast.bestFor ?? null),
+					numberTag('MAX_REUSE', yeast.maxReuse ?? null),
+					booleanTag('ADD_TO_SECONDARY', yeast.addToSecondary ?? null),
+					textTag('INVENTORY', yeast.inventory ?? null),
+					dateTag('CULTURE_DATE', yeast.cultureDate ?? null)
+				].filter(Boolean)
+			)
 		),
 		'    </YEASTS>',
 		'    <MISCS>',
 		...record.miscs.map((misc) =>
-			wrapBlock('MISC', [
-				textTag('NAME', misc.name),
-				textTag('TYPE', misc.type ?? null),
-				textTag('USE', misc.use),
-				textTag('USE_FOR', misc.useFor ?? null),
-				numberTag('TIME', misc.timeMin ?? null),
-				numberTag('AMOUNT', misc.amount ?? null),
-				booleanTag('AMOUNT_IS_WEIGHT', misc.amountIsWeight ?? null),
-				textTag('NOTES', misc.notes ?? null)
-			].filter(Boolean))
+			wrapBlock(
+				'MISC',
+				[
+					textTag('NAME', misc.name),
+					textTag('TYPE', misc.type ?? null),
+					textTag('USE', misc.use),
+					textTag('USE_FOR', misc.useFor ?? null),
+					numberTag('TIME', misc.timeMin ?? null),
+					numberTag('AMOUNT', misc.amount ?? null),
+					booleanTag('AMOUNT_IS_WEIGHT', misc.amountIsWeight ?? null),
+					textTag('NOTES', misc.notes ?? null)
+				].filter(Boolean)
+			)
 		),
 		'    </MISCS>',
 		'  </RECIPE>',

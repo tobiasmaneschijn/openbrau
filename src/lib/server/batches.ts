@@ -181,7 +181,9 @@ export async function updateBatchLogForOwner(
 				updatedAt: new Date()
 			})
 			.from(recipes)
-			.where(and(eq(batches.id, id), eq(batches.recipeId, recipes.id), eq(recipes.authorId, userId)))
+			.where(
+				and(eq(batches.id, id), eq(batches.recipeId, recipes.id), eq(recipes.authorId, userId))
+			)
 			.returning();
 
 		return batch ?? null;
@@ -208,13 +210,15 @@ export async function transitionBatchStatusForOwner(
 			.update(batches)
 			.set({
 				status: nextStatus,
-				startedAt: nextStatus === 'brewing' ? batch.startedAt ?? now : batch.startedAt,
+				startedAt: nextStatus === 'brewing' ? (batch.startedAt ?? now) : batch.startedAt,
 				finishedAt: nextStatus === 'finished' ? now : batch.finishedAt,
-				brewDate: nextStatus === 'brewing' ? batch.brewDate ?? now : batch.brewDate,
+				brewDate: nextStatus === 'brewing' ? (batch.brewDate ?? now) : batch.brewDate,
 				updatedAt: now
 			})
 			.from(recipes)
-			.where(and(eq(batches.id, id), eq(batches.recipeId, recipes.id), eq(recipes.authorId, userId)))
+			.where(
+				and(eq(batches.id, id), eq(batches.recipeId, recipes.id), eq(recipes.authorId, userId))
+			)
 			.returning();
 
 		return updated ?? null;
@@ -254,15 +258,16 @@ export async function deleteBatchForOwner(id: string, userId: string) {
 	}
 
 	return withAuditContext(userId, async (tx) => {
-		const [deleted] = await tx
-			.delete(batches)
-			.where(eq(batches.id, id))
-			.returning();
+		const [deleted] = await tx.delete(batches).where(eq(batches.id, id)).returning();
 
 		return deleted ?? null;
 	});
 }
 
 export async function listTelemetryForBatch(batchId: string) {
-	return db.select().from(batchTelemetry).where(eq(batchTelemetry.batchId, batchId)).orderBy(asc(batchTelemetry.recordedAt));
+	return db
+		.select()
+		.from(batchTelemetry)
+		.where(eq(batchTelemetry.batchId, batchId))
+		.orderBy(asc(batchTelemetry.recordedAt));
 }

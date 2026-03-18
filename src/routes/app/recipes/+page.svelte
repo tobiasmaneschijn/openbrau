@@ -1,52 +1,149 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import type { ActionData, PageData } from './$types';
-	import LayoutGridIcon from '@lucide/svelte/icons/layout-grid';
-	import ListIcon from '@lucide/svelte/icons/list';
-	import PlusIcon from '@lucide/svelte/icons/plus';
+	import type { ColumnDef } from '@tanstack/table-core';
+	import type { AppPageHeaderAction } from '$lib/components/app/page-header';
 	import { BREW_TYPE_CONFIG } from '$lib/recipes/config';
+	import PageHeaderConfig from '$lib/components/app/page-header-config.svelte';
+	import { DataTable, type DataTableFilterControl } from '$lib/components/data-table';
 	import { Alert, AlertDescription, AlertTitle } from '$lib/components/ui/alert';
-	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
-	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
+	import {
+		Sheet,
+		SheetContent,
+		SheetDescription,
+		SheetHeader,
+		SheetTitle
+	} from '$lib/components/ui/sheet';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
-	let view = $state<'grid' | 'row'>('grid');
+	const actionItemClass = 'w-full justify-start px-2 py-1.5 text-sm shadow-none';
+	let importSheetOpen = $state(false);
+	let importBeerXmlForm = $state<HTMLFormElement | null>(null);
+	const recipeHeaderActions = $derived([
+		{
+			label: 'Import BeerXML',
+			type: 'button',
+			variant: 'outline',
+			onClick: () => (importSheetOpen = true)
+		},
+		{ label: 'Add new', href: resolve('/app/recipes/new'), variant: 'default' }
+	] satisfies AppPageHeaderAction[]);
+
+	type RecipeTableRow = {
+		id: string;
+		name: string;
+		brewType: string;
+		style: string;
+		complexity: string;
+		targetBatchSizeLValue: number;
+		targetBatchSizeLabel: string;
+		targetOg: string;
+		targetFg: string;
+		targetIbuValue: number;
+		targetIbuLabel: string;
+		notes: string;
+		batchHref: string;
+		exportHref: string;
+		openHref: string;
+	};
+
+	const recipeColumns: ColumnDef<RecipeTableRow>[] = [
+		{
+			accessorKey: 'name',
+			header: 'Recipe'
+		},
+		{
+			accessorKey: 'brewType',
+			header: 'Brew type',
+			enableColumnFilter: true
+		},
+		{
+			accessorKey: 'style',
+			header: 'Style'
+		},
+		{
+			id: 'targetBatchSize',
+			header: 'Target volume',
+			accessorFn: (row) => row.targetBatchSizeLValue,
+			cell: ({ row }) => row.original.targetBatchSizeLabel
+		},
+		{
+			accessorKey: 'targetOg',
+			header: 'OG'
+		},
+		{
+			accessorKey: 'targetFg',
+			header: 'FG'
+		},
+		{
+			id: 'targetIbu',
+			header: 'IBU',
+			accessorFn: (row) => row.targetIbuValue,
+			cell: ({ row }) => row.original.targetIbuLabel
+		},
+		{
+			accessorKey: 'complexity',
+			header: 'Mode',
+			enableColumnFilter: true
+		},
+		{
+			accessorKey: 'notes',
+			header: 'Notes',
+			enableSorting: false
+		}
+	];
+
+	const recipeFilters: DataTableFilterControl[] = [
+		{
+			columnId: 'brewType',
+			label: 'Brew type',
+			type: 'select',
+			options: Object.values(BREW_TYPE_CONFIG).map((config) => ({
+				label: config.label,
+				value: config.label
+			}))
+		},
+		{
+			columnId: 'complexity',
+			label: 'Mode',
+			type: 'select',
+			options: [
+				{ label: 'Standard', value: 'Standard' },
+				{ label: 'Advanced', value: 'Advanced' }
+			]
+		}
+	];
+
+	const recipeRows = $derived(
+		data.recipes.map((recipe) => ({
+			id: recipe.id,
+			name: recipe.name,
+			brewType: BREW_TYPE_CONFIG[recipe.brewType].label,
+			style: recipe.style || 'No style',
+			complexity: recipe.advancedMode ? 'Advanced' : 'Standard',
+			targetBatchSizeLValue: Number(recipe.targetBatchSizeL),
+			targetBatchSizeLabel: `${recipe.targetBatchSizeL} L`,
+			targetOg: recipe.targetOg || '-',
+			targetFg: recipe.targetFg || '-',
+			targetIbuValue: Number(recipe.targetIbu || 0),
+			targetIbuLabel: recipe.targetIbu ? `${recipe.targetIbu}` : '-',
+			notes: recipe.notes || '-',
+			batchHref: `/app/batches/new?recipeId=${recipe.id}`,
+			exportHref: `/app/recipes/${recipe.id}/beerxml`,
+			openHref: `/app/recipes/${recipe.id}`
+		}))
+	);
 </script>
 
 <div class="space-y-6">
-	<div
-		class="flex flex-col gap-4 rounded-3xl border bg-card/95 p-5 shadow-sm md:flex-row md:items-center md:justify-between"
-	>
-		<div>
-			<h1 class="text-3xl font-black tracking-tight">Recipes</h1>
-			<p class="text-sm text-muted-foreground">{data.recipes.length} saved</p>
-		</div>
-
-		<div class="flex flex-wrap items-center gap-2">
-			<div class="flex rounded-xl border bg-background p-1">
-				<button
-					type="button"
-					class={`rounded-lg px-3 py-2 text-sm transition ${view === 'grid' ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'}`}
-					onclick={() => (view = 'grid')}
-				>
-					<LayoutGridIcon class="size-4" />
-				</button>
-				<button
-					type="button"
-					class={`rounded-lg px-3 py-2 text-sm transition ${view === 'row' ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'}`}
-					onclick={() => (view = 'row')}
-				>
-					<ListIcon class="size-4" />
-				</button>
-			</div>
-
-			<Button href={resolve('/app/recipes/new')}>
-				<PlusIcon class="size-4" />
-				Add new
-			</Button>
-		</div>
-	</div>
+	<PageHeaderConfig
+		eyebrow="Library"
+		title="Recipes"
+		description="Manage formulations, targets, ingredients, and BeerXML imports."
+		meta={`${data.recipes.length} saved recipes`}
+		actions={recipeHeaderActions}
+	/>
 
 	{#if form?.message}
 		<Alert variant="destructive">
@@ -55,24 +152,37 @@
 		</Alert>
 	{/if}
 
-	<Card class="border-border/70 bg-card/95 shadow-sm">
-		<CardHeader>
-			<CardTitle class="text-xl font-bold">Import BeerXML</CardTitle>
-		</CardHeader>
-		<CardContent>
-			<form method="POST" action="?/importBeerXml" enctype="multipart/form-data" class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
-				<div class="space-y-2">
+	<Sheet bind:open={importSheetOpen}>
+		<SheetContent side="right" class="w-full gap-8 overflow-y-auto p-6 sm:max-w-2xl sm:p-8">
+			<SheetHeader>
+				<SheetTitle>Import BeerXML</SheetTitle>
+				<SheetDescription>
+					Paste BeerXML or upload an XML file to bring recipes in from another brewing app.
+				</SheetDescription>
+			</SheetHeader>
+
+			<form
+				bind:this={importBeerXmlForm}
+				method="POST"
+				action="?/importBeerXml"
+				enctype="multipart/form-data"
+				class="mt-2 flex flex-col gap-6"
+			>
+				<div class="space-y-3">
 					<label for="beerXml" class="text-sm font-medium">Paste BeerXML</label>
 					<textarea
 						id="beerXml"
 						name="beerXml"
-						rows="8"
-						class="flex min-h-32 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm shadow-xs ring-offset-background transition-[color,box-shadow] outline-none focus-visible:ring-1 focus-visible:ring-ring"
+						rows="12"
+						class="flex min-h-56 w-full rounded-2xl border border-input bg-background px-4 py-3 text-sm shadow-xs ring-offset-background transition-[color,box-shadow] outline-none focus-visible:ring-1 focus-visible:ring-ring"
 						placeholder="Paste a BeerXML recipe here if you want to import from another brewing app."
 					></textarea>
+					<div class="flex justify-end">
+						<Button type="submit">Import pasted recipe</Button>
+					</div>
 				</div>
-				<div class="space-y-4 rounded-2xl border bg-background/60 p-4">
-					<div class="space-y-2">
+				<div class="space-y-4 rounded-2xl border bg-muted/30 p-5">
+					<div class="space-y-3">
 						<label for="beerXmlFile" class="text-sm font-medium">Or choose an XML file</label>
 						<input
 							id="beerXmlFile"
@@ -80,85 +190,44 @@
 							type="file"
 							accept=".xml,text/xml,application/xml"
 							class="block w-full text-sm"
+							onchange={(event) => {
+								const input = event.currentTarget;
+								if (input instanceof HTMLInputElement && input.files && input.files.length > 0) {
+									importBeerXmlForm?.requestSubmit();
+								}
+							}}
 						/>
 					</div>
-					<Button type="submit" class="w-full">Import recipe</Button>
 					<p class="text-sm text-muted-foreground">
-						Imported recipes keep your target volume, gravity, bitterness, color, and core notes.
+						Choosing a file imports it immediately. Imported recipes keep your target volume, gravity,
+						bitterness, color, and core notes.
 					</p>
 				</div>
 			</form>
-		</CardContent>
-	</Card>
+		</SheetContent>
+	</Sheet>
 
-	{#if data.recipes.length}
-		<div class={view === 'grid' ? 'grid gap-4 md:grid-cols-2 xl:grid-cols-3' : 'space-y-3'}>
-			{#each data.recipes as recipe (recipe.id)}
-				<Card class="border-border/70 bg-card/95 shadow-sm">
-					<CardHeader class={view === 'row' ? 'pb-3' : ''}>
-						<div
-							class={view === 'row'
-								? 'flex flex-col gap-4 md:flex-row md:items-center md:justify-between'
-								: 'space-y-4'}
-						>
-							<div class="space-y-3">
-								<div class="flex flex-wrap items-center gap-2">
-									<CardTitle class="text-xl font-bold">
-										<a href={resolve(`/app/recipes/${recipe.id}`)} class="hover:underline">
-											{recipe.name}
-										</a>
-									</CardTitle>
-									<Badge variant="secondary">{BREW_TYPE_CONFIG[recipe.brewType].label}</Badge>
-									{#if recipe.advancedMode}
-										<Badge>Advanced</Badge>
-									{/if}
-								</div>
-								<p class="text-sm text-muted-foreground">
-									{recipe.style || 'No style'} | {recipe.targetBatchSizeL} L
-								</p>
-								<div class="flex flex-wrap gap-3 text-sm text-muted-foreground">
-									{#if recipe.targetOg}
-										<span>OG {recipe.targetOg}</span>
-									{/if}
-									{#if recipe.targetFg}
-										<span>FG {recipe.targetFg}</span>
-									{/if}
-									{#if recipe.targetIbu}
-										<span>{recipe.targetIbu} IBU</span>
-									{/if}
-								</div>
-							</div>
-
-							<div class="flex items-center gap-2">
-								<Button href={resolve(`/app/batches/new?recipeId=${recipe.id}`)} variant="secondary" size="sm">
-									Start batch
-								</Button>
-								<Button href={resolve(`/app/recipes/${recipe.id}/beerxml`)} variant="ghost" size="sm">
-									Export XML
-								</Button>
-								<Button href={resolve(`/app/recipes/${recipe.id}`)} variant="outline" size="sm">
-									Open
-								</Button>
-								<form method="POST" action="?/delete">
-									<input type="hidden" name="id" value={recipe.id} />
-									<Button type="submit" variant="ghost" size="sm">Delete</Button>
-								</form>
-							</div>
-						</div>
-					</CardHeader>
-					{#if recipe.notes && view === 'grid'}
-						<CardContent>
-							<p class="text-sm text-muted-foreground">{recipe.notes}</p>
-						</CardContent>
-					{/if}
-				</Card>
-			{/each}
-		</div>
-	{:else}
-		<Card class="border-dashed bg-card/95">
-			<CardContent class="p-8">
-				<p class="font-medium">No recipes yet</p>
-			</CardContent>
-		</Card>
-	{/if}
+	<DataTable
+		data={recipeRows}
+		columns={recipeColumns}
+		filterControls={recipeFilters}
+		searchColumnIds={['name', 'brewType', 'style', 'notes']}
+		searchPlaceholder="Search recipes by name, style, or notes"
+		emptyTitle="No recipes yet"
+		emptyDescription="Create your first recipe or import a BeerXML file to populate this list."
+	>
+		{#snippet rowActions(recipe)}
+			<Button href={recipe.openHref} variant="ghost" size="sm" class={actionItemClass}>Open</Button>
+			<Button href={recipe.batchHref} variant="ghost" size="sm" class={actionItemClass}>
+				Start batch
+			</Button>
+			<Button href={recipe.exportHref} variant="ghost" size="sm" class={actionItemClass}>
+				Export XML
+			</Button>
+			<form method="POST" action="?/delete">
+				<input type="hidden" name="id" value={recipe.id} />
+				<Button type="submit" variant="ghost" size="sm" class={actionItemClass}>Delete</Button>
+			</form>
+		{/snippet}
+	</DataTable>
 </div>

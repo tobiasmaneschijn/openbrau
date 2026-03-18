@@ -8,18 +8,19 @@
 
 	type Props = {
 		profile?: EquipmentRecord;
+		formId?: string;
 		formAction: string;
 		submitLabel: string;
 		cancelHref: string;
 		deleteAction?: string;
 	};
 
-	let { profile, formAction, submitLabel, cancelHref, deleteAction }: Props = $props();
+	let { profile, formId, formAction, submitLabel, cancelHref, deleteAction }: Props = $props();
 	const getInitialIsDefault = () => profile?.isDefault ?? false;
 	let isDefault = $state(getInitialIsDefault());
 </script>
 
-<form method="POST" action={formAction} class="space-y-6">
+<form id={formId} method="POST" action={formAction} class="space-y-6">
 	<div class="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
 		<Card class="border-border/70 bg-card/95 shadow-sm">
 			<CardHeader>

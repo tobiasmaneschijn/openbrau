@@ -1,8 +1,10 @@
 <script lang="ts">
-	import { resolve } from '$app/paths';
+	import type { ColumnDef } from '@tanstack/table-core';
 	import type { PageData } from './$types';
-	import { INGREDIENT_KIND_DESCRIPTIONS, INGREDIENT_KIND_LABELS, INGREDIENT_KIND_ORDER } from '$lib/ingredients/config';
-	import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
+	import PageHeaderConfig from '$lib/components/app/page-header-config.svelte';
+	import { DataTable, type DataTableFilterControl } from '$lib/components/data-table';
+	import { INGREDIENT_KIND_LABELS, INGREDIENT_KIND_ORDER } from '$lib/ingredients/config';
+	import { Button } from '$lib/components/ui/button';
 	import type {
 		FermentableRecord,
 		HopRecord,
@@ -12,10 +14,12 @@
 	} from '$lib/server/ingredients';
 
 	let { data }: { data: PageData } = $props();
+	const actionItemClass = 'w-full justify-start px-2 py-1.5 text-sm shadow-none';
 
-	const groupedIngredients = $derived(data.ingredients);
-
-	function ingredientSummary(kind: IngredientKind, ingredient: (typeof data.ingredients)[IngredientKind][number]) {
+	function ingredientSummary(
+		kind: IngredientKind,
+		ingredient: (typeof data.ingredients)[IngredientKind][number]
+	) {
 		switch (kind) {
 			case 'fermentables':
 				return (
@@ -49,48 +53,78 @@
 				);
 		}
 	}
+
+	type IngredientTableRow = {
+		id: string;
+		name: string;
+		kind: string;
+		summary: string;
+		openHref: string;
+	};
+
+	const ingredientColumns: ColumnDef<IngredientTableRow>[] = [
+		{
+			accessorKey: 'name',
+			header: 'Ingredient'
+		},
+		{
+			accessorKey: 'kind',
+			header: 'Type',
+			enableColumnFilter: true
+		},
+		{
+			accessorKey: 'summary',
+			header: 'Summary',
+			enableSorting: false
+		}
+	];
+
+	const ingredientFilters: DataTableFilterControl[] = [
+		{
+			columnId: 'kind',
+			label: 'Type',
+			type: 'select',
+			options: INGREDIENT_KIND_ORDER.map((kind) => ({
+				label: INGREDIENT_KIND_LABELS[kind],
+				value: INGREDIENT_KIND_LABELS[kind]
+			}))
+		}
+	];
+
+	const ingredientRows = $derived.by(() =>
+		INGREDIENT_KIND_ORDER.flatMap((kind) =>
+			data.ingredients[kind].map((ingredient) => ({
+				id: ingredient.id,
+				name: ingredient.name,
+				kind: INGREDIENT_KIND_LABELS[kind],
+				summary: ingredientSummary(kind, ingredient),
+				openHref: `/app/ingredients/${kind}/${ingredient.id}`
+			}))
+		)
+	);
 </script>
 
 <div class="space-y-6">
-	<div class="rounded-3xl border bg-card/95 p-5 shadow-sm">
-		<h1 class="text-3xl font-black tracking-tight">Ingredients</h1>
-		<p class="mt-2 text-sm text-muted-foreground">
-			Your ingredient library powers recipe suggestions, BeerXML imports, and reusable supplier details.
-		</p>
-	</div>
+	<PageHeaderConfig
+		eyebrow="Library"
+		title="Ingredients"
+		description="Your ingredient library powers recipe suggestions, BeerXML imports, and reusable supplier details."
+		meta={`${ingredientRows.length} saved ingredients`}
+	/>
 
-	<div class="grid gap-6 xl:grid-cols-2">
-		{#each INGREDIENT_KIND_ORDER as kind}
-			<Card class="border-border/70 bg-card/95 shadow-sm">
-				<CardHeader>
-					<CardTitle class="text-2xl font-bold">{INGREDIENT_KIND_LABELS[kind]}</CardTitle>
-					<CardDescription>{INGREDIENT_KIND_DESCRIPTIONS[kind]}</CardDescription>
-				</CardHeader>
-				<CardContent class="space-y-3">
-					{#if groupedIngredients[kind].length}
-						{#each groupedIngredients[kind] as ingredient (ingredient.id)}
-							<a
-								href={resolve(`/app/ingredients/${kind}/${ingredient.id}`)}
-								class="block rounded-2xl border p-4 transition hover:bg-accent/50"
-							>
-								<div class="flex items-center justify-between gap-3">
-									<div>
-										<p class="font-semibold">{ingredient.name}</p>
-										<p class="text-sm text-muted-foreground">
-											{ingredientSummary(kind, ingredient)}
-										</p>
-									</div>
-									<span class="text-sm text-muted-foreground">Open</span>
-								</div>
-							</a>
-						{/each}
-					{:else}
-						<div class="rounded-2xl border border-dashed p-6 text-sm text-muted-foreground">
-							No saved {INGREDIENT_KIND_LABELS[kind].toLowerCase()} yet. They will start to appear as you add them to recipes or import BeerXML.
-						</div>
-					{/if}
-				</CardContent>
-			</Card>
-		{/each}
-	</div>
+	<DataTable
+		data={ingredientRows}
+		columns={ingredientColumns}
+		filterControls={ingredientFilters}
+		searchColumnIds={['name', 'kind', 'summary']}
+		searchPlaceholder="Search ingredients by name, type, or supplier details"
+		emptyTitle="No saved ingredients yet"
+		emptyDescription="They will start to appear as you add ingredients to recipes or import BeerXML."
+	>
+		{#snippet rowActions(ingredient)}
+			<Button href={ingredient.openHref} variant="ghost" size="sm" class={actionItemClass}
+				>Open</Button
+			>
+		{/snippet}
+	</DataTable>
 </div>

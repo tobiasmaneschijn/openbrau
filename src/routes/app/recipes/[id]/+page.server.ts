@@ -140,7 +140,9 @@ export const actions: Actions = {
 				name: requiredString(formData, 'name'),
 				amountKg: requiredString(formData, 'amountKg'),
 				alphaAcidPct: requiredString(formData, 'alphaAcidPct'),
-				timeMin: optionalString(formData, 'timeMin') ? Number(requiredString(formData, 'timeMin')) : null,
+				timeMin: optionalString(formData, 'timeMin')
+					? Number(requiredString(formData, 'timeMin'))
+					: null,
 				usePhase: enumField(formData, 'usePhase', HOP_USE_PHASES),
 				notes: optionalString(formData, 'notes'),
 				origin: optionalString(formData, 'origin'),
@@ -214,7 +216,9 @@ export const actions: Actions = {
 				amountKg: amountIsWeight ? optionalString(formData, 'amountKg') : null,
 				amountL: amountIsWeight ? null : optionalString(formData, 'amountL'),
 				amountIsWeight,
-				timeMin: optionalString(formData, 'timeMin') ? Number(requiredString(formData, 'timeMin')) : null,
+				timeMin: optionalString(formData, 'timeMin')
+					? Number(requiredString(formData, 'timeMin'))
+					: null,
 				usePhase: enumField(formData, 'usePhase', MISC_USE_PHASES),
 				notes: optionalString(formData, 'notes'),
 				description: optionalString(formData, 'description'),

@@ -51,9 +51,7 @@
 	const fieldSet = $derived(new Set(hiddenFields));
 	const hiddenFieldsJson = $derived(JSON.stringify(hiddenFields));
 	const normalizedEnabledModules = $derived(
-		advancedMode
-			? ['core', ...enabledModules.filter((module) => module !== 'core')]
-			: ['core']
+		advancedMode ? ['core', ...enabledModules.filter((module) => module !== 'core')] : ['core']
 	);
 	const enabledModulesJson = $derived(JSON.stringify(normalizedEnabledModules));
 	const brewTypeConfig = $derived(BREW_TYPE_CONFIG[brewType]);
@@ -250,133 +248,131 @@
 	</div>
 
 	<aside class="space-y-6 xl:sticky xl:top-6 xl:self-start">
-			<Card class="border-border/70 bg-card/95 shadow-sm">
-				<CardHeader>
-					<CardTitle class="text-xl font-bold">Recipe settings</CardTitle>
-				</CardHeader>
-				<CardContent class="space-y-6">
+		<Card class="border-border/70 bg-card/95 shadow-sm">
+			<CardHeader>
+				<CardTitle class="text-xl font-bold">Recipe settings</CardTitle>
+			</CardHeader>
+			<CardContent class="space-y-6">
+				<div class="space-y-3">
+					<div>
+						<p class="text-sm font-semibold">Visible sections</p>
+						<p class="text-sm text-muted-foreground">
+							Choose which planning details appear in this recipe.
+						</p>
+					</div>
+					<div class="grid gap-3">
+						{#each RECIPE_FIELD_KEYS as field}
+							<label
+								class="flex items-center justify-between gap-3 rounded-2xl border bg-background/80 px-4 py-3"
+							>
+								<div class="min-w-0">
+									<p class="text-sm font-medium">
+										{field === 'style' ? brewTypeConfig.styleLabel : RECIPE_FIELD_LABELS[field]}
+									</p>
+								</div>
+								<Checkbox
+									checked={isVisible(field)}
+									onclick={() => toggleField(field, !isVisible(field))}
+								/>
+							</label>
+						{/each}
+					</div>
+				</div>
+
+				<div class="space-y-3 border-t pt-6">
+					<div class="flex items-center gap-2">
+						<Badge variant="secondary">{BREW_TYPE_CONFIG[brewType].label}</Badge>
+					</div>
+
+					<label
+						class="flex items-center justify-between gap-3 rounded-2xl border bg-background/80 px-4 py-3"
+					>
+						<div>
+							<p class="text-sm font-medium">Show advanced planning tools</p>
+							<p class="text-xs text-muted-foreground">Keep this off for a simpler recipe sheet.</p>
+						</div>
+						<Checkbox bind:checked={advancedMode} />
+					</label>
+
 					<div class="space-y-3">
 						<div>
-							<p class="text-sm font-semibold">Visible sections</p>
+							<p class="text-sm font-semibold">Bitterness estimate</p>
 							<p class="text-sm text-muted-foreground">
-								Choose which planning details appear in this recipe.
+								Choose the bitterness method that best matches how you like to plan recipes.
+							</p>
+						</div>
+						<div class="grid gap-2">
+							{#each IBU_FORMULAS as formula}
+								<button
+									type="button"
+									class={`flex flex-col items-start rounded-2xl border px-4 py-3 text-left text-sm transition ${
+										ibuFormula === formula
+											? 'border-primary bg-primary text-primary-foreground'
+											: 'bg-background hover:bg-accent'
+									}`}
+									onclick={() => (ibuFormula = formula)}
+								>
+									<span class="font-medium">{IBU_FORMULA_LABELS[formula]}</span>
+									<span class="text-xs opacity-80">
+										{formula === 'tinseth'
+											? 'A dependable default for most modern recipes.'
+											: 'A classic estimate often used in older brewing software.'}
+									</span>
+								</button>
+							{/each}
+						</div>
+					</div>
+
+					<div class="space-y-3">
+						<div>
+							<p class="text-sm font-semibold">Extra planning tools</p>
+							<p class="text-sm text-muted-foreground">
+								Turn on only the tools you want to use for this recipe.
 							</p>
 						</div>
 						<div class="grid gap-3">
-							{#each RECIPE_FIELD_KEYS as field}
+							{#each RECIPE_MODULE_KEYS as module}
 								<label
 									class="flex items-center justify-between gap-3 rounded-2xl border bg-background/80 px-4 py-3"
 								>
 									<div class="min-w-0">
-										<p class="text-sm font-medium">
-											{field === 'style' ? brewTypeConfig.styleLabel : RECIPE_FIELD_LABELS[field]}
+										<p class="text-sm font-medium">{RECIPE_MODULE_LABELS[module]}</p>
+										<p class="text-xs text-muted-foreground">
+											{RECIPE_MODULE_DESCRIPTIONS[module]}
 										</p>
 									</div>
 									<Checkbox
-										checked={isVisible(field)}
-										onclick={() => toggleField(field, !isVisible(field))}
+										checked={enabledModuleSet.has(module)}
+										disabled={module === 'core' || !advancedMode}
+										onclick={() => toggleModule(module, !enabledModuleSet.has(module))}
 									/>
 								</label>
 							{/each}
 						</div>
 					</div>
+				</div>
+			</CardContent>
+		</Card>
 
-					<div class="space-y-3 border-t pt-6">
-						<div class="flex items-center gap-2">
-							<Badge variant="secondary">{BREW_TYPE_CONFIG[brewType].label}</Badge>
-						</div>
-
-						<label
-							class="flex items-center justify-between gap-3 rounded-2xl border bg-background/80 px-4 py-3"
+		{#if deleteAction}
+			<Card class="border-border/70 bg-card/95 shadow-sm">
+				<CardHeader>
+					<CardTitle class="text-xl font-bold">Delete recipe</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<p class="mb-4 text-sm text-muted-foreground">
+						Remove this recipe if you no longer need it.
+					</p>
+					<form method="POST" action={deleteAction}>
+						<button
+							type="submit"
+							class="inline-flex h-9 items-center justify-center rounded-md bg-destructive px-4 py-2 text-sm font-medium text-white shadow-xs transition hover:bg-destructive/90"
 						>
-							<div>
-								<p class="text-sm font-medium">Show advanced planning tools</p>
-								<p class="text-xs text-muted-foreground">
-									Keep this off for a simpler recipe sheet.
-								</p>
-							</div>
-							<Checkbox bind:checked={advancedMode} />
-						</label>
-
-						<div class="space-y-3">
-							<div>
-								<p class="text-sm font-semibold">Bitterness estimate</p>
-								<p class="text-sm text-muted-foreground">
-									Choose the bitterness method that best matches how you like to plan recipes.
-								</p>
-							</div>
-							<div class="grid gap-2">
-								{#each IBU_FORMULAS as formula}
-									<button
-										type="button"
-										class={`flex flex-col items-start rounded-2xl border px-4 py-3 text-left text-sm transition ${
-											ibuFormula === formula
-												? 'border-primary bg-primary text-primary-foreground'
-												: 'bg-background hover:bg-accent'
-										}`}
-										onclick={() => (ibuFormula = formula)}
-									>
-										<span class="font-medium">{IBU_FORMULA_LABELS[formula]}</span>
-										<span class="text-xs opacity-80">
-											{formula === 'tinseth'
-												? 'A dependable default for most modern recipes.'
-												: 'A classic estimate often used in older brewing software.'}
-										</span>
-									</button>
-								{/each}
-							</div>
-						</div>
-
-						<div class="space-y-3">
-							<div>
-								<p class="text-sm font-semibold">Extra planning tools</p>
-								<p class="text-sm text-muted-foreground">
-									Turn on only the tools you want to use for this recipe.
-								</p>
-							</div>
-							<div class="grid gap-3">
-								{#each RECIPE_MODULE_KEYS as module}
-									<label
-										class="flex items-center justify-between gap-3 rounded-2xl border bg-background/80 px-4 py-3"
-									>
-										<div class="min-w-0">
-											<p class="text-sm font-medium">{RECIPE_MODULE_LABELS[module]}</p>
-											<p class="text-xs text-muted-foreground">
-												{RECIPE_MODULE_DESCRIPTIONS[module]}
-											</p>
-										</div>
-										<Checkbox
-											checked={enabledModuleSet.has(module)}
-											disabled={module === 'core' || !advancedMode}
-											onclick={() => toggleModule(module, !enabledModuleSet.has(module))}
-										/>
-									</label>
-								{/each}
-							</div>
-						</div>
-					</div>
+							Delete recipe
+						</button>
+					</form>
 				</CardContent>
 			</Card>
-
-			{#if deleteAction}
-				<Card class="border-border/70 bg-card/95 shadow-sm">
-					<CardHeader>
-						<CardTitle class="text-xl font-bold">Delete recipe</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<p class="mb-4 text-sm text-muted-foreground">
-							Remove this recipe if you no longer need it.
-						</p>
-						<form method="POST" action={deleteAction}>
-							<button
-								type="submit"
-								class="inline-flex h-9 items-center justify-center rounded-md bg-destructive px-4 py-2 text-sm font-medium text-white shadow-xs transition hover:bg-destructive/90"
-							>
-								Delete recipe
-							</button>
-						</form>
-					</CardContent>
-				</Card>
-			{/if}
+		{/if}
 	</aside>
 </div>

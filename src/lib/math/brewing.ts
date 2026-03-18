@@ -90,5 +90,7 @@ export function ragerIbu(params: {
 	const gravityAdjustment = params.gravity > 1.05 ? (params.gravity - 1.05) / 0.2 + 1 : 1;
 	const alphaAcidUnits = ounces * params.alphaAcidPct;
 
-	return (alphaAcidUnits * ragerUtilization(params.timeMin) * 74.89) / (gallons * gravityAdjustment);
+	return (
+		(alphaAcidUnits * ragerUtilization(params.timeMin) * 74.89) / (gallons * gravityAdjustment)
+	);
 }

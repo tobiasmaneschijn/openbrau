@@ -78,8 +78,7 @@ export function buildRecipeDefinition(
 					item.ingredient.diastaticPowerLintner == null
 						? null
 						: Number(item.ingredient.diastaticPowerLintner),
-				proteinPct:
-					item.ingredient.proteinPct == null ? null : Number(item.ingredient.proteinPct),
+				proteinPct: item.ingredient.proteinPct == null ? null : Number(item.ingredient.proteinPct),
 				maxInBatchPct:
 					item.ingredient.maxInBatchPct == null ? null : Number(item.ingredient.maxInBatchPct),
 				recommendMash: item.ingredient.recommendMash,
@@ -101,11 +100,8 @@ export function buildRecipeDefinition(
 				hsiPct: item.ingredient.hsiPct == null ? null : Number(item.ingredient.hsiPct),
 				substitutes: item.ingredient.substitutes,
 				cohumulonePct:
-					item.ingredient.cohumulonePct == null
-						? null
-						: Number(item.ingredient.cohumulonePct),
-				myrcenePct:
-					item.ingredient.myrcenePct == null ? null : Number(item.ingredient.myrcenePct),
+					item.ingredient.cohumulonePct == null ? null : Number(item.ingredient.cohumulonePct),
+				myrcenePct: item.ingredient.myrcenePct == null ? null : Number(item.ingredient.myrcenePct),
 				notes: item.notes ?? item.ingredient.notes,
 				usePhase: item.usePhase
 			})) ?? [],
@@ -119,13 +115,9 @@ export function buildRecipeDefinition(
 				attenuationPct:
 					item.ingredient.attenuationPct == null ? null : Number(item.ingredient.attenuationPct),
 				minTemperatureC:
-					item.ingredient.minTemperatureC == null
-						? null
-						: Number(item.ingredient.minTemperatureC),
+					item.ingredient.minTemperatureC == null ? null : Number(item.ingredient.minTemperatureC),
 				maxTemperatureC:
-					item.ingredient.maxTemperatureC == null
-						? null
-						: Number(item.ingredient.maxTemperatureC),
+					item.ingredient.maxTemperatureC == null ? null : Number(item.ingredient.maxTemperatureC),
 				flocculation: item.ingredient.flocculation,
 				bestFor: item.ingredient.bestFor,
 				maxReuse: item.ingredient.maxReuse,

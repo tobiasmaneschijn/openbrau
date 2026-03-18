@@ -29,7 +29,9 @@ export const actions: Actions = {
 		const formData = await request.formData();
 
 		const batch = await updateBatchLogForOwner(params.id, locals.user!.id, {
-			brewDate: optionalString(formData, 'brewDate') ? new Date(requiredString(formData, 'brewDate')) : null,
+			brewDate: optionalString(formData, 'brewDate')
+				? new Date(requiredString(formData, 'brewDate'))
+				: null,
 			actualBatchSizeL: optionalString(formData, 'actualBatchSizeL'),
 			notes: optionalString(formData, 'notes')
 		});

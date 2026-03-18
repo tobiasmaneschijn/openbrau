@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import type { ActionData, PageData } from './$types';
+	import type { AppPageHeaderAction } from '$lib/components/app/page-header';
 	import type { RecipeModuleKey } from '$lib/recipes/domain';
 	import { IBU_FORMULA_LABELS, RECIPE_MODULE_LABELS } from '$lib/recipes/config';
+	import PageHeaderConfig from '$lib/components/app/page-header-config.svelte';
 	import { Alert, AlertDescription, AlertTitle } from '$lib/components/ui/alert';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
@@ -56,27 +58,26 @@
 		return RECIPE_MODULE_LABELS[module as RecipeModuleKey] ?? module;
 	}
 
-	function ingredientHref(kind: 'fermentables' | 'hops' | 'yeasts' | 'miscs', id: string) {
-		return resolve(`/app/ingredients/${kind}/${id}`);
-	}
+	const recipeDetailHeaderActions = $derived([
+		{
+			label: 'Start batch',
+			href: resolve(`/app/batches/new?recipeId=${data.recipe.id}`),
+			variant: 'secondary'
+		},
+		{ label: 'Export XML', href: resolve(`/app/recipes/${data.recipe.id}/beerxml`), variant: 'outline' },
+		{ label: 'Back', href: resolve('/app/recipes'), variant: 'outline' },
+		{ label: 'Save changes', type: 'submit', form: 'recipe-edit-form', variant: 'default' }
+	] satisfies AppPageHeaderAction[]);
+
 </script>
 
 <div class="space-y-6">
-	<div class="flex flex-col gap-4 rounded-3xl border bg-card/95 p-5 shadow-sm md:flex-row md:items-start md:justify-between">
-		<div class="space-y-2">
-			<h1 class="text-3xl font-black tracking-tight">{data.recipe.name}</h1>
-			<p class="text-sm text-muted-foreground">
-				Review your targets, ingredients, brewing setup, and planning details in one place.
-			</p>
-		</div>
-
-		<div class="flex flex-wrap items-center gap-3 md:justify-end">
-			<Button href={resolve(`/app/batches/new?recipeId=${data.recipe.id}`)} variant="secondary">Start batch</Button>
-			<Button href={resolve(`/app/recipes/${data.recipe.id}/beerxml`)} variant="outline">Export XML</Button>
-			<Button href={resolve('/app/recipes')} variant="outline">Back</Button>
-			<Button type="submit" form="recipe-edit-form">Save changes</Button>
-		</div>
-	</div>
+	<PageHeaderConfig
+		eyebrow="Recipes"
+		title={data.recipe.name}
+		description="Review your targets, ingredients, brewing setup, and planning details in one place."
+		actions={recipeDetailHeaderActions}
+	/>
 
 	{#if form?.message}
 		<Alert variant="destructive">
@@ -105,49 +106,60 @@
 						{/if}
 					</div>
 					<CardDescription>
-						This summary shows your saved targets, brew-day volumes, and the current estimates for this recipe.
+						This summary shows your saved targets, brew-day volumes, and the current estimates for
+						this recipe.
 					</CardDescription>
 					<div class="flex flex-wrap gap-2">
-						{#each data.engineSummary.modules as module}
+						{#each data.engineSummary.modules as module (module)}
 							<Badge variant="outline">{moduleLabel(module)}</Badge>
 						{/each}
 					</div>
 				</CardHeader>
 				<CardContent class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
 					<div class="rounded-2xl border bg-background/80 p-4">
-						<p class="text-xs uppercase tracking-[0.2em] text-muted-foreground">Original gravity</p>
-						<p class="mt-2 text-2xl font-black">{formatMetric(data.engineSummary.computed.og, 3)}</p>
+						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">Original gravity</p>
+						<p class="mt-2 text-2xl font-black">
+							{formatMetric(data.engineSummary.computed.og, 3)}
+						</p>
 						<p class="mt-1 text-sm text-muted-foreground">
 							Target {formatMetric(data.engineSummary.targets.og, 3)}
 						</p>
 					</div>
 					<div class="rounded-2xl border bg-background/80 p-4">
-						<p class="text-xs uppercase tracking-[0.2em] text-muted-foreground">Final gravity</p>
-						<p class="mt-2 text-2xl font-black">{formatMetric(data.engineSummary.computed.fg, 3)}</p>
+						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">Final gravity</p>
+						<p class="mt-2 text-2xl font-black">
+							{formatMetric(data.engineSummary.computed.fg, 3)}
+						</p>
 						<p class="mt-1 text-sm text-muted-foreground">
 							Target {formatMetric(data.engineSummary.targets.fg, 3)}
 						</p>
 					</div>
 					<div class="rounded-2xl border bg-background/80 p-4">
-						<p class="text-xs uppercase tracking-[0.2em] text-muted-foreground">Estimated ABV</p>
-						<p class="mt-2 text-2xl font-black">{formatMetric(data.engineSummary.computed.abvPct, 2)}%</p>
+						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">Estimated ABV</p>
+						<p class="mt-2 text-2xl font-black">
+							{formatMetric(data.engineSummary.computed.abvPct, 2)}%
+						</p>
 					</div>
 					<div class="rounded-2xl border bg-background/80 p-4">
-						<p class="text-xs uppercase tracking-[0.2em] text-muted-foreground">Bitterness</p>
-						<p class="mt-2 text-2xl font-black">{formatMetric(data.engineSummary.computed.ibu, 1)}</p>
+						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">Bitterness</p>
+						<p class="mt-2 text-2xl font-black">
+							{formatMetric(data.engineSummary.computed.ibu, 1)}
+						</p>
 						<p class="mt-1 text-sm text-muted-foreground">
 							Target {formatMetric(data.engineSummary.targets.ibu, 1)}
 						</p>
 					</div>
 					<div class="rounded-2xl border bg-background/80 p-4">
-						<p class="text-xs uppercase tracking-[0.2em] text-muted-foreground">Color</p>
-						<p class="mt-2 text-2xl font-black">{formatMetric(data.engineSummary.computed.srm, 1)}</p>
+						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">Color</p>
+						<p class="mt-2 text-2xl font-black">
+							{formatMetric(data.engineSummary.computed.srm, 1)}
+						</p>
 						<p class="mt-1 text-sm text-muted-foreground">
 							Target {formatMetric(data.engineSummary.targets.srm, 1)}
 						</p>
 					</div>
 					<div class="rounded-2xl border bg-background/80 p-4">
-						<p class="text-xs uppercase tracking-[0.2em] text-muted-foreground">Pre-boil volume</p>
+						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">Pre-boil volume</p>
 						<p class="mt-2 text-2xl font-black">
 							{formatMetric(data.engineSummary.batch.preBoilVolumeL, 1)} L
 						</p>
@@ -168,13 +180,13 @@
 				<CardContent class="space-y-3">
 					<div class="grid gap-3 sm:grid-cols-2">
 						<div class="rounded-2xl border bg-background/80 p-4">
-							<p class="text-xs uppercase tracking-[0.2em] text-muted-foreground">Efficiency</p>
+							<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">Efficiency</p>
 							<p class="mt-2 text-2xl font-black">
 								{formatMetric(data.engineSummary.process.brewhouseEfficiencyPct, 1)}%
 							</p>
 						</div>
 						<div class="rounded-2xl border bg-background/80 p-4">
-							<p class="text-xs uppercase tracking-[0.2em] text-muted-foreground">Boil-off loss</p>
+							<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">Boil-off loss</p>
 							<p class="mt-2 text-2xl font-black">
 								{formatMetric(data.engineSummary.batch.boilOffLossL, 1)} L
 							</p>
@@ -183,8 +195,10 @@
 
 					{#if data.engineSummary.warnings.length}
 						<div class="space-y-2">
-							{#each data.engineSummary.warnings as warning}
-								<div class="rounded-2xl border border-amber-300/50 bg-amber-50/70 p-4 text-sm text-amber-950">
+							{#each data.engineSummary.warnings as warning (warning.message)}
+								<div
+									class="rounded-2xl border border-amber-300/50 bg-amber-50/70 p-4 text-sm text-amber-950"
+								>
 									{warning.message}
 								</div>
 							{/each}
@@ -204,10 +218,13 @@
 					<div>
 						<CardTitle class="text-xl font-bold">Ingredients</CardTitle>
 						<CardDescription>
-							Add ingredients to this recipe and reuse anything you have already saved in your ingredient library.
+							Add ingredients to this recipe and reuse anything you have already saved in your
+							ingredient library.
 						</CardDescription>
 					</div>
-					<Button href={resolve('/app/ingredients')} variant="outline">Open ingredient library</Button>
+					<Button href={resolve('/app/ingredients')} variant="outline"
+						>Open ingredient library</Button
+					>
 				</div>
 			</CardHeader>
 			<CardContent class="grid gap-4 xl:grid-cols-2">
@@ -215,7 +232,9 @@
 					<div class="mb-4 flex items-center justify-between gap-3">
 						<div>
 							<h3 class="font-semibold">Fermentables</h3>
-							<p class="text-sm text-muted-foreground">Malt, sugar, juice concentrate, extract, and fermentable adjuncts.</p>
+							<p class="text-sm text-muted-foreground">
+								Malt, sugar, juice concentrate, extract, and fermentable adjuncts.
+							</p>
 						</div>
 						<Badge variant="outline">{data.ingredients.fermentables.length}</Badge>
 					</div>
@@ -226,7 +245,10 @@
 								<div class="rounded-2xl border bg-card/90 p-4">
 									<div class="flex flex-wrap items-start justify-between gap-3">
 										<div class="space-y-1">
-											<a class="font-semibold hover:underline" href={ingredientHref('fermentables', item.ingredient.id)}>
+											<a
+												class="font-semibold hover:underline"
+												href={resolve(`/app/ingredients/fermentables/${item.ingredient.id}`)}
+											>
 												{item.ingredient.name}
 											</a>
 											<p class="text-sm text-muted-foreground">
@@ -238,8 +260,11 @@
 													. {item.ingredient.origin}
 												{/if}
 											</p>
-											<p class="text-xs uppercase tracking-[0.16em] text-muted-foreground">
-												{item.usePhase} . Yield {formatMetric(item.ingredient.yieldPct, 1)}% . {formatMetric(item.ingredient.colorLovibond, 1)} L
+											<p class="text-xs tracking-[0.16em] text-muted-foreground uppercase">
+												{item.usePhase} . Yield {formatMetric(item.ingredient.yieldPct, 1)}% . {formatMetric(
+													item.ingredient.colorLovibond,
+													1
+												)} L
 											</p>
 											{#if item.notes}
 												<p class="text-sm text-muted-foreground">{item.notes}</p>
@@ -261,7 +286,11 @@
 						</div>
 					{/if}
 
-					<form method="POST" action="?/addFermentable" class="mt-4 space-y-3 rounded-2xl border border-dashed p-4">
+					<form
+						method="POST"
+						action="?/addFermentable"
+						class="mt-4 space-y-3 rounded-2xl border border-dashed p-4"
+					>
 						<div class="grid gap-3 md:grid-cols-2">
 							<div class="space-y-2 md:col-span-2">
 								<label for="fermentable-name" class="text-sm font-medium">Ingredient name</label>
@@ -274,7 +303,13 @@
 							</div>
 							<div class="space-y-2">
 								<label for="fermentable-amount" class="text-sm font-medium">Amount (kg)</label>
-								<Input id="fermentable-amount" name="amountKg" type="number" step="0.001" required />
+								<Input
+									id="fermentable-amount"
+									name="amountKg"
+									type="number"
+									step="0.001"
+									required
+								/>
 							</div>
 							<div class="space-y-2">
 								<label for="fermentable-phase" class="text-sm font-medium">Use phase</label>
@@ -318,7 +353,9 @@
 							<Checkbox name="isExtract" value="on" />
 							<div>
 								<p class="text-sm font-medium">Treat as extract</p>
-								<p class="text-xs text-muted-foreground">Useful for extract beer, juice concentrates, or syrup additions.</p>
+								<p class="text-xs text-muted-foreground">
+									Useful for extract beer, juice concentrates, or syrup additions.
+								</p>
 							</div>
 						</label>
 						<Button type="submit">Add fermentable</Button>
@@ -329,7 +366,9 @@
 					<div class="mb-4 flex items-center justify-between gap-3">
 						<div>
 							<h3 class="font-semibold">Hops</h3>
-							<p class="text-sm text-muted-foreground">Boil hops, whirlpool additions, mash hops, and dry hops.</p>
+							<p class="text-sm text-muted-foreground">
+								Boil hops, whirlpool additions, mash hops, and dry hops.
+							</p>
 						</div>
 						<Badge variant="outline">{data.ingredients.hops.length}</Badge>
 					</div>
@@ -340,13 +379,19 @@
 								<div class="rounded-2xl border bg-card/90 p-4">
 									<div class="flex flex-wrap items-start justify-between gap-3">
 										<div class="space-y-1">
-											<a class="font-semibold hover:underline" href={ingredientHref('hops', item.ingredient.id)}>
+											<a
+												class="font-semibold hover:underline"
+												href={resolve(`/app/ingredients/hops/${item.ingredient.id}`)}
+											>
 												{item.ingredient.name}
 											</a>
 											<p class="text-sm text-muted-foreground">
-												{formatMetric(item.amountKg, 3)} kg . {formatMetric(item.ingredient.alphaAcidPct, 2)}% alpha acid
+												{formatMetric(item.amountKg, 3)} kg . {formatMetric(
+													item.ingredient.alphaAcidPct,
+													2
+												)}% alpha acid
 											</p>
-											<p class="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+											<p class="text-xs tracking-[0.16em] text-muted-foreground uppercase">
 												{item.usePhase}
 												{#if item.timeMin != null}
 													. {item.timeMin} min
@@ -375,7 +420,11 @@
 						</div>
 					{/if}
 
-					<form method="POST" action="?/addHop" class="mt-4 space-y-3 rounded-2xl border border-dashed p-4">
+					<form
+						method="POST"
+						action="?/addHop"
+						class="mt-4 space-y-3 rounded-2xl border border-dashed p-4"
+					>
 						<div class="grid gap-3 md:grid-cols-2">
 							<div class="space-y-2 md:col-span-2">
 								<label for="hop-name" class="text-sm font-medium">Hop name</label>
@@ -405,7 +454,7 @@
 									name="usePhase"
 									class="flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm shadow-xs ring-offset-background transition-[color,box-shadow] outline-none focus-visible:ring-1 focus-visible:ring-ring"
 								>
-									{#each hopUseOptions as option}
+									{#each hopUseOptions as option (option.value)}
 										<option value={option.value}>{option.label}</option>
 									{/each}
 								</select>
@@ -435,7 +484,9 @@
 					<div class="mb-4 flex items-center justify-between gap-3">
 						<div>
 							<h3 class="font-semibold">Yeast</h3>
-							<p class="text-sm text-muted-foreground">Dry yeast, liquid cultures, and any pitch notes for this batch.</p>
+							<p class="text-sm text-muted-foreground">
+								Dry yeast, liquid cultures, and any pitch notes for this batch.
+							</p>
 						</div>
 						<Badge variant="outline">{data.ingredients.yeasts.length}</Badge>
 					</div>
@@ -446,7 +497,10 @@
 								<div class="rounded-2xl border bg-card/90 p-4">
 									<div class="flex flex-wrap items-start justify-between gap-3">
 										<div class="space-y-1">
-											<a class="font-semibold hover:underline" href={ingredientHref('yeasts', item.ingredient.id)}>
+											<a
+												class="font-semibold hover:underline"
+												href={resolve(`/app/ingredients/yeasts/${item.ingredient.id}`)}
+											>
 												{item.ingredient.name}
 											</a>
 											<p class="text-sm text-muted-foreground">
@@ -455,8 +509,10 @@
 													. {formatMetric(item.ingredient.attenuationPct, 1)}% attenuation
 												{/if}
 											</p>
-											<p class="text-xs uppercase tracking-[0.16em] text-muted-foreground">
-												{item.amountIsWeight ? `${formatMetric(item.amountKg, 3)} kg` : `${formatMetric(item.amountL, 3)} L`}
+											<p class="text-xs tracking-[0.16em] text-muted-foreground uppercase">
+												{item.amountIsWeight
+													? `${formatMetric(item.amountKg, 3)} kg`
+													: `${formatMetric(item.amountL, 3)} L`}
 												{#if item.cellsBillions}
 													. {formatMetric(item.cellsBillions, 0)}B cells
 												{/if}
@@ -484,7 +540,11 @@
 						</div>
 					{/if}
 
-					<form method="POST" action="?/addYeast" class="mt-4 space-y-3 rounded-2xl border border-dashed p-4">
+					<form
+						method="POST"
+						action="?/addYeast"
+						class="mt-4 space-y-3 rounded-2xl border border-dashed p-4"
+					>
 						<div class="grid gap-3 md:grid-cols-2">
 							<div class="space-y-2 md:col-span-2">
 								<label for="yeast-name" class="text-sm font-medium">Yeast name</label>
@@ -543,7 +603,9 @@
 							<Checkbox name="isStarterRequired" value="on" />
 							<div>
 								<p class="text-sm font-medium">Starter required</p>
-								<p class="text-xs text-muted-foreground">Use this to flag cultures that need a starter before brew day.</p>
+								<p class="text-xs text-muted-foreground">
+									Use this to flag cultures that need a starter before brew day.
+								</p>
 							</div>
 						</label>
 						<Button type="submit">Add yeast</Button>
@@ -554,7 +616,9 @@
 					<div class="mb-4 flex items-center justify-between gap-3">
 						<div>
 							<h3 class="font-semibold">Other ingredients</h3>
-							<p class="text-sm text-muted-foreground">Nutrients, spices, finings, fruit, stabilizers, and other additions.</p>
+							<p class="text-sm text-muted-foreground">
+								Nutrients, spices, finings, fruit, stabilizers, and other additions.
+							</p>
 						</div>
 						<Badge variant="outline">{data.ingredients.miscs.length}</Badge>
 					</div>
@@ -565,7 +629,10 @@
 								<div class="rounded-2xl border bg-card/90 p-4">
 									<div class="flex flex-wrap items-start justify-between gap-3">
 										<div class="space-y-1">
-											<a class="font-semibold hover:underline" href={ingredientHref('miscs', item.ingredient.id)}>
+											<a
+												class="font-semibold hover:underline"
+												href={resolve(`/app/ingredients/miscs/${item.ingredient.id}`)}
+											>
 												{item.ingredient.name}
 											</a>
 											<p class="text-sm text-muted-foreground">
@@ -574,8 +641,10 @@
 													. {item.ingredient.useFor}
 												{/if}
 											</p>
-											<p class="text-xs uppercase tracking-[0.16em] text-muted-foreground">
-												{item.amountIsWeight ? `${formatMetric(item.amountKg, 3)} kg` : `${formatMetric(item.amountL, 3)} L`}
+											<p class="text-xs tracking-[0.16em] text-muted-foreground uppercase">
+												{item.amountIsWeight
+													? `${formatMetric(item.amountKg, 3)} kg`
+													: `${formatMetric(item.amountL, 3)} L`}
 												{#if item.timeMin != null}
 													. {item.timeMin} min
 												{/if}
@@ -601,7 +670,11 @@
 						</div>
 					{/if}
 
-					<form method="POST" action="?/addMisc" class="mt-4 space-y-3 rounded-2xl border border-dashed p-4">
+					<form
+						method="POST"
+						action="?/addMisc"
+						class="mt-4 space-y-3 rounded-2xl border border-dashed p-4"
+					>
 						<div class="grid gap-3 md:grid-cols-2">
 							<div class="space-y-2 md:col-span-2">
 								<label for="misc-name" class="text-sm font-medium">Ingredient name</label>
@@ -614,11 +687,20 @@
 							</div>
 							<div class="space-y-2">
 								<label for="misc-type" class="text-sm font-medium">Type</label>
-								<Input id="misc-type" name="type" placeholder="Nutrient, spice, fining..." required />
+								<Input
+									id="misc-type"
+									name="type"
+									placeholder="Nutrient, spice, fining..."
+									required
+								/>
 							</div>
 							<div class="space-y-2">
 								<label for="misc-use-for" class="text-sm font-medium">Use for</label>
-								<Input id="misc-use-for" name="useFor" placeholder="Flavor, clarity, fermentation..." />
+								<Input
+									id="misc-use-for"
+									name="useFor"
+									placeholder="Flavor, clarity, fermentation..."
+								/>
 							</div>
 							<div class="space-y-2">
 								<label for="misc-amount-weight" class="text-sm font-medium">Amount (kg)</label>
@@ -639,7 +721,7 @@
 									name="usePhase"
 									class="flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm shadow-xs ring-offset-background transition-[color,box-shadow] outline-none focus-visible:ring-1 focus-visible:ring-ring"
 								>
-									{#each miscUseOptions as option}
+									{#each miscUseOptions as option (option.value)}
 										<option value={option.value}>{option.label}</option>
 									{/each}
 								</select>
