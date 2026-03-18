@@ -1,0 +1,28 @@
+# Secret Environment Variables
+.env
+.env.*
+!.env.example
+
+# AI Workspace (Keep out of version control)
+AI_SCRATCHPAD.md
+
+# Dependencies
+node_modules/
+
+# SvelteKit / Build outputs
+.svelte-kit/
+build/
+dist/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+# Note: DO NOT ignore bun.lockb, it should be committed to version control.
+
+# Local Docker Volumes (if you decide to map them to local folders later)
+openbrau_db_data/
+openbrau_mqtt_data/
+openbrau_mqtt_log/
+
+# OS Generated Files
+.DS_Store
+Thumbs.db

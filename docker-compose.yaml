@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  # 1. The OpenBrau Web Application
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: openbrau-web
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      # Add your auth secrets or JWT keys here later
+      - SECRET_KEY=${SECRET_KEY}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - openbrau_net
+
+  # 2. PostgreSQL Database
+  db:
+    image: postgres:16-alpine
+    container_name: openbrau-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-openbrau_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-supersecretpassword}
+      POSTGRES_DB: ${POSTGRES_DB:-openbrau}
+    ports:
+      # Exposing only to localhost so you can inspect the DB from your VPS terminal if needed.
+      # Remove the "127.0.0.1:" if you want to connect remotely via DBeaver/DataGrip (not recommended for security).
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - openbrau_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - openbrau_net
+
+  # 3. MQTT Broker (For IoT devices like Tilt, iSpindel, BrewPi)
+  mqtt:
+    image: eclipse-mosquitto:2
+    container_name: openbrau-mqtt
+    restart: unless-stopped
+    ports:
+      - "1883:1883"   # Standard MQTT port
+      - "9001:9001"   # WebSockets port (optional, good for web dashboards)
+    volumes:
+      # You'll need to create a local mosquitto.conf file to allow anonymous access or set up passwords
+      - ./mosquitto/config:/mosquitto/config
+      - openbrau_mqtt_data:/mosquitto/data
+      - openbrau_mqtt_log:/mosquitto/log
+    networks:
+      - openbrau_net
+
+# Define persistent volumes so your recipes and logs survive container restarts
+volumes:
+  openbrau_db_data:
+  openbrau_mqtt_data:
+  openbrau_mqtt_log:
+
+networks:
+  openbrau_net:
+    driver: bridge
