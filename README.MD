@@ -1,45 +1,64 @@
-# OpenBrau 🍻
+# OpenBrau
 
-**OpenBrau** is a modern, blazing-fast, and fully self-hosted homebrew management platform. Built for brewers who want the sleek, feature-rich experience of premium cloud-based brewing apps (like Brewfather or BeerSmith) but demand complete ownership of their data and no monthly subscriptions.
+OpenBrau is a self-hosted homebrewing workspace built with SvelteKit, Bun, Drizzle, and PostgreSQL. The project aims to give brewers the convenience of modern brewing apps while keeping recipes, batch logs, and process data under the user's control.
 
-## 🚀 Why OpenBrau?
+## Current product scope
 
-* **100% Free & Open Source:** No paywalls, no tier limits, no locking your recipes behind a subscription.
-* **You Own Your Data:** Everything lives on your own hardware or VPS in a local PostgreSQL database.
-* **Modern Tech Stack (2026):** Built with SvelteKit (Svelte 5), Bun, and Drizzle ORM for a zero-latency native app feel. 
-* **Hardware Ready:** Built-in webhook endpoints to natively support IoT brewing devices like Tilt Hydrometers, iSpindel, and BrewPi.
-* **Containerized First:** Designed to be deployed in seconds using Docker Compose.
+- Recipe planning with adaptive complexity controls
+- Recipe ingredient sections for fermentables, hops, yeast, and other additions
+- Remembered ingredient library with autosuggestions and detail pages
+- Equipment profiles for batch sizing, efficiency, and losses
+- Batch tracking through `Draft -> Brewing -> Fermenting -> Conditioning -> Finished`
+- Rich BeerXML import and export for recipe portability, including ingredient metadata
+- PostgreSQL trigger-based audit logging for critical domain tables
 
-## ⚙️ Features
+All physical values are stored in base metric or SI units in the database. Any unit conversion belongs in the display layer.
 
-* **Advanced Recipe Designer:** Dynamic, real-time calculation of OG, FG, IBU (Tinseth/Rager), Color (SRM/EBC), and ABV.
-* **Equipment Profiles:** Dial in your specific mash tun deadspace, boil-off rates, and trub losses for perfect scaling.
-* **Water Chemistry Engine:** Source water profiling, target matching, and automatic acid/salt addition calculations.
-* **Batch Tracking:** Move batches from *Planning* -> *Brewing* -> *Fermenting* -> *Conditioning* -> *Kegged/Bottled*.
-* **Interactive Fermentation Charts:** Real-time plotting of gravity and temperature data from your hardware.
-* **BeerXML Support:** Easily import your existing recipes from other platforms.
+## Stack
 
-## 🛠️ Quick Start (Self-Hosting)
+- Runtime and package manager: `bun`
+- App framework: `SvelteKit` with `Svelte 5`
+- Database: `PostgreSQL 16+`
+- ORM: `Drizzle ORM`
+- Styling: `Tailwind CSS` with `shadcn-svelte`
+- Localization: `@inlang/paraglide-js`
 
-Deploying OpenBrau to a VPS (DigitalOcean, Hetzner, etc.) or your local home lab is simple. 
+## Quick start
 
-1. Clone the repository:
-   ```bash
-   git clone [https://github.com/yourusername/openbrau.git](https://github.com/yourusername/openbrau.git)
-   cd openbrau
-   ```
-2. Copy the example environment file and set your secrets:
-   ```bash
-   cp .env.example .env
-   ```
-3. Spin up the stack:
-   ```bash
-   docker compose up -d
-   ```
-OpenBrau will be available at `http://localhost:3000`.
+1. Copy the environment template and set your secrets.
 
-## 🤝 Contributing
-OpenBrau is built by a homebrewer, for homebrewers. Pull requests are welcome! Check out `spec.md` for our architectural guidelines and roadmap.
+```bash
+cp .env.example .env
+```
 
-## 📄 License
-MIT License. Brew free or die.
+2. Install dependencies.
+
+```bash
+bun install
+```
+
+3. Start the app.
+
+```bash
+bun run dev
+```
+
+4. If you want local infrastructure for PostgreSQL and MQTT, start the compose services.
+
+```bash
+bun run dev:infra
+```
+
+## Useful scripts
+
+- `bun run dev` - start the app in development
+- `bun run check` - run Svelte and TypeScript checks
+- `bun test` - run the unit test suite
+- `bun run db:push` - push the Drizzle schema to the database
+- `bun run db:generate` - generate SQL migration files from schema changes
+
+## Notes
+
+- `SPEC.MD` is the technical source of truth for the roadmap and architecture.
+- `AGENTS.MD` contains project-specific coding rules for AI agents and contributors.
+- Audit history is owned by PostgreSQL triggers, not application-level logging code.

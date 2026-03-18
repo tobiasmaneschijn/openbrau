@@ -1,28 +1,26 @@
-# Secret Environment Variables
+node_modules
+
+# Output
+.output
+.vercel
+.netlify
+.wrangler
+/.svelte-kit
+/build
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
 .env
 .env.*
 !.env.example
+!.env.test
 
-# AI Workspace (Keep out of version control)
-AI_SCRATCHPAD.md
-
-# Dependencies
-node_modules/
-
-# SvelteKit / Build outputs
-.svelte-kit/
-build/
-dist/
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
-# Note: DO NOT ignore bun.lockb, it should be committed to version control.
-
-# Local Docker Volumes (if you decide to map them to local folders later)
-openbrau_db_data/
-openbrau_mqtt_data/
-openbrau_mqtt_log/
-
-# OS Generated Files
-.DS_Store
-Thumbs.db
+# Vite
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+# Paraglide
+src/lib/paraglide
+project.inlang/cache/

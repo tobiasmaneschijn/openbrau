@@ -9,7 +9,7 @@ services:
     container_name: openbrau-web
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - NODE_ENV=production
       - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
@@ -33,11 +33,11 @@ services:
     ports:
       # Exposing only to localhost so you can inspect the DB from your VPS terminal if needed.
       # Remove the "127.0.0.1:" if you want to connect remotely via DBeaver/DataGrip (not recommended for security).
-      - "127.0.0.1:5432:5432"
+      - '127.0.0.1:5432:5432'
     volumes:
       - openbrau_db_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}']
       interval: 5s
       timeout: 5s
       retries: 5
@@ -50,8 +50,8 @@ services:
     container_name: openbrau-mqtt
     restart: unless-stopped
     ports:
-      - "1883:1883"   # Standard MQTT port
-      - "9001:9001"   # WebSockets port (optional, good for web dashboards)
+      - '1883:1883' # Standard MQTT port
+      - '9001:9001' # WebSockets port (optional, good for web dashboards)
     volumes:
       # You'll need to create a local mosquitto.conf file to allow anonymous access or set up passwords
       - ./mosquitto/config:/mosquitto/config
