@@ -27,9 +27,12 @@ COPY --from=builder /app/package.json ./
 COPY --from=builder /app/drizzle ./drizzle
 COPY --from=builder /app/drizzle.config.ts ./
 COPY --from=builder /app/src ./src
+COPY --from=builder /app/docker-entrypoint.sh ./
+
+RUN chmod +x /app/docker-entrypoint.sh
 
 # Expose the port the app runs on
 EXPOSE 3000
 
-# Run the Bun server
-CMD ["bun", "run", "build/index.js"]
+# Run migrations before starting the Bun server
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
