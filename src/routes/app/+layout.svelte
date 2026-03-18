@@ -190,7 +190,7 @@
 	</Sidebar.Root>
 
 	<Sidebar.Inset
-		class="bg-[radial-gradient(circle_at_top,_rgba(216,190,145,0.18),_transparent_40%),linear-gradient(180deg,_var(--color-background)_0%,_color-mix(in_oklab,var(--color-background)_94%,var(--color-sidebar)_6%)_100%)]"
+		class="bg-[radial-gradient(circle_at_top,rgba(216,190,145,0.18),transparent_40%),linear-gradient(180deg,var(--color-background)_0%,color-mix(in_oklab,var(--color-background)_94%,var(--color-sidebar)_6%)_100%)]"
 	>
 		<header
 			class="sticky top-0 z-20 flex items-center justify-between border-b bg-background/85 px-4 py-3 backdrop-blur md:px-6"
