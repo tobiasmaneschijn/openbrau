@@ -5,7 +5,7 @@ services:
   web:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: DOCKERFILE
     container_name: openbrau-web
     restart: unless-stopped
     ports:
