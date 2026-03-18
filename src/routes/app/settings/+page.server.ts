@@ -9,7 +9,12 @@ import {
 import { updateUserSettings } from '$lib/server/settings';
 import { booleanField, enumField, optionalString, requiredString } from '$lib/server/forms';
 import { getAppSettings, updateAppSettings } from '$lib/server/app-settings';
-import { createUserAccount, deleteUserAccount, listUsers, updateUserAccount } from '$lib/server/users';
+import {
+	createUserAccount,
+	deleteUserAccount,
+	listUsers,
+	updateUserAccount
+} from '$lib/server/users';
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 

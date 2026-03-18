@@ -11,62 +11,62 @@
 	import Settings2Icon from '@lucide/svelte/icons/settings-2';
 	import SlidersHorizontalIcon from '@lucide/svelte/icons/sliders-horizontal';
 	import type { LayoutData } from './$types';
-import {
-	APP_PAGE_HEADER_CONTEXT,
-	type AppPageHeaderConfig,
-	type SetAppPageHeader
-} from '$lib/components/app/page-header';
-import { Badge } from '$lib/components/ui/badge';
-import { Button } from '$lib/components/ui/button';
-import { Separator } from '$lib/components/ui/separator';
-import * as Sidebar from '$lib/components/ui/sidebar';
-import { readUserSettings } from '$lib/settings';
-import * as m from '$lib/paraglide/messages';
+	import {
+		APP_PAGE_HEADER_CONTEXT,
+		type AppPageHeaderConfig,
+		type SetAppPageHeader
+	} from '$lib/components/app/page-header';
+	import { Badge } from '$lib/components/ui/badge';
+	import { Button } from '$lib/components/ui/button';
+	import { Separator } from '$lib/components/ui/separator';
+	import * as Sidebar from '$lib/components/ui/sidebar';
+	import { readUserSettings } from '$lib/settings';
+	import * as m from '$lib/paraglide/messages';
 
-let { data, children }: { data: LayoutData; children: Snippet } = $props();
-const uiLocale = $derived(readUserSettings(data.user?.preferences).language as 'en' | 'da');
+	let { data, children }: { data: LayoutData; children: Snippet } = $props();
+	const uiLocale = $derived(readUserSettings(data.user?.preferences).language as 'en' | 'da');
 
-const navItems = $derived.by(
-	() =>
-		[
-			{
-				href: '/app',
-				label: m.overview({}, { locale: uiLocale }),
-				description: m.dashboard({}, { locale: uiLocale }),
-				icon: LayoutDashboardIcon
-			},
-			{
-				href: '/app/recipes',
-				label: m.recipes({}, { locale: uiLocale }),
-				description: m.brew_library({}, { locale: uiLocale }),
-				icon: FlaskConicalIcon
-			},
-			{
-				href: '/app/batches',
-				label: m.batches({}, { locale: uiLocale }),
-				description: m.fermentation_log({}, { locale: uiLocale }),
-				icon: BarChart3Icon
-			},
-			{
-				href: '/app/ingredients',
-				label: m.ingredients({}, { locale: uiLocale }),
-				description: m.saved_library({}, { locale: uiLocale }),
-				icon: PackageIcon
-			},
-			{
-				href: '/app/equipment',
-				label: m.equipment({}, { locale: uiLocale }),
-				description: m.profiles({}, { locale: uiLocale }),
-				icon: Settings2Icon
-			},
-			{
-				href: '/app/settings',
-				label: m.settings({}, { locale: uiLocale }),
-				description: m.preferences({}, { locale: uiLocale }),
-				icon: SlidersHorizontalIcon
-			}
-		] as const
-);
+	const navItems = $derived.by(
+		() =>
+			[
+				{
+					href: '/app',
+					label: m.overview({}, { locale: uiLocale }),
+					description: m.dashboard({}, { locale: uiLocale }),
+					icon: LayoutDashboardIcon
+				},
+				{
+					href: '/app/recipes',
+					label: m.recipes({}, { locale: uiLocale }),
+					description: m.brew_library({}, { locale: uiLocale }),
+					icon: FlaskConicalIcon
+				},
+				{
+					href: '/app/batches',
+					label: m.batches({}, { locale: uiLocale }),
+					description: m.fermentation_log({}, { locale: uiLocale }),
+					icon: BarChart3Icon
+				},
+				{
+					href: '/app/ingredients',
+					label: m.ingredients({}, { locale: uiLocale }),
+					description: m.saved_library({}, { locale: uiLocale }),
+					icon: PackageIcon
+				},
+				{
+					href: '/app/equipment',
+					label: m.equipment({}, { locale: uiLocale }),
+					description: m.profiles({}, { locale: uiLocale }),
+					icon: Settings2Icon
+				},
+				{
+					href: '/app/settings',
+					label: m.settings({}, { locale: uiLocale }),
+					description: m.preferences({}, { locale: uiLocale }),
+					icon: SlidersHorizontalIcon
+				}
+			] as const
+	);
 
 	let currentPageHeader = $state<AppPageHeaderConfig | null>(null);
 	let registeredHeaderPath = $state<string | null>(null);
@@ -129,7 +129,9 @@ const navItems = $derived.by(
 <Sidebar.Provider>
 	<Sidebar.Root variant="inset" collapsible="icon">
 		<Sidebar.Header class="gap-4 px-3 py-4">
-			<div class="flex items-center gap-3 px-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
+			<div
+				class="flex items-center gap-3 px-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
+			>
 				<div
 					class="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm"
 				>
@@ -180,11 +182,7 @@ const navItems = $derived.by(
 				<p class="text-sm font-medium">{data.user.username}</p>
 			</div>
 
-			<form
-				method="POST"
-				action="/logout"
-				class="group-data-[collapsible=icon]:hidden"
-			>
+			<form method="POST" action="/logout" class="group-data-[collapsible=icon]:hidden">
 				<Button type="submit" variant="outline" class="w-full justify-start">{m.sign_out()}</Button>
 			</form>
 		</Sidebar.Footer>
@@ -235,7 +233,7 @@ const navItems = $derived.by(
 			</div>
 		</header>
 
-		<main class="mx-auto w-full  px-4 py-6 md:px-6 md:py-8">
+		<main class="mx-auto w-full px-4 py-6 md:px-6 md:py-8">
 			{@render children()}
 		</main>
 	</Sidebar.Inset>

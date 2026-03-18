@@ -116,7 +116,8 @@
 							/>
 						</div>
 						<div class="space-y-2">
-							<label for="coarseFineDiffPct" class="text-sm font-medium">{m.coarse_fine_diff_pct()}</label
+							<label for="coarseFineDiffPct" class="text-sm font-medium"
+								>{m.coarse_fine_diff_pct()}</label
 							>
 							<Input
 								id="coarseFineDiffPct"
@@ -272,7 +273,9 @@
 							<Input id="flocculation" name="flocculation" value={yeast.flocculation ?? ''} />
 						</div>
 						<div class="space-y-2">
-							<label for="minTemperatureC" class="text-sm font-medium">{m.min_temperature_c()}</label>
+							<label for="minTemperatureC" class="text-sm font-medium"
+								>{m.min_temperature_c()}</label
+							>
 							<Input
 								id="minTemperatureC"
 								name="minTemperatureC"
@@ -282,7 +285,9 @@
 							/>
 						</div>
 						<div class="space-y-2">
-							<label for="maxTemperatureC" class="text-sm font-medium">{m.max_temperature_c()}</label>
+							<label for="maxTemperatureC" class="text-sm font-medium"
+								>{m.max_temperature_c()}</label
+							>
 							<Input
 								id="maxTemperatureC"
 								name="maxTemperatureC"

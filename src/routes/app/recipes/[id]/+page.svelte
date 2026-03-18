@@ -83,12 +83,19 @@
 	}
 
 	const recipeDetailHeaderActions = $derived([
-		{ label: m.start_batch(), href: resolve(`/app/batches/new?recipeId=${data.recipe.id}`), variant: 'secondary' },
-		{ label: m.export_xml(), href: resolve(`/app/recipes/${data.recipe.id}/beerxml`), variant: 'outline' },
+		{
+			label: m.start_batch(),
+			href: resolve(`/app/batches/new?recipeId=${data.recipe.id}`),
+			variant: 'secondary'
+		},
+		{
+			label: m.export_xml(),
+			href: resolve(`/app/recipes/${data.recipe.id}/beerxml`),
+			variant: 'outline'
+		},
 		{ label: m.back(), href: resolve('/app/recipes'), variant: 'outline' },
 		{ label: m.save_changes(), type: 'submit', form: 'recipe-edit-form', variant: 'default' }
 	] satisfies AppPageHeaderAction[]);
-
 </script>
 
 <div class="space-y-6">
@@ -125,7 +132,7 @@
 							<Badge>{m.default_setup()}</Badge>
 						{/if}
 					</div>
-						<CardDescription>{m.recipe_snapshot_description()}</CardDescription>
+					<CardDescription>{m.recipe_snapshot_description()}</CardDescription>
 					<div class="flex flex-wrap gap-2">
 						{#each data.engineSummary.modules as module (module)}
 							<Badge variant="outline">{moduleLabel(module)}</Badge>
@@ -134,7 +141,9 @@
 				</CardHeader>
 				<CardContent class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
 					<div class="rounded-2xl border bg-background/80 p-4">
-						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">{m.original_gravity()}</p>
+						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">
+							{m.original_gravity()}
+						</p>
 						<p class="mt-2 text-2xl font-black">
 							{formatMetric(data.engineSummary.computed.og, 3)}
 						</p>
@@ -143,7 +152,9 @@
 						</p>
 					</div>
 					<div class="rounded-2xl border bg-background/80 p-4">
-						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">{m.final_gravity()}</p>
+						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">
+							{m.final_gravity()}
+						</p>
 						<p class="mt-2 text-2xl font-black">
 							{formatMetric(data.engineSummary.computed.fg, 3)}
 						</p>
@@ -152,13 +163,17 @@
 						</p>
 					</div>
 					<div class="rounded-2xl border bg-background/80 p-4">
-						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">{m.estimated_abv()}</p>
+						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">
+							{m.estimated_abv()}
+						</p>
 						<p class="mt-2 text-2xl font-black">
 							{formatMetric(data.engineSummary.computed.abvPct, 2)}%
 						</p>
 					</div>
 					<div class="rounded-2xl border bg-background/80 p-4">
-						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">{m.bitterness_label()}</p>
+						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">
+							{m.bitterness_label()}
+						</p>
 						<p class="mt-2 text-2xl font-black">
 							{formatMetric(data.engineSummary.computed.ibu, 1)}
 						</p>
@@ -167,7 +182,9 @@
 						</p>
 					</div>
 					<div class="rounded-2xl border bg-background/80 p-4">
-						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">{m.color_label()}</p>
+						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">
+							{m.color_label()}
+						</p>
 						<p class="mt-2 text-2xl font-black">
 							{formatMetric(data.engineSummary.computed.srm, 1)}
 						</p>
@@ -176,7 +193,9 @@
 						</p>
 					</div>
 					<div class="rounded-2xl border bg-background/80 p-4">
-						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">{m.pre_boil_volume()}</p>
+						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">
+							{m.pre_boil_volume()}
+						</p>
 						<p class="mt-2 text-2xl font-black">
 							{formatMetric(data.engineSummary.batch.preBoilVolumeL, 1)} L
 						</p>
@@ -197,13 +216,17 @@
 				<CardContent class="space-y-3">
 					<div class="grid gap-3 sm:grid-cols-2">
 						<div class="rounded-2xl border bg-background/80 p-4">
-							<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">{m.efficiency()}</p>
+							<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">
+								{m.efficiency()}
+							</p>
 							<p class="mt-2 text-2xl font-black">
 								{formatMetric(data.engineSummary.process.brewhouseEfficiencyPct, 1)}%
 							</p>
 						</div>
 						<div class="rounded-2xl border bg-background/80 p-4">
-							<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">{m.boil_off_loss()}</p>
+							<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">
+								{m.boil_off_loss()}
+							</p>
 							<p class="mt-2 text-2xl font-black">
 								{formatMetric(data.engineSummary.batch.boilOffLossL, 1)} L
 							</p>
@@ -236,17 +259,19 @@
 						<CardTitle class="text-xl font-bold">{m.ingredients()}</CardTitle>
 						<CardDescription>{m.recipe_ingredients_description()}</CardDescription>
 					</div>
-					<Button href={resolve('/app/ingredients')} variant="outline">{m.open_ingredient_library()}</Button>
+					<Button href={resolve('/app/ingredients')} variant="outline"
+						>{m.open_ingredient_library()}</Button
+					>
 				</div>
 			</CardHeader>
 			<CardContent class="grid gap-4 xl:grid-cols-2">
 				<section class="rounded-2xl border bg-background/70 p-4">
 					<div class="mb-4 flex items-center justify-between gap-3">
 						<div>
-						<h3 class="font-semibold">{m.ingredient_kind_fermentables()}</h3>
-						<p class="text-sm text-muted-foreground">
-							{m.ingredient_kind_fermentables_description()}
-						</p>
+							<h3 class="font-semibold">{m.ingredient_kind_fermentables()}</h3>
+							<p class="text-sm text-muted-foreground">
+								{m.ingredient_kind_fermentables_description()}
+							</p>
 						</div>
 						<Badge variant="outline">{data.ingredients.fermentables.length}</Badge>
 					</div>
@@ -273,10 +298,11 @@
 												{/if}
 											</p>
 											<p class="text-xs tracking-[0.16em] text-muted-foreground uppercase">
-											{usePhaseLabel(item.usePhase)} . {m.yield_pct()} {formatMetric(item.ingredient.yieldPct, 1)}% . {formatMetric(
-												item.ingredient.colorLovibond,
-												1
-											)} L
+												{usePhaseLabel(item.usePhase)} . {m.yield_pct()}
+												{formatMetric(item.ingredient.yieldPct, 1)}% . {formatMetric(
+													item.ingredient.colorLovibond,
+													1
+												)} L
 											</p>
 											{#if item.notes}
 												<p class="text-sm text-muted-foreground">{item.notes}</p>
@@ -305,7 +331,9 @@
 					>
 						<div class="grid gap-3 md:grid-cols-2">
 							<div class="space-y-2 md:col-span-2">
-								<label for="fermentable-name" class="text-sm font-medium">{m.ingredient_name()}</label>
+								<label for="fermentable-name" class="text-sm font-medium"
+									>{m.ingredient_name()}</label
+								>
 								<Input id="fermentable-name" name="name" list={fermentableSuggestionId} required />
 								<datalist id={fermentableSuggestionId}>
 									{#each data.ingredientLibrary.fermentables as ingredient (ingredient.id)}
@@ -341,12 +369,18 @@
 								<Input id="fermentable-yield" name="yieldPct" type="number" step="0.01" required />
 							</div>
 							<div class="space-y-2">
-								<label for="fermentable-color" class="text-sm font-medium">{m.color_lovibond()}</label>
+								<label for="fermentable-color" class="text-sm font-medium"
+									>{m.color_lovibond()}</label
+								>
 								<Input id="fermentable-color" name="colorLovibond" type="number" step="0.01" />
 							</div>
 							<div class="space-y-2">
 								<label for="fermentable-type" class="text-sm font-medium">{m.type()}</label>
-								<Input id="fermentable-type" name="type" placeholder={m.grain_sugar_extract_placeholder()} />
+								<Input
+									id="fermentable-type"
+									name="type"
+									placeholder={m.grain_sugar_extract_placeholder()}
+								/>
 							</div>
 							<div class="space-y-2">
 								<label for="fermentable-brand" class="text-sm font-medium">{m.brand()}</label>
@@ -377,10 +411,10 @@
 				<section class="rounded-2xl border bg-background/70 p-4">
 					<div class="mb-4 flex items-center justify-between gap-3">
 						<div>
-						<h3 class="font-semibold">{m.ingredient_kind_hops()}</h3>
-						<p class="text-sm text-muted-foreground">
-							{m.ingredient_kind_hops_description()}
-						</p>
+							<h3 class="font-semibold">{m.ingredient_kind_hops()}</h3>
+							<p class="text-sm text-muted-foreground">
+								{m.ingredient_kind_hops_description()}
+							</p>
 						</div>
 						<Badge variant="outline">{data.ingredients.hops.length}</Badge>
 					</div>
@@ -398,15 +432,15 @@
 												{item.ingredient.name}
 											</a>
 											<p class="text-sm text-muted-foreground">
-											{formatMetric(item.amountKg, 3)} kg . {formatMetric(
+												{formatMetric(item.amountKg, 3)} kg . {formatMetric(
 													item.ingredient.alphaAcidPct,
 													2
 												)}% alpha acid
 											</p>
 											<p class="text-xs tracking-[0.16em] text-muted-foreground uppercase">
-											{usePhaseLabel(item.usePhase)}
+												{usePhaseLabel(item.usePhase)}
 												{#if item.timeMin != null}
-												. {item.timeMin} {m.time_min()}
+													. {item.timeMin} {m.time_min()}
 												{/if}
 												{#if item.ingredient.form}
 													. {item.ingredient.form}
@@ -477,7 +511,11 @@
 							</div>
 							<div class="space-y-2">
 								<label for="hop-type" class="text-sm font-medium">{m.type()}</label>
-								<Input id="hop-type" name="type" placeholder={m.bittering_aroma_dual_purpose_placeholder()} />
+								<Input
+									id="hop-type"
+									name="type"
+									placeholder={m.bittering_aroma_dual_purpose_placeholder()}
+								/>
 							</div>
 							<div class="space-y-2 md:col-span-2">
 								<label for="hop-origin" class="text-sm font-medium">{m.origin()}</label>
@@ -495,10 +533,10 @@
 				<section class="rounded-2xl border bg-background/70 p-4">
 					<div class="mb-4 flex items-center justify-between gap-3">
 						<div>
-						<h3 class="font-semibold">{m.ingredient_kind_yeasts()}</h3>
-						<p class="text-sm text-muted-foreground">
-							{m.ingredient_kind_yeasts_description()}
-						</p>
+							<h3 class="font-semibold">{m.ingredient_kind_yeasts()}</h3>
+							<p class="text-sm text-muted-foreground">
+								{m.ingredient_kind_yeasts_description()}
+							</p>
 						</div>
 						<Badge variant="outline">{data.ingredients.yeasts.length}</Badge>
 					</div>
@@ -522,9 +560,9 @@
 												{/if}
 											</p>
 											<p class="text-xs tracking-[0.16em] text-muted-foreground uppercase">
-											{item.amountIsWeight
-												? `${formatMetric(item.amountKg, 3)} kg`
-												: `${formatMetric(item.amountL, 3)} L`}
+												{item.amountIsWeight
+													? `${formatMetric(item.amountKg, 3)} kg`
+													: `${formatMetric(item.amountL, 3)} L`}
 												{#if item.cellsBillions}
 													. {formatMetric(item.cellsBillions, 0)} {m.cells_billions()}
 												{/if}
@@ -580,7 +618,9 @@
 								<Input id="yeast-type" name="type" placeholder={m.ale_lager_wine_placeholder()} />
 							</div>
 							<div class="space-y-2">
-								<label for="yeast-attenuation" class="text-sm font-medium">{m.attenuation_pct()}</label>
+								<label for="yeast-attenuation" class="text-sm font-medium"
+									>{m.attenuation_pct()}</label
+								>
 								<Input id="yeast-attenuation" name="attenuationPct" type="number" step="0.01" />
 							</div>
 							<div class="space-y-2">
@@ -592,7 +632,9 @@
 								<Input id="yeast-amount-volume" name="amountL" type="number" step="0.0001" />
 							</div>
 							<div class="space-y-2">
-								<label for="yeast-cells" class="text-sm font-medium">{m.cells_billions_label()}</label>
+								<label for="yeast-cells" class="text-sm font-medium"
+									>{m.cells_billions_label()}</label
+								>
 								<Input id="yeast-cells" name="cellsBillions" type="number" step="0.01" />
 							</div>
 							<div class="space-y-2">
@@ -625,10 +667,10 @@
 				<section class="rounded-2xl border bg-background/70 p-4">
 					<div class="mb-4 flex items-center justify-between gap-3">
 						<div>
-						<h3 class="font-semibold">{m.ingredient_kind_miscs()}</h3>
-						<p class="text-sm text-muted-foreground">
-							{m.ingredient_kind_miscs_description()}
-						</p>
+							<h3 class="font-semibold">{m.ingredient_kind_miscs()}</h3>
+							<p class="text-sm text-muted-foreground">
+								{m.ingredient_kind_miscs_description()}
+							</p>
 						</div>
 						<Badge variant="outline">{data.ingredients.miscs.length}</Badge>
 					</div>
@@ -656,7 +698,7 @@
 													? `${formatMetric(item.amountKg, 3)} kg`
 													: `${formatMetric(item.amountL, 3)} L`}
 												{#if item.timeMin != null}
-												. {item.timeMin} {m.time_min()}
+													. {item.timeMin} {m.time_min()}
 												{/if}
 												. {usePhaseLabel(item.usePhase)}
 											</p>

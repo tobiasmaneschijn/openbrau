@@ -33,17 +33,17 @@
 	<div class="relative mx-auto grid max-w-6xl gap-8 lg:grid-cols-[1.1fr_0.9fr]">
 		<Card class="border-border/70 bg-card/85 shadow-2xl backdrop-blur">
 			<CardHeader class="space-y-4">
-					<div class="flex items-center gap-3">
-						<div
-							class="flex size-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground"
-						>
-							<BarrelIcon class="size-6" />
-						</div>
-						<div>
-							<p class="text-sm font-semibold tracking-[0.26em] uppercase">{m.app_name()}</p>
-							<p class="text-sm text-muted-foreground">{m.homebrew_workspace()}</p>
-						</div>
+				<div class="flex items-center gap-3">
+					<div
+						class="flex size-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground"
+					>
+						<BarrelIcon class="size-6" />
 					</div>
+					<div>
+						<p class="text-sm font-semibold tracking-[0.26em] uppercase">{m.app_name()}</p>
+						<p class="text-sm text-muted-foreground">{m.homebrew_workspace()}</p>
+					</div>
+				</div>
 				<Badge variant="secondary" class="w-fit rounded-full px-3 py-1 tracking-[0.18em] uppercase">
 					{m.local_first()}
 				</Badge>
@@ -92,7 +92,13 @@
 				<form method="POST" class="space-y-4">
 					<div class="space-y-2">
 						<label for="username" class="text-sm font-medium">{m.username()}</label>
-						<Input id="username" name="username" type="text" required placeholder={m.username_placeholder()} />
+						<Input
+							id="username"
+							name="username"
+							type="text"
+							required
+							placeholder={m.username_placeholder()}
+						/>
 					</div>
 
 					<div class="space-y-2">

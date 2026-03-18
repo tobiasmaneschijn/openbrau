@@ -213,12 +213,19 @@
 		emptyDescription={m.create_first_recipe()}
 	>
 		{#snippet rowActions(recipe)}
-			<Button href={recipe.openHref} variant="ghost" size="sm" class={actionItemClass}>{m.open()}</Button>
-			<Button href={recipe.batchHref} variant="ghost" size="sm" class={actionItemClass}>{m.start_batch()}</Button>
-			<Button href={recipe.exportHref} variant="ghost" size="sm" class={actionItemClass}>{m.export_xml()}</Button>
+			<Button href={recipe.openHref} variant="ghost" size="sm" class={actionItemClass}
+				>{m.open()}</Button
+			>
+			<Button href={recipe.batchHref} variant="ghost" size="sm" class={actionItemClass}
+				>{m.start_batch()}</Button
+			>
+			<Button href={recipe.exportHref} variant="ghost" size="sm" class={actionItemClass}
+				>{m.export_xml()}</Button
+			>
 			<form method="POST" action="?/delete">
 				<input type="hidden" name="id" value={recipe.id} />
-				<Button type="submit" variant="ghost" size="sm" class={actionItemClass}>{m.delete()}</Button>
+				<Button type="submit" variant="ghost" size="sm" class={actionItemClass}>{m.delete()}</Button
+				>
 			</form>
 		{/snippet}
 	</DataTable>

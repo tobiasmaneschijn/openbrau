@@ -151,9 +151,7 @@ export function readUserSettings(preferences?: StoredUserPreferences | null): Us
 
 export function getEffectiveDateLocale(settings: UserSettings) {
 	const candidate =
-		settings.dateLocale === FORMAT_LOCALE_FOLLOW_LANGUAGE
-			? settings.language
-			: settings.dateLocale;
+		settings.dateLocale === FORMAT_LOCALE_FOLLOW_LANGUAGE ? settings.language : settings.dateLocale;
 
 	return isValidLocale(candidate) ? Intl.getCanonicalLocales(candidate)[0] : FALLBACK_FORMAT_LOCALE;
 }

@@ -108,7 +108,11 @@ export async function updateUserAccount(id: string, input: UpdateUserAccountInpu
 		throw new Error('User not found.');
 	}
 
-	if (input.password != null && input.password.trim().length > 0 && input.password.trim().length < 8) {
+	if (
+		input.password != null &&
+		input.password.trim().length > 0 &&
+		input.password.trim().length < 8
+	) {
 		throw new Error('Password must be at least 8 characters long.');
 	}
 

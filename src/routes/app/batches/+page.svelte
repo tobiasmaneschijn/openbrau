@@ -132,10 +132,13 @@
 		emptyDescription={m.create_first_recipe()}
 	>
 		{#snippet rowActions(batch)}
-			<Button href={batch.openHref} variant="ghost" size="sm" class={actionItemClass}>{m.open()}</Button>
+			<Button href={batch.openHref} variant="ghost" size="sm" class={actionItemClass}
+				>{m.open()}</Button
+			>
 			<form method="POST" action="?/delete">
 				<input type="hidden" name="id" value={batch.id} />
-				<Button type="submit" variant="ghost" size="sm" class={actionItemClass}>{m.delete()}</Button>
+				<Button type="submit" variant="ghost" size="sm" class={actionItemClass}>{m.delete()}</Button
+				>
 			</form>
 		{/snippet}
 	</DataTable>
