@@ -144,13 +144,3 @@ Planned and emerging areas include richer telemetry, IoT integrations, and more 
 Issues, documentation improvements, bug fixes, and feature work are all welcome. If you're unsure where to start, documentation and workflow polish are excellent first pours.
 
 Please read [`CONTRIBUTING.md`](./CONTRIBUTING.md) before opening a pull request.
-
-## Brewing Humor, As Required by Law
-
-- Ship code like you brew lager: clean, patient, and with good temperature control.
-- If a feature feels half-baked, that's fine for mash schedules, less fine for production releases.
-- Remember: RDWHAHB also applies to debugging, though the stack trace may disagree.
-
-## License
-
-Add your preferred open-source license here if one is not already established for the project.
