@@ -223,9 +223,7 @@
 	<Card id="phase-control" class="border-border/70 bg-card/95 shadow-sm">
 		<CardHeader>
 			<CardTitle class="text-xl font-bold">Phase control</CardTitle>
-			<CardDescription>
-				Move forward, move backward, or jump directly when advanced mode is enabled.
-			</CardDescription>
+			<CardDescription>Move backward, forward, or directly to any phase.</CardDescription>
 		</CardHeader>
 		<CardContent class="space-y-5">
 			<div class="grid gap-3 md:grid-cols-5">
@@ -269,28 +267,26 @@
 				{/if}
 			</div>
 
-			{#if settings.advancedMode}
-				<div class="space-y-3 rounded-2xl border border-dashed p-4">
-					<div>
-						<p class="font-medium">Advanced jump</p>
-						<p class="text-sm text-muted-foreground">
-							Use this if you need to recover from an incorrect phase change.
-						</p>
-					</div>
-					<div class="flex flex-wrap gap-2">
-						{#each data.availableStatuses as status (status)}
-							{#if status !== data.batch.status}
-								<form method="POST" action="?/changeStatus">
-									<input type="hidden" name="nextStatus" value={status} />
-									<Button type="submit" variant="outline" size="sm"
-										>{BATCH_STATUS_LABELS[status]}</Button
-									>
-								</form>
-							{/if}
-						{/each}
-					</div>
+			<div class="space-y-3 rounded-2xl border border-dashed p-4">
+				<div>
+					<p class="font-medium">Jump to phase</p>
+					<p class="text-sm text-muted-foreground">
+						Use this if you need to correct the current phase without losing data.
+					</p>
 				</div>
-			{/if}
+				<div class="flex flex-wrap gap-2">
+					{#each data.availableStatuses as status (status)}
+						{#if status !== data.batch.status}
+							<form method="POST" action="?/changeStatus">
+								<input type="hidden" name="nextStatus" value={status} />
+								<Button type="submit" variant="outline" size="sm"
+									>{BATCH_STATUS_LABELS[status]}</Button
+								>
+							</form>
+						{/if}
+					{/each}
+				</div>
+			</div>
 		</CardContent>
 	</Card>
 
