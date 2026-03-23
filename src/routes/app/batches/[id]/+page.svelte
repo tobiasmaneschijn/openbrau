@@ -72,7 +72,7 @@
 			settings.units,
 			numberFormatter.resolvedOptions().locale,
 			1
-		).replace('Â°', '°');
+		);
 	}
 
 	function formatBatchVolume(value: string | null) {
@@ -89,9 +89,9 @@
 	}
 
 	function trendArrow(trend: 'up' | 'down' | 'steady') {
-		if (trend === 'up') return '↑';
-		if (trend === 'down') return '↓';
-		return '→';
+		if (trend === 'up') return '^';
+		if (trend === 'down') return 'v';
+		return '~';
 	}
 
 	type ChartPoint = (typeof data.dashboard.chart.points)[number];
@@ -254,7 +254,7 @@
 					<form method="POST" action="?/changeStatus">
 						<input type="hidden" name="nextStatus" value={data.previousStatus} />
 						<Button type="submit" variant="outline">
-							← Move to {BATCH_STATUS_LABELS[data.previousStatus]}
+							&lt;- Move to {BATCH_STATUS_LABELS[data.previousStatus]}
 						</Button>
 					</form>
 				{/if}
@@ -262,7 +262,7 @@
 				{#if data.nextStatus}
 					<form method="POST" action="?/changeStatus">
 						<input type="hidden" name="nextStatus" value={data.nextStatus} />
-						<Button type="submit">Move to {BATCH_STATUS_LABELS[data.nextStatus]} →</Button>
+						<Button type="submit">Move to {BATCH_STATUS_LABELS[data.nextStatus]} -&gt;</Button>
 					</form>
 				{/if}
 			</div>
@@ -442,7 +442,7 @@
 							}`}
 						>
 							<div class="flex items-start gap-3">
-								<div class="pt-0.5 text-lg">{task.done ? '✓' : '□'}</div>
+								<div class="pt-0.5 text-lg">{task.done ? '[x]' : '[ ]'}</div>
 								<div>
 									<p class="font-medium">{task.label}</p>
 									<p class="mt-1 text-sm text-muted-foreground">{task.detail}</p>
@@ -467,7 +467,7 @@
 						>
 							<div class="flex items-center gap-3">
 								<span class="text-lg">
-									{phase.state === 'complete' ? '✓' : phase.state === 'current' ? '●' : '○'}
+									{phase.state === 'complete' ? '[x]' : phase.state === 'current' ? '[~]' : '[ ]'}
 								</span>
 								<span class="font-medium">{phase.label}</span>
 							</div>
@@ -487,7 +487,7 @@
 					<div class="mt-3 space-y-2 text-sm">
 						{#each data.dashboard.tasks as task (task.id)}
 							<div class="flex items-start gap-2">
-								<span>{task.done ? '✓' : '□'}</span>
+								<span>{task.done ? '[x]' : '[ ]'}</span>
 								<span>{task.label}</span>
 							</div>
 						{/each}
@@ -585,7 +585,7 @@
 						<Input id="gravity" name="gravity" type="number" step="0.001" />
 					</div>
 					<div class="space-y-2">
-						<label for="temperatureC" class="text-sm font-medium">Temperature (°C)</label>
+						<label for="temperatureC" class="text-sm font-medium">Temperature (C)</label>
 						<Input id="temperatureC" name="temperatureC" type="number" step="0.01" />
 					</div>
 					<div class="space-y-2 md:col-span-2">
@@ -644,7 +644,7 @@
 													</div>
 													<div class="space-y-2">
 														<label for={`temperatureC-${entry.id}`} class="text-sm font-medium"
-															>Temperature (°C)</label
+															>Temperature (C)</label
 														>
 														<Input
 															id={`temperatureC-${entry.id}`}
@@ -724,6 +724,148 @@
 		</details>
 
 		<details class="rounded-3xl border border-border/70 bg-card/95 p-5 shadow-sm">
+			<summary class="cursor-pointer list-none text-lg font-bold">Batch formulation</summary>
+			<div class="mt-5">
+				<form method="POST" action="?/saveFormulation" class="space-y-5">
+					<div class="grid gap-4 md:grid-cols-2">
+						<div class="space-y-2">
+							<label for="formulation-name" class="text-sm font-medium">Batch name</label>
+							<Input id="formulation-name" name="name" value={data.formulationSnapshot.name} />
+						</div>
+						<div class="space-y-2">
+							<label for="formulation-style" class="text-sm font-medium">{m.style()}</label>
+							<Input
+								id="formulation-style"
+								name="style"
+								value={data.formulationSnapshot.style ?? ''}
+							/>
+						</div>
+						<div class="space-y-2">
+							<label for="formulation-brew-type" class="text-sm font-medium">{m.brew_type()}</label>
+							<select
+								id="formulation-brew-type"
+								name="brewType"
+								class="flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm shadow-xs ring-offset-background transition-[color,box-shadow] outline-none focus-visible:ring-1 focus-visible:ring-ring"
+							>
+								<option value="beer" selected={data.formulationSnapshot.brewType === 'beer'}
+									>Beer</option
+								>
+								<option value="wine" selected={data.formulationSnapshot.brewType === 'wine'}
+									>Wine</option
+								>
+								<option value="mead" selected={data.formulationSnapshot.brewType === 'mead'}
+									>Mead</option
+								>
+							</select>
+						</div>
+						<div class="space-y-2">
+							<label for="formulation-targetBatchSizeL" class="text-sm font-medium"
+								>{m.target_volume()} (L)</label
+							>
+							<Input
+								id="formulation-targetBatchSizeL"
+								name="targetBatchSizeL"
+								type="number"
+								step="0.001"
+								value={String(data.formulationSnapshot.process.targetBatchSizeL)}
+							/>
+						</div>
+						<div class="space-y-2">
+							<label for="formulation-boilTimeMin" class="text-sm font-medium">{m.time_min()}</label
+							>
+							<Input
+								id="formulation-boilTimeMin"
+								name="boilTimeMin"
+								type="number"
+								step="1"
+								value={String(data.formulationSnapshot.process.boilTimeMin)}
+							/>
+						</div>
+						<div class="space-y-2">
+							<label for="formulation-targetOg" class="text-sm font-medium"
+								>{m.target_og_label()}</label
+							>
+							<Input
+								id="formulation-targetOg"
+								name="targetOg"
+								type="number"
+								step="0.001"
+								value={data.formulationSnapshot.targets.og == null
+									? ''
+									: String(data.formulationSnapshot.targets.og)}
+							/>
+						</div>
+						<div class="space-y-2">
+							<label for="formulation-targetFg" class="text-sm font-medium"
+								>{m.target_fg_label()}</label
+							>
+							<Input
+								id="formulation-targetFg"
+								name="targetFg"
+								type="number"
+								step="0.001"
+								value={data.formulationSnapshot.targets.fg == null
+									? ''
+									: String(data.formulationSnapshot.targets.fg)}
+							/>
+						</div>
+						<div class="space-y-2">
+							<label for="formulation-targetIbu" class="text-sm font-medium"
+								>{m.target_ibu_label()}</label
+							>
+							<Input
+								id="formulation-targetIbu"
+								name="targetIbu"
+								type="number"
+								step="0.1"
+								value={data.formulationSnapshot.targets.ibu == null
+									? ''
+									: String(data.formulationSnapshot.targets.ibu)}
+							/>
+						</div>
+						<div class="space-y-2">
+							<label for="formulation-targetSrm" class="text-sm font-medium"
+								>{m.target_srm_label()}</label
+							>
+							<Input
+								id="formulation-targetSrm"
+								name="targetSrm"
+								type="number"
+								step="0.1"
+								value={data.formulationSnapshot.targets.srm == null
+									? ''
+									: String(data.formulationSnapshot.targets.srm)}
+							/>
+						</div>
+						<div class="space-y-2 md:col-span-2">
+							<label for="formulationNotes" class="text-sm font-medium">{m.notes()}</label>
+							<Textarea
+								id="formulationNotes"
+								name="formulationNotes"
+								rows={4}
+								value={data.formulationSnapshot.notes ?? ''}
+							/>
+						</div>
+						<div class="space-y-2 md:col-span-2">
+							<label for="snapshotJson" class="text-sm font-medium">Full batch snapshot JSON</label>
+							<Textarea
+								id="snapshotJson"
+								name="snapshotJson"
+								rows={18}
+								value={data.formulationJson}
+							/>
+							<p class="text-sm text-muted-foreground">
+								This batch snapshot is independent from the source recipe. Edit any ingredient,
+								process value, or target here.
+							</p>
+						</div>
+					</div>
+					<Button type="submit">{m.save_changes()}</Button>
+				</form>
+			</div>
+		</details>
+
+		<details class="rounded-3xl border border-border/70 bg-card/95 p-5 shadow-sm">
 			<summary class="cursor-pointer list-none text-lg font-bold">Conditioning</summary>
 			<div class="mt-5 grid gap-4 md:grid-cols-2">
 				<div class="rounded-2xl border bg-background/80 p-4">
@@ -753,7 +895,7 @@
 				<div class="grid gap-4 md:grid-cols-2">
 					<div class="rounded-2xl border bg-background/80 p-4">
 						<p class="text-xs tracking-[0.18em] text-muted-foreground uppercase">
-							{m.recipe_label()}
+							Source recipe
 						</p>
 						<p class="mt-2 text-lg font-bold">{data.batch.recipeName}</p>
 						<p class="mt-1 text-sm text-muted-foreground">
@@ -766,13 +908,15 @@
 						</p>
 						<p class="mt-2 text-lg font-bold">
 							{formatVolume(
-								Number(data.recipe.targetBatchSizeL),
+								Number(data.formulationSnapshot.process.targetBatchSizeL),
 								settings.units,
 								numberFormatter.resolvedOptions().locale,
 								1
 							)}
 						</p>
-						<p class="mt-1 text-sm text-muted-foreground">Recipe target volume in display units.</p>
+						<p class="mt-1 text-sm text-muted-foreground">
+							Batch target volume stored on the batch snapshot.
+						</p>
 					</div>
 				</div>
 

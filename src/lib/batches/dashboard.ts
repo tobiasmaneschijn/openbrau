@@ -5,8 +5,7 @@ import {
 } from '$lib/batches/config';
 import { estimateAbv } from '$lib/math/brewing';
 import type { RecipeEngineSummary } from '$lib/math/recipe-engine';
-import type { RecipeIngredients } from '$lib/server/recipe-items';
-import type { RecipeSummary } from '$lib/server/recipes';
+import type { RecipeDefinition } from '$lib/recipes/domain';
 import type { BatchActivityRecord, BatchDetail, BatchStatus } from '$lib/server/batches';
 
 type DashboardTask = {
@@ -417,8 +416,7 @@ function buildTimeline(
 
 export function buildBatchDashboardState(params: {
 	batch: BatchDetail;
-	recipe: RecipeSummary;
-	ingredients: RecipeIngredients;
+	definition: RecipeDefinition;
 	engineSummary: RecipeEngineSummary;
 	activity: BatchActivityRecord[];
 	now?: Date;
@@ -453,10 +451,10 @@ export function buildBatchDashboardState(params: {
 		params.batch.brewDate ?? params.batch.startedAt ?? params.batch.createdAt,
 		now
 	);
-	const yeastTemps = params.ingredients.yeasts
+	const yeastTemps = params.definition.yeasts
 		.map((item) => ({
-			min: numericValue(item.ingredient.minTemperatureC),
-			max: numericValue(item.ingredient.maxTemperatureC)
+			min: numericValue(item.minTemperatureC),
+			max: numericValue(item.maxTemperatureC)
 		}))
 		.filter((item) => item.min != null || item.max != null);
 	const yeastMinC =
@@ -467,8 +465,8 @@ export function buildBatchDashboardState(params: {
 		yeastTemps.length > 0
 			? Math.max(...yeastTemps.map((item) => item.max ?? Number.NEGATIVE_INFINITY))
 			: null;
-	const hasDryHop = params.ingredients.hops.some((item) => item.usePhase === 'dry_hop');
-	const hasPackagingAdditions = params.ingredients.miscs.some(
+	const hasDryHop = params.definition.hops.some((item) => item.usePhase === 'dry_hop');
+	const hasPackagingAdditions = params.definition.miscs.some(
 		(item) => item.usePhase === 'packaging'
 	);
 	const tasks = buildTasks({

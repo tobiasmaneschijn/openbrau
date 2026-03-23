@@ -1,9 +1,15 @@
 import { and, asc, desc, eq, sql } from 'drizzle-orm';
 import { fail } from '@sveltejs/kit';
+import {
+	buildBatchSnapshotFromRecipe,
+	isBatchRecipeSnapshot,
+	type BatchRecipeSnapshot
+} from '$lib/batches/snapshot';
 import { withAuditContext } from '$lib/server/db/audit';
 import { db } from '$lib/server/db';
 import { auditLogs, batchTelemetry, batches, recipes } from '$lib/server/db/schema';
 import { canTransitionBatchStatus } from '$lib/batches/config';
+import { listRecipeIngredientsForAuthor } from '$lib/server/recipe-items';
 import * as m from '$lib/paraglide/messages';
 
 export type BatchRecord = typeof batches.$inferSelect;
@@ -25,6 +31,7 @@ export type BatchListItem = {
 	recipeName: string;
 	recipeStyle: string | null;
 	recipeBrewType: typeof recipes.$inferSelect.brewType;
+	snapshot: BatchRecipeSnapshot | null;
 };
 
 export type BatchDetail = BatchListItem & {
@@ -43,6 +50,20 @@ export type UpdateBatchLogInput = {
 	brewDate?: Date | null;
 	actualBatchSizeL?: string | null;
 	notes?: string | null;
+};
+
+export type UpdateBatchSnapshotInput = {
+	name: string;
+	brewType: BatchRecipeSnapshot['brewType'];
+	style?: string | null;
+	notes?: string | null;
+	targetBatchSizeL: number;
+	boilTimeMin: number;
+	targetOg?: number | null;
+	targetFg?: number | null;
+	targetIbu?: number | null;
+	targetSrm?: number | null;
+	snapshotJson?: string | null;
 };
 
 export type AddBatchTelemetryInput = {
@@ -76,9 +97,10 @@ export async function listBatchesByOwner(userId: string) {
 		createdAt: row.batch.createdAt,
 		updatedAt: row.batch.updatedAt,
 		recipeId: row.recipe.id,
-		recipeName: row.recipe.name,
-		recipeStyle: row.recipe.style,
-		recipeBrewType: row.recipe.brewType
+		recipeName: row.batch.name ?? row.recipe.name,
+		recipeStyle: row.batch.style ?? row.recipe.style,
+		recipeBrewType: row.batch.brewType ?? row.recipe.brewType,
+		snapshot: row.batch.snapshot
 	}));
 }
 
@@ -117,9 +139,10 @@ export async function getBatchForOwner(id: string, userId: string) {
 		createdAt: row.batch.createdAt,
 		updatedAt: row.batch.updatedAt,
 		recipeId: row.recipe.id,
-		recipeName: row.recipe.name,
-		recipeStyle: row.recipe.style,
-		recipeBrewType: row.recipe.brewType,
+		recipeName: row.batch.name ?? row.recipe.name,
+		recipeStyle: row.batch.style ?? row.recipe.style,
+		recipeBrewType: row.batch.brewType ?? row.recipe.brewType,
+		snapshot: row.batch.snapshot,
 		telemetry
 	} satisfies BatchDetail;
 }
@@ -142,11 +165,25 @@ export async function createBatch(input: CreateBatchInput) {
 		throw fail(404, { message: m.recipe_not_found() });
 	}
 
+	const [fullRecipe, recipeIngredients] = await Promise.all([
+		db.select().from(recipes).where(eq(recipes.id, input.recipeId)).limit(1),
+		listRecipeIngredientsForAuthor(input.recipeId, input.userId)
+	]);
+	const sourceRecipe = fullRecipe[0];
+	if (!sourceRecipe) {
+		throw fail(404, { message: m.recipe_not_found() });
+	}
+	const snapshot = buildBatchSnapshotFromRecipe(sourceRecipe, recipeIngredients);
+
 	return withAuditContext(input.userId, async (tx) => {
 		const [batch] = await tx
 			.insert(batches)
 			.values({
 				recipeId: input.recipeId,
+				name: snapshot.name,
+				brewType: snapshot.brewType,
+				style: snapshot.style,
+				snapshot,
 				brewDate: input.brewDate ?? null,
 				actualBatchSizeL: input.actualBatchSizeL ?? null,
 				notes: input.notes ?? null
@@ -154,6 +191,91 @@ export async function createBatch(input: CreateBatchInput) {
 			.returning();
 
 		return batch;
+	});
+}
+
+export async function updateBatchSnapshotForOwner(
+	id: string,
+	userId: string,
+	input: UpdateBatchSnapshotInput
+) {
+	const batch = await getBatchForOwner(id, userId);
+	if (!batch) {
+		return null;
+	}
+
+	const baseSnapshot: BatchRecipeSnapshot = batch.snapshot ?? {
+		name: input.name,
+		brewType: input.brewType,
+		style: input.style ?? null,
+		notes: input.notes ?? null,
+		advancedMode: false,
+		enabledModules: ['core'],
+		process: {
+			targetBatchSizeL: input.targetBatchSizeL,
+			boilTimeMin: input.boilTimeMin,
+			ibuFormula: 'tinseth'
+		},
+		targets: {
+			og: input.targetOg ?? null,
+			fg: input.targetFg ?? null,
+			ibu: input.targetIbu ?? null,
+			srm: input.targetSrm ?? null
+		},
+		fermentables: [],
+		hops: [],
+		yeasts: [],
+		miscs: []
+	};
+
+	let snapshot = {
+		...baseSnapshot,
+		name: input.name,
+		brewType: input.brewType,
+		style: input.style ?? null,
+		notes: input.notes ?? null,
+		process: {
+			...baseSnapshot.process,
+			targetBatchSizeL: input.targetBatchSizeL,
+			boilTimeMin: input.boilTimeMin
+		},
+		targets: {
+			og: input.targetOg ?? null,
+			fg: input.targetFg ?? null,
+			ibu: input.targetIbu ?? null,
+			srm: input.targetSrm ?? null
+		}
+	} satisfies BatchRecipeSnapshot;
+
+	if (input.snapshotJson) {
+		let parsed: unknown;
+		try {
+			parsed = JSON.parse(input.snapshotJson) as unknown;
+		} catch {
+			throw new Error(m.field_invalid());
+		}
+
+		if (!isBatchRecipeSnapshot(parsed)) {
+			throw new Error(m.field_invalid());
+		}
+
+		snapshot = parsed;
+	}
+
+	return withAuditContext(userId, async (tx) => {
+		const [updated] = await tx
+			.update(batches)
+			.set({
+				name: snapshot.name,
+				brewType: snapshot.brewType,
+				style: snapshot.style,
+				snapshot,
+				updatedAt: new Date()
+			})
+			.where(eq(batches.id, id))
+			.returning();
+
+		return updated ?? null;
 	});
 }
 

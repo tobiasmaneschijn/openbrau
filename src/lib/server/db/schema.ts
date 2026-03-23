@@ -13,6 +13,7 @@ import {
 	uuid
 } from 'drizzle-orm/pg-core';
 import type { StoredUserPreferences } from '$lib/settings';
+import type { BatchRecipeSnapshot } from '$lib/batches/snapshot';
 
 const timestamps = {
 	createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
@@ -309,6 +310,10 @@ export const batches = pgTable(
 			.references(() => recipes.id, { onDelete: 'cascade' }),
 
 		status: batchStatusEnum('status').notNull().default('draft'),
+		name: text('name'),
+		brewType: brewTypeEnum('brew_type'),
+		style: text('style'),
+		snapshot: jsonb('snapshot').$type<BatchRecipeSnapshot | null>(),
 		brewDate: timestamp('brew_date', { withTimezone: true }),
 		startedAt: timestamp('started_at', { withTimezone: true }),
 		finishedAt: timestamp('finished_at', { withTimezone: true }),

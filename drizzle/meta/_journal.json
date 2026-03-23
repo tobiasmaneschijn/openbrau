@@ -22,6 +22,13 @@
       "when": 1774303097401,
       "tag": "0002_brainy_cargill",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1774306477767,
+      "tag": "0003_silky_daimon_hellstrom",
+      "breakpoints": true
     }
   ]
 }

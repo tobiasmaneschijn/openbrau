@@ -2,7 +2,8 @@ import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { buildBatchDashboardState } from '$lib/batches/dashboard';
 import { BATCH_STATUS_ORDER, nextBatchStatus, previousBatchStatus } from '$lib/batches/config';
-import { buildRecipeEngineSummary } from '$lib/recipes/engine';
+import { buildBatchSnapshotFromRecipe, snapshotToRecipeDefinition } from '$lib/batches/snapshot';
+import { calculateRecipeSummary } from '$lib/math/recipe-engine';
 import { enumField } from '$lib/server/forms';
 import { listRecipeIngredientsForAuthor } from '$lib/server/recipe-items';
 import { getRecipeForAuthor } from '$lib/server/recipes';
@@ -14,6 +15,7 @@ import {
 	getBatchForOwner,
 	listBatchActivityForOwner,
 	transitionBatchStatusForOwner,
+	updateBatchSnapshotForOwner,
 	updateBatchTelemetryForOwner,
 	updateBatchLogForOwner
 } from '$lib/server/batches';
@@ -37,17 +39,18 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 		throw redirect(302, '/app/batches');
 	}
 
-	const engineSummary = buildRecipeEngineSummary(recipe, ingredients);
+	const formulationSnapshot = batch.snapshot ?? buildBatchSnapshotFromRecipe(recipe, ingredients);
+	const formulationDefinition = snapshotToRecipeDefinition(formulationSnapshot);
+	const engineSummary = calculateRecipeSummary(formulationDefinition);
 
 	return {
 		batch,
-		recipe,
-		ingredients,
 		engineSummary,
+		formulationSnapshot,
+		formulationJson: JSON.stringify(formulationSnapshot, null, 2),
 		dashboard: buildBatchDashboardState({
 			batch,
-			recipe,
-			ingredients,
+			definition: formulationDefinition,
 			engineSummary,
 			activity
 		}),
@@ -94,6 +97,45 @@ export const actions: Actions = {
 		} catch (error) {
 			if (error instanceof Response) throw error;
 			return fail(400, { message: m.unable_to_change_batch_status() });
+		}
+	},
+	saveFormulation: async ({ request, params, locals }) => {
+		const formData = await request.formData();
+
+		try {
+			const batch = await updateBatchSnapshotForOwner(params.id, locals.user!.id, {
+				name: requiredString(formData, 'name'),
+				brewType: enumField(formData, 'brewType', ['beer', 'wine', 'mead'] as const),
+				style: optionalString(formData, 'style'),
+				notes: optionalString(formData, 'formulationNotes'),
+				targetBatchSizeL: Number(requiredString(formData, 'targetBatchSizeL')),
+				boilTimeMin: Number(requiredString(formData, 'boilTimeMin')),
+				targetOg: optionalString(formData, 'targetOg')
+					? Number(requiredString(formData, 'targetOg'))
+					: null,
+				targetFg: optionalString(formData, 'targetFg')
+					? Number(requiredString(formData, 'targetFg'))
+					: null,
+				targetIbu: optionalString(formData, 'targetIbu')
+					? Number(requiredString(formData, 'targetIbu'))
+					: null,
+				targetSrm: optionalString(formData, 'targetSrm')
+					? Number(requiredString(formData, 'targetSrm'))
+					: null,
+				snapshotJson: optionalString(formData, 'snapshotJson')
+			});
+
+			if (!batch) {
+				return fail(404, { message: m.batch_not_found() });
+			}
+
+			return { success: true };
+		} catch (error) {
+			if (error instanceof Response) throw error;
+			if (error instanceof Error) {
+				return fail(400, { message: error.message });
+			}
+			return fail(400, { message: m.unable_to_update_batch() });
 		}
 	},
 	addTelemetry: async ({ request, params, locals }) => {
