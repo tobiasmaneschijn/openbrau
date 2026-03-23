@@ -1,14 +1,15 @@
-import { and, asc, desc, eq } from 'drizzle-orm';
+import { and, asc, desc, eq, sql } from 'drizzle-orm';
 import { fail } from '@sveltejs/kit';
 import { withAuditContext } from '$lib/server/db/audit';
 import { db } from '$lib/server/db';
-import { batchTelemetry, batches, recipes } from '$lib/server/db/schema';
+import { auditLogs, batchTelemetry, batches, recipes } from '$lib/server/db/schema';
 import { canTransitionBatchStatus } from '$lib/batches/config';
 import * as m from '$lib/paraglide/messages';
 
 export type BatchRecord = typeof batches.$inferSelect;
 export type BatchStatus = BatchRecord['status'];
 export type BatchTelemetryRecord = typeof batchTelemetry.$inferSelect;
+export type BatchActivityRecord = typeof auditLogs.$inferSelect;
 
 export type BatchListItem = {
 	id: string;
@@ -199,7 +200,7 @@ export async function transitionBatchStatusForOwner(
 			.set({
 				status: nextStatus,
 				startedAt: nextStatus === 'brewing' ? (batch.startedAt ?? now) : batch.startedAt,
-				finishedAt: nextStatus === 'finished' ? now : batch.finishedAt,
+				finishedAt: nextStatus === 'finished' ? now : null,
 				brewDate: nextStatus === 'brewing' ? (batch.brewDate ?? now) : batch.brewDate,
 				updatedAt: now
 			})
@@ -258,4 +259,30 @@ export async function listTelemetryForBatch(batchId: string) {
 		.from(batchTelemetry)
 		.where(eq(batchTelemetry.batchId, batchId))
 		.orderBy(asc(batchTelemetry.recordedAt));
+}
+
+export async function listBatchActivityForOwner(batchId: string, userId: string) {
+	const batch = await getBatchForOwner(batchId, userId);
+	if (!batch) {
+		return null;
+	}
+
+	return db
+		.select()
+		.from(auditLogs)
+		.where(
+			sql`(
+				(${auditLogs.tableName} = 'batches' and ${auditLogs.recordId} = ${batchId})
+				or (
+					${auditLogs.tableName} = 'batch_telemetry'
+					and coalesce(
+						${auditLogs.newData}->>'batchId',
+						${auditLogs.newData}->>'batch_id',
+						${auditLogs.oldData}->>'batchId',
+						${auditLogs.oldData}->>'batch_id'
+					) = ${batchId}
+				)
+			)`
+		)
+		.orderBy(desc(auditLogs.createdAt));
 }

@@ -1,11 +1,17 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { nextBatchStatus } from '$lib/batches/config';
+import { buildBatchDashboardState } from '$lib/batches/dashboard';
+import { BATCH_STATUS_ORDER, nextBatchStatus, previousBatchStatus } from '$lib/batches/config';
+import { buildRecipeEngineSummary } from '$lib/recipes/engine';
+import { enumField } from '$lib/server/forms';
+import { listRecipeIngredientsForAuthor } from '$lib/server/recipe-items';
+import { getRecipeForAuthor } from '$lib/server/recipes';
 import {
 	addBatchTelemetryForOwner,
 	type BatchStatus,
 	deleteBatchForOwner,
 	getBatchForOwner,
+	listBatchActivityForOwner,
 	transitionBatchStatusForOwner,
 	updateBatchLogForOwner
 } from '$lib/server/batches';
@@ -19,8 +25,32 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 		throw redirect(302, '/app/batches');
 	}
 
+	const [recipe, ingredients, activity] = await Promise.all([
+		getRecipeForAuthor(batch.recipeId, locals.user!.id),
+		listRecipeIngredientsForAuthor(batch.recipeId, locals.user!.id),
+		listBatchActivityForOwner(params.id, locals.user!.id)
+	]);
+
+	if (!recipe || !activity) {
+		throw redirect(302, '/app/batches');
+	}
+
+	const engineSummary = buildRecipeEngineSummary(recipe, ingredients);
+
 	return {
 		batch,
+		recipe,
+		ingredients,
+		engineSummary,
+		dashboard: buildBatchDashboardState({
+			batch,
+			recipe,
+			ingredients,
+			engineSummary,
+			activity
+		}),
+		availableStatuses: BATCH_STATUS_ORDER,
+		previousStatus: previousBatchStatus(batch.status),
 		nextStatus: nextBatchStatus(batch.status)
 	};
 };
@@ -43,9 +73,9 @@ export const actions: Actions = {
 
 		return { success: true };
 	},
-	advanceStatus: async ({ request, params, locals }) => {
+	changeStatus: async ({ request, params, locals }) => {
 		const formData = await request.formData();
-		const nextStatus = requiredString(formData, 'nextStatus');
+		const nextStatus = enumField(formData, 'nextStatus', BATCH_STATUS_ORDER);
 
 		try {
 			const batch = await transitionBatchStatusForOwner(

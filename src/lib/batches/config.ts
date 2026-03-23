@@ -35,6 +35,16 @@ export function nextBatchStatus(status: BatchStatus) {
 	return BATCH_STATUS_ORDER[currentIndex + 1];
 }
 
+export function previousBatchStatus(status: BatchStatus) {
+	const currentIndex = BATCH_STATUS_ORDER.indexOf(status);
+
+	if (currentIndex <= 0) {
+		return null;
+	}
+
+	return BATCH_STATUS_ORDER[currentIndex - 1];
+}
+
 export function canTransitionBatchStatus(current: BatchStatus, next: BatchStatus) {
-	return nextBatchStatus(current) === next;
+	return current !== next && BATCH_STATUS_ORDER.includes(next);
 }
