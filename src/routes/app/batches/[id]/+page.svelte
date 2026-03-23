@@ -29,6 +29,7 @@
 	import { formatTemperature, formatVolume } from '$lib/units';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
+	let editingTelemetryId = $state<string | null>(null);
 
 	const settings = $derived(readUserSettings(data.user?.preferences));
 	const numberFormatter = $derived(createNumberFormatter(settings, { maximumFractionDigits: 1 }));
@@ -82,6 +83,11 @@
 		return formatVolume(Number(value), settings.units, numberFormatter.resolvedOptions().locale, 1);
 	}
 
+	function toDatetimeLocalValue(value: Date) {
+		const adjusted = new Date(value.getTime() - value.getTimezoneOffset() * 60_000);
+		return adjusted.toISOString().slice(0, 16);
+	}
+
 	function trendArrow(trend: 'up' | 'down' | 'steady') {
 		if (trend === 'up') return '↑';
 		if (trend === 'down') return '↓';
@@ -114,6 +120,12 @@
 
 	const gravityPath = $derived(chartPath(data.dashboard.chart.points, 'gravity'));
 	const temperaturePath = $derived(chartPath(data.dashboard.chart.points, 'temperatureC'));
+
+	$effect(() => {
+		if (form?.success) {
+			editingTelemetryId = null;
+		}
+	});
 </script>
 
 <div class="space-y-6">
@@ -602,16 +614,107 @@
 							</TableHeader>
 							<TableBody>
 								{#each data.batch.telemetry as entry (entry.id)}
-									<TableRow>
-										<TableCell>{dateTimeFormatter.format(entry.recordedAt)}</TableCell>
-										<TableCell>{entry.gravity ?? '--'}</TableCell>
-										<TableCell
-											>{formatTemp(
-												entry.temperatureC ? Number(entry.temperatureC) : null
-											)}</TableCell
-										>
-										<TableCell>{entry.notes || m.no_notes()}</TableCell>
-									</TableRow>
+									{#if editingTelemetryId === entry.id}
+										<TableRow>
+											<TableCell colspan={4}>
+												<form
+													method="POST"
+													action="?/updateTelemetry"
+													class="grid gap-4 md:grid-cols-2"
+												>
+													<input type="hidden" name="telemetryId" value={entry.id} />
+													<div class="space-y-2">
+														<label for={`recordedAt-${entry.id}`} class="text-sm font-medium"
+															>{m.recorded_at()}</label
+														>
+														<Input
+															id={`recordedAt-${entry.id}`}
+															name="recordedAt"
+															type="datetime-local"
+															value={toDatetimeLocalValue(entry.recordedAt)}
+														/>
+													</div>
+													<div class="space-y-2">
+														<label for={`gravity-${entry.id}`} class="text-sm font-medium"
+															>{m.gravity_label()}</label
+														>
+														<Input
+															id={`gravity-${entry.id}`}
+															name="gravity"
+															type="number"
+															step="0.001"
+															value={entry.gravity ?? ''}
+														/>
+													</div>
+													<div class="space-y-2">
+														<label for={`temperatureC-${entry.id}`} class="text-sm font-medium"
+															>Temperature (°C)</label
+														>
+														<Input
+															id={`temperatureC-${entry.id}`}
+															name="temperatureC"
+															type="number"
+															step="0.01"
+															value={entry.temperatureC ?? ''}
+														/>
+													</div>
+													<div class="space-y-2 md:col-span-2">
+														<label for={`telemetryNotes-${entry.id}`} class="text-sm font-medium"
+															>{m.reading_notes()}</label
+														>
+														<Textarea
+															id={`telemetryNotes-${entry.id}`}
+															name="telemetryNotes"
+															rows={3}
+															value={entry.notes ?? ''}
+														/>
+													</div>
+													<div class="flex flex-wrap gap-2 md:col-span-2">
+														<Button type="submit" size="sm">{m.save_changes()}</Button>
+														<Button
+															type="button"
+															variant="outline"
+															size="sm"
+															onclick={() => (editingTelemetryId = null)}
+														>
+															Cancel
+														</Button>
+													</div>
+												</form>
+											</TableCell>
+										</TableRow>
+									{:else}
+										<TableRow>
+											<TableCell>{dateTimeFormatter.format(entry.recordedAt)}</TableCell>
+											<TableCell>{entry.gravity ?? '--'}</TableCell>
+											<TableCell
+												>{formatTemp(
+													entry.temperatureC ? Number(entry.temperatureC) : null
+												)}</TableCell
+											>
+											<TableCell>
+												<div class="flex items-start justify-between gap-3">
+													<span>{entry.notes || m.no_notes()}</span>
+													<div class="flex shrink-0 gap-2">
+														<Button
+															type="button"
+															variant="outline"
+															size="sm"
+															onclick={() => (editingTelemetryId = entry.id)}
+														>
+															Edit
+														</Button>
+														<form method="POST" action="?/deleteTelemetry">
+															<input type="hidden" name="telemetryId" value={entry.id} />
+															<Button type="submit" variant="outline" size="sm">
+																{m.remove()}
+															</Button>
+														</form>
+													</div>
+												</div>
+											</TableCell>
+										</TableRow>
+									{/if}
 								{/each}
 							</TableBody>
 						</Table>

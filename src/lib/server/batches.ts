@@ -52,6 +52,8 @@ export type AddBatchTelemetryInput = {
 	notes?: string | null;
 };
 
+export type UpdateBatchTelemetryInput = AddBatchTelemetryInput;
+
 export async function listBatchesByOwner(userId: string) {
 	const rows = await db
 		.select({
@@ -235,6 +237,67 @@ export async function addBatchTelemetryForOwner(
 				notes: input.notes ?? null
 			})
 			.returning();
+
+		await tx.update(batches).set({ updatedAt: new Date() }).where(eq(batches.id, batchId));
+
+		return entry;
+	});
+}
+
+export async function updateBatchTelemetryForOwner(
+	batchId: string,
+	telemetryId: string,
+	userId: string,
+	input: UpdateBatchTelemetryInput
+) {
+	const batch = await getBatchForOwner(batchId, userId);
+	if (!batch) {
+		return null;
+	}
+
+	return withAuditContext(userId, async (tx) => {
+		const [entry] = await tx
+			.update(batchTelemetry)
+			.set({
+				recordedAt: input.recordedAt ?? new Date(),
+				gravity: input.gravity ?? null,
+				temperatureC: input.temperatureC ?? null,
+				notes: input.notes ?? null
+			})
+			.where(and(eq(batchTelemetry.id, telemetryId), eq(batchTelemetry.batchId, batchId)))
+			.returning();
+
+		if (!entry) {
+			return null;
+		}
+
+		await tx.update(batches).set({ updatedAt: new Date() }).where(eq(batches.id, batchId));
+
+		return entry;
+	});
+}
+
+export async function deleteBatchTelemetryForOwner(
+	batchId: string,
+	telemetryId: string,
+	userId: string
+) {
+	const batch = await getBatchForOwner(batchId, userId);
+	if (!batch) {
+		return null;
+	}
+
+	return withAuditContext(userId, async (tx) => {
+		const [entry] = await tx
+			.delete(batchTelemetry)
+			.where(and(eq(batchTelemetry.id, telemetryId), eq(batchTelemetry.batchId, batchId)))
+			.returning();
+
+		if (!entry) {
+			return null;
+		}
+
+		await tx.update(batches).set({ updatedAt: new Date() }).where(eq(batches.id, batchId));
 
 		return entry;
 	});

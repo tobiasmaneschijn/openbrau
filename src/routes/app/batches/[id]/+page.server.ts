@@ -8,11 +8,13 @@ import { listRecipeIngredientsForAuthor } from '$lib/server/recipe-items';
 import { getRecipeForAuthor } from '$lib/server/recipes';
 import {
 	addBatchTelemetryForOwner,
+	deleteBatchTelemetryForOwner,
 	type BatchStatus,
 	deleteBatchForOwner,
 	getBatchForOwner,
 	listBatchActivityForOwner,
 	transitionBatchStatusForOwner,
+	updateBatchTelemetryForOwner,
 	updateBatchLogForOwner
 } from '$lib/server/batches';
 import { optionalString, requiredString } from '$lib/server/forms';
@@ -97,20 +99,73 @@ export const actions: Actions = {
 	addTelemetry: async ({ request, params, locals }) => {
 		const formData = await request.formData();
 
-		const entry = await addBatchTelemetryForOwner(params.id, locals.user!.id, {
-			recordedAt: optionalString(formData, 'recordedAt')
-				? new Date(requiredString(formData, 'recordedAt'))
-				: null,
-			gravity: optionalString(formData, 'gravity'),
-			temperatureC: optionalString(formData, 'temperatureC'),
-			notes: optionalString(formData, 'telemetryNotes')
-		});
+		try {
+			const entry = await addBatchTelemetryForOwner(params.id, locals.user!.id, {
+				recordedAt: optionalString(formData, 'recordedAt')
+					? new Date(requiredString(formData, 'recordedAt'))
+					: null,
+				gravity: optionalString(formData, 'gravity'),
+				temperatureC: optionalString(formData, 'temperatureC'),
+				notes: optionalString(formData, 'telemetryNotes')
+			});
 
-		if (!entry) {
-			return fail(404, { message: m.batch_not_found() });
+			if (!entry) {
+				return fail(404, { message: m.batch_not_found() });
+			}
+
+			return { success: true };
+		} catch (error) {
+			if (error instanceof Response) throw error;
+			return fail(400, { message: m.unable_to_update_batch() });
 		}
+	},
+	updateTelemetry: async ({ request, params, locals }) => {
+		const formData = await request.formData();
 
-		return { success: true };
+		try {
+			const entry = await updateBatchTelemetryForOwner(
+				params.id,
+				requiredString(formData, 'telemetryId'),
+				locals.user!.id,
+				{
+					recordedAt: optionalString(formData, 'recordedAt')
+						? new Date(requiredString(formData, 'recordedAt'))
+						: null,
+					gravity: optionalString(formData, 'gravity'),
+					temperatureC: optionalString(formData, 'temperatureC'),
+					notes: optionalString(formData, 'telemetryNotes')
+				}
+			);
+
+			if (!entry) {
+				return fail(404, { message: m.batch_not_found() });
+			}
+
+			return { success: true };
+		} catch (error) {
+			if (error instanceof Response) throw error;
+			return fail(400, { message: m.unable_to_update_batch() });
+		}
+	},
+	deleteTelemetry: async ({ request, params, locals }) => {
+		const formData = await request.formData();
+
+		try {
+			const entry = await deleteBatchTelemetryForOwner(
+				params.id,
+				requiredString(formData, 'telemetryId'),
+				locals.user!.id
+			);
+
+			if (!entry) {
+				return fail(404, { message: m.batch_not_found() });
+			}
+
+			return { success: true };
+		} catch (error) {
+			if (error instanceof Response) throw error;
+			return fail(400, { message: m.unable_to_update_batch() });
+		}
 	},
 	delete: async ({ params, locals }) => {
 		await deleteBatchForOwner(params.id, locals.user!.id);
