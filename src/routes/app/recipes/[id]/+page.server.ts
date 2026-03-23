@@ -2,7 +2,7 @@ import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { buildRecipeEngineSummary } from '$lib/recipes/engine';
 import { BREW_TYPES, IBU_FORMULAS, RECIPE_MODULE_KEYS } from '$lib/recipes/config';
-import { listEquipmentByOwner } from '$lib/server/equipment';
+
 import { listIngredientsByOwner } from '$lib/server/ingredients';
 import {
 	addFermentableToRecipe,
@@ -45,9 +45,8 @@ function enabledModules(formData: FormData, advancedMode: boolean) {
 }
 
 export const load: PageServerLoad = async ({ params, locals }) => {
-	const [recipe, equipment, ingredientLibrary] = await Promise.all([
+	const [recipe, ingredientLibrary] = await Promise.all([
 		getRecipeForAuthor(params.id, locals.user!.id),
-		listEquipmentByOwner(locals.user!.id),
 		listIngredientsByOwner(locals.user!.id)
 	]);
 
@@ -56,14 +55,14 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 	}
 
 	const ingredients = await listRecipeIngredientsForAuthor(params.id, locals.user!.id);
-	const assignedEquipment = equipment.find((profile) => profile.id === recipe.equipmentId) ?? null;
+	const assignedEquipment = null;
 
 	return {
 		recipe,
-		equipment,
+
 		ingredientLibrary,
 		ingredients,
-		engineSummary: buildRecipeEngineSummary(recipe, assignedEquipment, ingredients)
+		engineSummary: buildRecipeEngineSummary(recipe, ingredients)
 	};
 };
 
@@ -76,7 +75,7 @@ export const actions: Actions = {
 			name: requiredString(formData, 'name'),
 			brewType: enumField(formData, 'brewType', BREW_TYPES),
 			style: optionalString(formData, 'style'),
-			equipmentId: optionalString(formData, 'equipmentId'),
+
 			notes: optionalString(formData, 'notes'),
 			hiddenFields: stringArrayField(formData, 'hiddenFields'),
 			enabledModules: enabledModules(formData, advancedMode),

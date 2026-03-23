@@ -1,4 +1,4 @@
-import type { IbuFormula, RecipeDefinition, RecipeEquipmentProfile } from '$lib/recipes/domain';
+import type { IbuFormula, RecipeDefinition } from '$lib/recipes/domain';
 import * as m from '$lib/paraglide/messages';
 import {
 	estimateAbv,
@@ -13,11 +13,9 @@ import {
 
 export type RecipeEngineWarning = {
 	code:
-		| 'generic-equipment-profile'
 		| 'missing-fermentables'
 		| 'missing-hops'
 		| 'missing-yeast'
-		| 'equipment-scaling-mismatch'
 		| 'target-og-mismatch'
 		| 'target-fg-mismatch'
 		| 'target-ibu-mismatch'
@@ -39,7 +37,6 @@ export type RecipeEngineSummary = {
 		boilTimeMin: number;
 		brewhouseEfficiencyPct: number;
 		ibuFormula: IbuFormula;
-		usesGenericEquipmentProfile: boolean;
 	};
 	totals: {
 		fermentablesKg: number;
@@ -140,16 +137,11 @@ function calculateBitterness(
 	});
 }
 
-function equipmentProfile(recipe: RecipeDefinition): RecipeEquipmentProfile | null {
-	return recipe.equipment ?? null;
-}
-
 export function calculateRecipeSummary(recipe: RecipeDefinition): RecipeEngineSummary {
-	const equipment = equipmentProfile(recipe);
-	const brewhouseEfficiencyPct = equipment?.efficiencyPct ?? 75;
-	const boilOffLossL = equipment ? (recipe.process.boilTimeMin / 60) * equipment.boilOffRateLph : 0;
-	const trubLossL = equipment?.trubLossL ?? 0;
-	const mashTunLossL = equipment?.mashTunLossL ?? 0;
+	const brewhouseEfficiencyPct = 72;
+	const boilOffLossL = (recipe.process.boilTimeMin / 60) * 2.5;
+	const trubLossL = 0.75;
+	const mashTunLossL = 0.75;
 	const preBoilVolumeL = recipe.process.targetBatchSizeL + boilOffLossL + trubLossL;
 	const totalLiquorRequirementL = preBoilVolumeL + mashTunLossL;
 
@@ -230,13 +222,6 @@ export function calculateRecipeSummary(recipe: RecipeDefinition): RecipeEngineSu
 
 	const warnings: RecipeEngineWarning[] = [];
 
-	if (equipment?.isGeneric) {
-		warnings.push({
-			code: 'generic-equipment-profile',
-			message: m.using_default_setup_until_you_choose_one_of_your_equipment_profiles()
-		});
-	}
-
 	if (recipe.fermentables.length === 0) {
 		warnings.push({
 			code: 'missing-fermentables',
@@ -255,16 +240,6 @@ export function calculateRecipeSummary(recipe: RecipeDefinition): RecipeEngineSu
 		warnings.push({
 			code: 'missing-yeast',
 			message: m.add_a_yeast_to_estimate_final_gravity_and_abv_more_accurately()
-		});
-	}
-
-	if (equipment && Math.abs(equipment.batchSizeL - recipe.process.targetBatchSizeL) > 0.5) {
-		warnings.push({
-			code: 'equipment-scaling-mismatch',
-			message: m.your_target_batch_size_does_not_match_this_setups_usual_size({
-				batchSize: `${recipe.process.targetBatchSizeL} L`,
-				equipmentSize: `${equipment.batchSizeL} L`
-			})
 		});
 	}
 
@@ -314,8 +289,7 @@ export function calculateRecipeSummary(recipe: RecipeDefinition): RecipeEngineSu
 		process: {
 			boilTimeMin: recipe.process.boilTimeMin,
 			brewhouseEfficiencyPct: round(brewhouseEfficiencyPct, 2),
-			ibuFormula: recipe.process.ibuFormula,
-			usesGenericEquipmentProfile: equipment?.isGeneric ?? false
+			ibuFormula: recipe.process.ibuFormula
 		},
 		totals: {
 			fermentablesKg: round(

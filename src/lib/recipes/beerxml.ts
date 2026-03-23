@@ -326,7 +326,7 @@ export function fromBeerXmlRecord(record: BeerXmlRecipeRecord): RecipeDefinition
 			ibu: record.ibu ?? null,
 			srm: record.colorSrm ?? null
 		},
-		equipment: null,
+
 		fermentables: record.fermentables.map((fermentable) => ({
 			name: fermentable.name,
 			amountKg: fermentable.amountKg,

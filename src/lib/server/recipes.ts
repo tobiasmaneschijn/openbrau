@@ -11,7 +11,6 @@ export type CreateRecipeInput = {
 	name: string;
 	brewType: BrewType;
 	style?: string | null;
-	equipmentId?: string | null;
 	sourceWaterProfileId?: string | null;
 	notes?: string | null;
 	hiddenFields?: string[];
@@ -49,7 +48,6 @@ export async function createRecipe(input: CreateRecipeInput) {
 				name: input.name,
 				brewType: input.brewType,
 				style: input.style ?? null,
-				equipmentId: input.equipmentId ?? null,
 				sourceWaterProfileId: input.sourceWaterProfileId ?? null,
 				notes: input.notes ?? null,
 				hiddenFields: input.hiddenFields ?? [],
@@ -81,7 +79,6 @@ export async function updateRecipeForAuthor(
 				name: input.name,
 				brewType: input.brewType,
 				style: input.style ?? null,
-				equipmentId: input.equipmentId ?? null,
 				sourceWaterProfileId: input.sourceWaterProfileId ?? null,
 				notes: input.notes ?? null,
 				hiddenFields: input.hiddenFields ?? [],

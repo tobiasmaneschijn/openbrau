@@ -8,7 +8,6 @@ export const RECIPE_FIELD_KEYS = [
 	'style',
 	'notes',
 	'boilTimeMin',
-	'equipmentId',
 	'targetOg',
 	'targetFg',
 	'targetIbu',
@@ -33,7 +32,6 @@ export const BREW_TYPE_CONFIG: Record<BrewType, BrewTypeConfig> = {
 			'style',
 			'notes',
 			'boilTimeMin',
-			'equipmentId',
 			'targetOg',
 			'targetFg',
 			'targetIbu',
@@ -44,13 +42,13 @@ export const BREW_TYPE_CONFIG: Record<BrewType, BrewTypeConfig> = {
 		label: m.brew_type_wine(),
 		styleLabel: m.brew_type_varietal(),
 		processTimeLabel: m.brew_type_heat_time(),
-		visibleFields: ['style', 'notes', 'equipmentId', 'targetOg', 'targetFg']
+		visibleFields: ['style', 'notes', 'targetOg', 'targetFg']
 	},
 	mead: {
 		label: m.brew_type_mead(),
 		styleLabel: m.brew_type_style(),
 		processTimeLabel: m.brew_type_heat_time(),
-		visibleFields: ['style', 'notes', 'boilTimeMin', 'equipmentId', 'targetOg', 'targetFg']
+		visibleFields: ['style', 'notes', 'boilTimeMin', 'targetOg', 'targetFg']
 	}
 };
 
@@ -58,7 +56,7 @@ export const RECIPE_FIELD_LABELS: Record<RecipeFieldKey, string> = {
 	style: m.style(),
 	notes: m.notes(),
 	boilTimeMin: m.brew_type_boil_time(),
-	equipmentId: m.equipment(),
+
 	targetOg: m.original_gravity(),
 	targetFg: m.final_gravity(),
 	targetIbu: m.ibu(),

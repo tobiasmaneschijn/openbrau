@@ -185,14 +185,7 @@
 						<p class="mt-2 text-base font-semibold text-foreground">{data.batch.recipeName}</p>
 						<p class="mt-1">{data.batch.recipeStyle || m.no_style_selected()}</p>
 					</div>
-					<div class="rounded-2xl border bg-background/80 p-4">
-						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">
-							{m.setup_label()}
-						</p>
-						<p class="mt-2 text-base font-semibold text-foreground">
-							{data.batch.equipmentName || m.default_setup()}
-						</p>
-					</div>
+
 					<div class="rounded-2xl border bg-background/80 p-4">
 						<p class="text-xs tracking-[0.2em] text-muted-foreground uppercase">
 							{m.telemetry_label()}

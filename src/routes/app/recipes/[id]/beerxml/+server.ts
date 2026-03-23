@@ -2,7 +2,7 @@ import { error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { serializeBeerXmlRecipe, toBeerXmlRecord } from '$lib/recipes/beerxml';
 import { buildRecipeDefinition } from '$lib/recipes/engine';
-import { getEquipmentForOwner } from '$lib/server/equipment';
+
 import { listRecipeIngredientsForAuthor } from '$lib/server/recipe-items';
 import { getRecipeForAuthor } from '$lib/server/recipes';
 import * as m from '$lib/paraglide/messages';
@@ -21,12 +21,9 @@ export const GET: RequestHandler = async ({ params, locals }) => {
 		throw error(404, m.recipe_not_found());
 	}
 
-	const [equipment, ingredients] = await Promise.all([
-		recipe.equipmentId ? getEquipmentForOwner(recipe.equipmentId, locals.user!.id) : null,
-		listRecipeIngredientsForAuthor(recipe.id, locals.user!.id)
-	]);
+	const ingredients = await listRecipeIngredientsForAuthor(recipe.id, locals.user!.id);
 
-	const definition = buildRecipeDefinition(recipe, equipment, ingredients);
+	const definition = buildRecipeDefinition(recipe, ingredients);
 	const beerXml = serializeBeerXmlRecipe(toBeerXmlRecord(definition));
 	const filename = `${slugify(recipe.name) || 'recipe'}.xml`;
 

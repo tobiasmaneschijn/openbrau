@@ -20,14 +20,14 @@
 		type Updater,
 		type VisibilityState
 	} from '@tanstack/table-core';
-	import { 
-		ArrowDownIcon, 
-		ArrowUpDownIcon, 
-		ArrowUpIcon, 
-		CheckIcon, 
-		EllipsisIcon, 
-		SearchIcon, 
-		Settings2Icon 
+	import {
+		ArrowDownIcon,
+		ArrowUpDownIcon,
+		ArrowUpIcon,
+		CheckIcon,
+		EllipsisIcon,
+		SearchIcon,
+		Settings2Icon
 	} from '@lucide/svelte';
 	import { cn } from '$lib/utils';
 	import type { DataTableFilterControl } from './types';

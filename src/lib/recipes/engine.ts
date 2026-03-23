@@ -1,8 +1,8 @@
 import type { RecipeDefinition, RecipeModuleKey } from '$lib/recipes/domain';
-import { GENERIC_EQUIPMENT_PROFILE, RECIPE_MODULE_KEYS } from '$lib/recipes/domain';
+import { RECIPE_MODULE_KEYS } from '$lib/recipes/domain';
 import type { RecipeEngineSummary } from '$lib/math/recipe-engine';
 import { calculateRecipeSummary } from '$lib/math/recipe-engine';
-import type { EquipmentRecord } from '$lib/server/equipment';
+
 import type { RecipeIngredients } from '$lib/server/recipe-items';
 import type { RecipeSummary } from '$lib/server/recipes';
 
@@ -28,7 +28,6 @@ function enabledModules(recipe: RecipeSummary): RecipeModuleKey[] {
 
 export function buildRecipeDefinition(
 	recipe: RecipeSummary,
-	equipment?: EquipmentRecord | null,
 	ingredients?: Partial<RecipeIngredients>
 ): RecipeDefinition {
 	return {
@@ -48,16 +47,7 @@ export function buildRecipeDefinition(
 			ibu: numericValue(recipe.targetIbu),
 			srm: numericValue(recipe.targetSrm)
 		},
-		equipment: equipment
-			? {
-					name: equipment.name,
-					efficiencyPct: Number(equipment.efficiencyPct),
-					batchSizeL: Number(equipment.batchSizeL),
-					boilOffRateLph: Number(equipment.boilOffRateLph),
-					mashTunLossL: Number(equipment.mashTunLossL),
-					trubLossL: Number(equipment.trubLossL)
-				}
-			: { ...GENERIC_EQUIPMENT_PROFILE },
+
 		fermentables:
 			ingredients?.fermentables?.map((item) => ({
 				name: item.ingredient.name,
@@ -149,8 +139,7 @@ export function buildRecipeDefinition(
 
 export function buildRecipeEngineSummary(
 	recipe: RecipeSummary,
-	equipment?: EquipmentRecord | null,
 	ingredients?: Partial<RecipeIngredients>
 ): RecipeEngineSummary {
-	return calculateRecipeSummary(buildRecipeDefinition(recipe, equipment, ingredients));
+	return calculateRecipeSummary(buildRecipeDefinition(recipe, ingredients));
 }

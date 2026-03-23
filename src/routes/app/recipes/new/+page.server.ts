@@ -1,7 +1,7 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { BREW_TYPES, IBU_FORMULAS, RECIPE_MODULE_KEYS } from '$lib/recipes/config';
-import { listEquipmentByOwner } from '$lib/server/equipment';
+
 import { createRecipe } from '$lib/server/recipes';
 import {
 	booleanField,
@@ -12,9 +12,7 @@ import {
 } from '$lib/server/forms';
 import * as m from '$lib/paraglide/messages';
 
-export const load: PageServerLoad = async ({ locals }) => ({
-	equipment: await listEquipmentByOwner(locals.user!.id)
-});
+export const load: PageServerLoad = async () => ({});
 
 function enabledModules(formData: FormData, advancedMode: boolean) {
 	const modules = stringArrayField(formData, 'enabledModules').filter((module) =>
@@ -40,7 +38,7 @@ export const actions: Actions = {
 				name: requiredString(formData, 'name'),
 				brewType: enumField(formData, 'brewType', BREW_TYPES),
 				style: optionalString(formData, 'style'),
-				equipmentId: optionalString(formData, 'equipmentId'),
+
 				notes: optionalString(formData, 'notes'),
 				hiddenFields: stringArrayField(formData, 'hiddenFields'),
 				enabledModules: enabledModules(formData, advancedMode),

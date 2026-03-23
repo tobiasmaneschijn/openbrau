@@ -75,21 +75,6 @@
 					</div>
 
 					<div class="space-y-2 md:col-span-2">
-						<label for="equipmentId" class="text-sm font-medium">{m.brewing_setup_override()}</label
-						>
-						<select
-							id="equipmentId"
-							name="equipmentId"
-							class="flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm shadow-xs ring-offset-background transition-[color,box-shadow] outline-none focus-visible:ring-1 focus-visible:ring-ring"
-						>
-							<option value="">{m.use_the_recipe_setup()}</option>
-							{#each data.equipment as profile (profile.id)}
-								<option value={profile.id}>{profile.name}</option>
-							{/each}
-						</select>
-					</div>
-
-					<div class="space-y-2 md:col-span-2">
 						<label for="notes" class="text-sm font-medium">{m.batch_notes()}</label>
 						<Textarea id="notes" name="notes" rows={5} placeholder={m.batch_notes_description()} />
 					</div>

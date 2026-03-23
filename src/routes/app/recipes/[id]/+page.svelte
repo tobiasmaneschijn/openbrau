@@ -116,7 +116,6 @@
 	<RecipeForm
 		formId="recipe-edit-form"
 		recipe={data.recipe}
-		equipment={data.equipment}
 		formAction="?/update"
 		deleteAction="?/delete"
 	>
@@ -128,9 +127,6 @@
 						<Badge variant="secondary"
 							>{IBU_FORMULA_LABELS[data.engineSummary.process.ibuFormula]}</Badge
 						>
-						{#if data.engineSummary.process.usesGenericEquipmentProfile}
-							<Badge>{m.default_setup()}</Badge>
-						{/if}
 					</div>
 					<CardDescription>{m.recipe_snapshot_description()}</CardDescription>
 					<div class="flex flex-wrap gap-2">

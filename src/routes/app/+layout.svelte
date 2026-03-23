@@ -54,12 +54,6 @@
 					icon: PackageIcon
 				},
 				{
-					href: '/app/equipment',
-					label: m.equipment({}, { locale: uiLocale }),
-					description: m.profiles({}, { locale: uiLocale }),
-					icon: Settings2Icon
-				},
-				{
 					href: '/app/settings',
 					label: m.settings({}, { locale: uiLocale }),
 					description: m.preferences({}, { locale: uiLocale }),
@@ -117,7 +111,7 @@
 		const fallbackHeader: AppPageHeaderConfig = {
 			eyebrow: m.app_workspace({}, { locale: uiLocale }),
 			title: `${m.app_name({}, { locale: uiLocale })} ${m.app_workspace({}, { locale: uiLocale })}`,
-			description: `${m.recipes({}, { locale: uiLocale })}, ${m.batches({}, { locale: uiLocale })}, ${m.equipment({}, { locale: uiLocale })}`
+			description: `${m.recipes({}, { locale: uiLocale })}, ${m.batches({}, { locale: uiLocale })}`
 		};
 
 		return fallbackHeader;

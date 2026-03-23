@@ -85,26 +85,6 @@ export const sessions = pgTable(
 	]
 );
 
-export const equipment = pgTable(
-	'equipment',
-	{
-		id: uuid('id').defaultRandom().primaryKey(),
-		ownerId: uuid('owner_id')
-			.notNull()
-			.references(() => users.id, { onDelete: 'cascade' }),
-		name: text('name').notNull(),
-		description: text('description'),
-		efficiencyPct: numeric('efficiency_pct', { precision: 5, scale: 2 }).notNull().default('75.00'),
-		batchSizeL: numeric('batch_size_l', { precision: 8, scale: 3 }).notNull(),
-		boilOffRateLph: numeric('boil_off_rate_lph', { precision: 8, scale: 3 }).notNull(),
-		mashTunLossL: numeric('mash_tun_loss_l', { precision: 8, scale: 3 }).notNull().default('0'),
-		trubLossL: numeric('trub_loss_l', { precision: 8, scale: 3 }).notNull().default('0'),
-		isDefault: boolean('is_default').notNull().default(false),
-		...timestamps
-	},
-	(table) => [index('equipment_owner_idx').on(table.ownerId)]
-);
-
 export const fermentables = pgTable(
 	'fermentables',
 	{
@@ -222,7 +202,7 @@ export const recipes = pgTable(
 		authorId: uuid('author_id')
 			.notNull()
 			.references(() => users.id, { onDelete: 'cascade' }),
-		equipmentId: uuid('equipment_id').references(() => equipment.id, { onDelete: 'set null' }),
+
 		sourceWaterProfileId: uuid('source_water_profile_id').references(() => waterProfiles.id, {
 			onDelete: 'set null'
 		}),
@@ -242,10 +222,7 @@ export const recipes = pgTable(
 		targetSrm: numeric('target_srm', { precision: 6, scale: 2 }),
 		...timestamps
 	},
-	(table) => [
-		index('recipes_author_idx').on(table.authorId),
-		index('recipes_equipment_idx').on(table.equipmentId)
-	]
+	(table) => [index('recipes_author_idx').on(table.authorId)]
 );
 
 export const recipeFermentables = pgTable(
@@ -330,7 +307,7 @@ export const batches = pgTable(
 		recipeId: uuid('recipe_id')
 			.notNull()
 			.references(() => recipes.id, { onDelete: 'cascade' }),
-		equipmentId: uuid('equipment_id').references(() => equipment.id, { onDelete: 'set null' }),
+
 		status: batchStatusEnum('status').notNull().default('draft'),
 		brewDate: timestamp('brew_date', { withTimezone: true }),
 		startedAt: timestamp('started_at', { withTimezone: true }),
@@ -393,7 +370,6 @@ export const auditLogs = pgTable(
 );
 
 export const usersRelations = relations(users, ({ many }) => ({
-	equipment: many(equipment),
 	recipes: many(recipes),
 	auditLogs: many(auditLogs),
 	sessions: many(sessions)
@@ -406,24 +382,12 @@ export const sessionsRelations = relations(sessions, ({ one }) => ({
 	})
 }));
 
-export const equipmentRelations = relations(equipment, ({ one, many }) => ({
-	owner: one(users, {
-		fields: [equipment.ownerId],
-		references: [users.id]
-	}),
-	recipes: many(recipes),
-	batches: many(batches)
-}));
-
 export const recipesRelations = relations(recipes, ({ one, many }) => ({
 	author: one(users, {
 		fields: [recipes.authorId],
 		references: [users.id]
 	}),
-	equipment: one(equipment, {
-		fields: [recipes.equipmentId],
-		references: [equipment.id]
-	}),
+
 	sourceWaterProfile: one(waterProfiles, {
 		fields: [recipes.sourceWaterProfileId],
 		references: [waterProfiles.id]
@@ -440,9 +404,6 @@ export const batchesRelations = relations(batches, ({ one, many }) => ({
 		fields: [batches.recipeId],
 		references: [recipes.id]
 	}),
-	equipment: one(equipment, {
-		fields: [batches.equipmentId],
-		references: [equipment.id]
-	}),
+
 	telemetry: many(batchTelemetry)
 }));

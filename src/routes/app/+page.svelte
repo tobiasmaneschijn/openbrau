@@ -9,7 +9,7 @@
 	import Clock3Icon from '@lucide/svelte/icons/clock-3';
 	import FlaskConicalIcon from '@lucide/svelte/icons/flask-conical';
 	import RefreshCwIcon from '@lucide/svelte/icons/refresh-cw';
-	import ScaleIcon from '@lucide/svelte/icons/scale';
+
 	import type { AppPageHeaderAction } from '$lib/components/app/page-header';
 	import PageHeaderConfig from '$lib/components/app/page-header-config.svelte';
 	import { BATCH_STATUS_LABELS, BATCH_STATUS_ORDER } from '$lib/batches/config';
@@ -62,16 +62,11 @@
 					label: m.ingredients({}, { locale: uiLocale }),
 					href: resolve('/app/ingredients'),
 					variant: 'outline'
-				},
-				{
-					label: m.equipment({}, { locale: uiLocale }),
-					href: resolve('/app/equipment'),
-					variant: 'outline'
 				}
 			] satisfies AppPageHeaderAction[]
 	);
 
-	type SummaryRoute = '/app/recipes' | '/app/batches' | '/app/ingredients' | '/app/equipment';
+	type SummaryRoute = '/app/recipes' | '/app/batches' | '/app/ingredients';
 
 	const summaryCards = $derived([
 		{
@@ -97,14 +92,6 @@
 			route: '/app/ingredients' as SummaryRoute,
 			linkLabel: m.open_ingredients(),
 			icon: FlaskConicalIcon
-		},
-		{
-			title: m.equipment(),
-			value: data.equipmentCount,
-			description: m.summary_equipment_description(),
-			route: '/app/equipment' as SummaryRoute,
-			linkLabel: m.open_equipment(),
-			icon: ScaleIcon
 		}
 	]);
 
@@ -197,9 +184,6 @@
 						<div class="flex items-start justify-between gap-3">
 							<div class="space-y-1">
 								<p class="font-semibold">{batch.recipeName}</p>
-								<p class="text-sm text-muted-foreground">
-									{batch.equipmentName || m.default_equipment()}
-								</p>
 							</div>
 							<Badge>{BATCH_STATUS_LABELS[batch.status]}</Badge>
 						</div>
@@ -322,9 +306,7 @@
 									<div class="space-y-1">
 										<p class="font-semibold">{batch.recipeName}</p>
 										<p class="text-sm text-muted-foreground">
-											{batch.equipmentName || m.default_equipment()} • {batch.brewDate
-												? dateFormatter.format(batch.brewDate)
-												: m.date_not_set()}
+											{batch.brewDate ? dateFormatter.format(batch.brewDate) : m.date_not_set()}
 										</p>
 										<p class="text-xs text-muted-foreground">
 											{batch.notes || m.open_this_batch_to_update_log_notes_timing_and_progress()}
@@ -364,51 +346,6 @@
 							<div class="text-2xl font-black tracking-tight">{item.count}</div>
 						</div>
 					{/each}
-				</CardContent>
-			</Card>
-
-			<Card class="border-border/70 bg-card/95">
-				<CardHeader class="flex flex-row items-start justify-between gap-4">
-					<div class="space-y-1">
-						<CardTitle class="text-2xl font-bold">{m.recent_equipment()}</CardTitle>
-						<CardDescription>{m.summary_equipment_description()}</CardDescription>
-					</div>
-					<Button href={resolve('/app/equipment')} variant="ghost" size="sm"
-						>{m.all_equipment()}</Button
-					>
-				</CardHeader>
-				<CardContent class="space-y-3">
-					{#if data.recentEquipment.length}
-						{#each data.recentEquipment as profile (profile.id)}
-							<a
-								href={resolve(`/app/equipment/${profile.id}`)}
-								class="block rounded-2xl border border-border/70 bg-background/60 p-4 transition hover:bg-accent/30"
-							>
-								<div class="flex items-start justify-between gap-3">
-									<div class="space-y-1">
-										<p class="font-semibold">{profile.name}</p>
-										<p class="text-sm text-muted-foreground">
-											{profile.batchSizeL} L batch • {profile.boilOffRateLph} L/h boil-off
-										</p>
-										<p class="text-xs text-muted-foreground">
-											{profile.description ||
-												m.open_this_profile_to_review_efficiency_losses_and_defaults()}
-										</p>
-									</div>
-									{#if profile.isDefault}
-										<Badge>{m.default_label()}</Badge>
-									{/if}
-								</div>
-							</a>
-						{/each}
-					{:else}
-						<div class="rounded-2xl border border-dashed p-6">
-							<p class="font-medium">{m.no_equipment_profiles_yet()}</p>
-							<p class="mt-1 text-sm text-muted-foreground">
-								{m.add_a_profile_so_recipes_and_batches_have_realistic_brewing_defaults()}
-							</p>
-						</div>
-					{/if}
 				</CardContent>
 			</Card>
 		</div>

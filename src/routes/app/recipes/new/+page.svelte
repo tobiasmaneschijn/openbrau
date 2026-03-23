@@ -28,5 +28,5 @@
 		</Alert>
 	{/if}
 
-	<RecipeForm formId="recipe-create-form" equipment={data.equipment} formAction="?/create" />
+	<RecipeForm formId="recipe-create-form" formAction="?/create" />
 </div>

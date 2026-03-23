@@ -86,16 +86,6 @@ export type RecipeMiscDefinition = {
 	amountIsWeight?: boolean;
 };
 
-export type RecipeEquipmentProfile = {
-	name: string;
-	efficiencyPct: number;
-	batchSizeL: number;
-	boilOffRateLph: number;
-	mashTunLossL: number;
-	trubLossL: number;
-	isGeneric?: boolean;
-};
-
 export type RecipeTargets = {
 	og?: number | null;
 	fg?: number | null;
@@ -117,19 +107,9 @@ export type RecipeDefinition = {
 	enabledModules: RecipeModuleKey[];
 	process: RecipeProcessSettings;
 	targets: RecipeTargets;
-	equipment?: RecipeEquipmentProfile | null;
+
 	fermentables: RecipeFermentableDefinition[];
 	hops: RecipeHopDefinition[];
 	yeasts: RecipeYeastDefinition[];
 	miscs: RecipeMiscDefinition[];
-};
-
-export const GENERIC_EQUIPMENT_PROFILE: RecipeEquipmentProfile = {
-	name: 'Generic Bucket Profile',
-	efficiencyPct: 72,
-	batchSizeL: 20,
-	boilOffRateLph: 2.5,
-	mashTunLossL: 0.75,
-	trubLossL: 0.75,
-	isGeneric: true
 };

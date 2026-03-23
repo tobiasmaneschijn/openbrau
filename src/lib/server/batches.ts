@@ -2,7 +2,7 @@ import { and, asc, desc, eq } from 'drizzle-orm';
 import { fail } from '@sveltejs/kit';
 import { withAuditContext } from '$lib/server/db/audit';
 import { db } from '$lib/server/db';
-import { batchTelemetry, batches, equipment, recipes } from '$lib/server/db/schema';
+import { batchTelemetry, batches, recipes } from '$lib/server/db/schema';
 import { canTransitionBatchStatus } from '$lib/batches/config';
 import * as m from '$lib/paraglide/messages';
 
@@ -24,8 +24,6 @@ export type BatchListItem = {
 	recipeName: string;
 	recipeStyle: string | null;
 	recipeBrewType: typeof recipes.$inferSelect.brewType;
-	equipmentId: string | null;
-	equipmentName: string | null;
 };
 
 export type BatchDetail = BatchListItem & {
@@ -35,7 +33,6 @@ export type BatchDetail = BatchListItem & {
 export type CreateBatchInput = {
 	userId: string;
 	recipeId: string;
-	equipmentId?: string | null;
 	brewDate?: Date | null;
 	actualBatchSizeL?: string | null;
 	notes?: string | null;
@@ -58,12 +55,10 @@ export async function listBatchesByOwner(userId: string) {
 	const rows = await db
 		.select({
 			batch: batches,
-			recipe: recipes,
-			equipmentName: equipment.name
+			recipe: recipes
 		})
 		.from(batches)
 		.innerJoin(recipes, eq(batches.recipeId, recipes.id))
-		.leftJoin(equipment, eq(batches.equipmentId, equipment.id))
 		.where(eq(recipes.authorId, userId))
 		.orderBy(desc(batches.createdAt));
 
@@ -80,9 +75,7 @@ export async function listBatchesByOwner(userId: string) {
 		recipeId: row.recipe.id,
 		recipeName: row.recipe.name,
 		recipeStyle: row.recipe.style,
-		recipeBrewType: row.recipe.brewType,
-		equipmentId: row.batch.equipmentId,
-		equipmentName: row.equipmentName
+		recipeBrewType: row.recipe.brewType
 	}));
 }
 
@@ -91,12 +84,10 @@ export async function getBatchForOwner(id: string, userId: string) {
 		db
 			.select({
 				batch: batches,
-				recipe: recipes,
-				equipmentName: equipment.name
+				recipe: recipes
 			})
 			.from(batches)
 			.innerJoin(recipes, eq(batches.recipeId, recipes.id))
-			.leftJoin(equipment, eq(batches.equipmentId, equipment.id))
 			.where(and(eq(batches.id, id), eq(recipes.authorId, userId)))
 			.limit(1),
 		db
@@ -126,8 +117,6 @@ export async function getBatchForOwner(id: string, userId: string) {
 		recipeName: row.recipe.name,
 		recipeStyle: row.recipe.style,
 		recipeBrewType: row.recipe.brewType,
-		equipmentId: row.batch.equipmentId,
-		equipmentName: row.equipmentName,
 		telemetry
 	} satisfies BatchDetail;
 }
@@ -135,8 +124,7 @@ export async function getBatchForOwner(id: string, userId: string) {
 async function getRecipeForBatchCreation(recipeId: string, userId: string) {
 	const [recipe] = await db
 		.select({
-			id: recipes.id,
-			equipmentId: recipes.equipmentId
+			id: recipes.id
 		})
 		.from(recipes)
 		.where(and(eq(recipes.id, recipeId), eq(recipes.authorId, userId)))
@@ -156,7 +144,6 @@ export async function createBatch(input: CreateBatchInput) {
 			.insert(batches)
 			.values({
 				recipeId: input.recipeId,
-				equipmentId: input.equipmentId ?? recipe.equipmentId ?? null,
 				brewDate: input.brewDate ?? null,
 				actualBatchSizeL: input.actualBatchSizeL ?? null,
 				notes: input.notes ?? null

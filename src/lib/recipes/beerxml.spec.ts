@@ -25,7 +25,7 @@ describe('BeerXML boundary mapping', () => {
 				ibu: 28,
 				srm: 4
 			},
-			equipment: null,
+
 			fermentables: [
 				{
 					name: 'Pilsner Malt',

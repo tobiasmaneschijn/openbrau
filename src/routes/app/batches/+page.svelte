@@ -26,7 +26,6 @@
 		style: string;
 		brewDateValue: number;
 		brewDateLabel: string;
-		equipmentName: string;
 		actualBatchSizeLValue: number;
 		actualBatchSizeLabel: string;
 		notes: string;
@@ -69,12 +68,7 @@
 			enableColumnFilter: true,
 			meta: { filter: { type: 'date' } }
 		},
-		{
-			accessorKey: 'equipmentName',
-			header: m.equipment(),
-			enableColumnFilter: true,
-			meta: { filter: { type: 'string' } }
-		},
+
 		{
 			id: 'actualBatchSize',
 			header: m.target_volume(),
@@ -98,7 +92,6 @@
 			style: batch.recipeStyle || m.unknown(),
 			brewDateValue: batch.brewDate ? batch.brewDate.getTime() : -1,
 			brewDateLabel: batch.brewDate ? dateFormatter.format(batch.brewDate) : m.unknown(),
-			equipmentName: batch.equipmentName || m.default_label(),
 			actualBatchSizeLValue: Number(batch.actualBatchSizeL ?? 0),
 			actualBatchSizeLabel: batch.actualBatchSizeL
 				? formatVolume(
@@ -132,7 +125,7 @@
 	<DataTable
 		data={batchRows}
 		columns={batchColumns}
-		searchColumnIds={['recipeName', 'status', 'style', 'equipmentName', 'notes']}
+		searchColumnIds={['recipeName', 'status', 'style', 'notes']}
 		searchPlaceholder={m.search_recipes()}
 		emptyTitle={m.no_recipes_yet()}
 		emptyDescription={m.create_first_recipe()}

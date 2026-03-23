@@ -20,21 +20,16 @@
 	import { Textarea } from '$lib/components/ui/textarea';
 	import * as m from '$lib/paraglide/messages';
 
-	type EquipmentOption = {
-		id: string;
-		name: string;
-	};
-
 	type Props = {
 		recipe?: RecipeSummary;
-		equipment: EquipmentOption[];
+
 		formId: string;
 		formAction: string;
 		deleteAction?: string;
 		children?: Snippet;
 	};
 
-	let { recipe, equipment, formId, formAction, deleteAction, children }: Props = $props();
+	let { recipe, formId, formAction, deleteAction, children }: Props = $props();
 
 	const getInitialBrewType = () => recipe?.brewType ?? 'beer';
 	const getInitialHiddenFields = () =>
@@ -217,26 +212,6 @@
 									step="0.01"
 									value={recipe?.targetSrm ?? ''}
 								/>
-							</div>
-						{/if}
-
-						{#if isVisible('equipmentId')}
-							<div class="space-y-2 md:col-span-2">
-								<label for="equipmentId" class="text-sm font-medium"
-									>{m.brewing_setup_label()}</label
-								>
-								<select
-									id="equipmentId"
-									name="equipmentId"
-									class="flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm shadow-xs ring-offset-background transition-[color,box-shadow] outline-none focus-visible:ring-1 focus-visible:ring-ring"
-								>
-									<option value="">{m.use_default_setup()}</option>
-									{#each equipment as profile (profile.id)}
-										<option value={profile.id} selected={profile.id === recipe?.equipmentId}
-											>{profile.name}</option
-										>
-									{/each}
-								</select>
 							</div>
 						{/if}
 

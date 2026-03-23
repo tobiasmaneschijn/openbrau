@@ -1,13 +1,12 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { listEquipmentByOwner } from '$lib/server/equipment';
+
 import { createBatch } from '$lib/server/batches';
 import { optionalString, requiredString } from '$lib/server/forms';
 import { listRecipesByAuthor } from '$lib/server/recipes';
 import * as m from '$lib/paraglide/messages';
 
 export const load: PageServerLoad = async ({ locals, url }) => ({
-	equipment: await listEquipmentByOwner(locals.user!.id),
 	recipes: await listRecipesByAuthor(locals.user!.id),
 	selectedRecipeId: url.searchParams.get('recipeId')
 });
@@ -20,7 +19,7 @@ export const actions: Actions = {
 			const batch = await createBatch({
 				userId: locals.user!.id,
 				recipeId: requiredString(formData, 'recipeId'),
-				equipmentId: optionalString(formData, 'equipmentId'),
+
 				brewDate: optionalString(formData, 'brewDate')
 					? new Date(requiredString(formData, 'brewDate'))
 					: null,
