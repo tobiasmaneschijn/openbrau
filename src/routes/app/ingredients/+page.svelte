@@ -66,29 +66,28 @@
 	const ingredientColumns: ColumnDef<IngredientTableRow>[] = [
 		{
 			accessorKey: 'name',
-			header: m.ingredient()
+			header: m.ingredient(),
+			enableColumnFilter: true,
+			meta: { filter: { type: 'string' } }
 		},
 		{
 			accessorKey: 'kind',
 			header: m.type(),
-			enableColumnFilter: true
+			enableColumnFilter: true,
+			meta: {
+				filter: {
+					type: 'enum',
+					options: INGREDIENT_KIND_ORDER.map((kind) => ({
+						label: INGREDIENT_KIND_LABELS[kind],
+						value: INGREDIENT_KIND_LABELS[kind]
+					}))
+				}
+			}
 		},
 		{
 			accessorKey: 'summary',
 			header: m.summary(),
 			enableSorting: false
-		}
-	];
-
-	const ingredientFilters: DataTableFilterControl[] = [
-		{
-			columnId: 'kind',
-			label: m.type(),
-			type: 'select',
-			options: INGREDIENT_KIND_ORDER.map((kind) => ({
-				label: INGREDIENT_KIND_LABELS[kind],
-				value: INGREDIENT_KIND_LABELS[kind]
-			}))
 		}
 	];
 
@@ -116,7 +115,6 @@
 	<DataTable
 		data={ingredientRows}
 		columns={ingredientColumns}
-		filterControls={ingredientFilters}
 		searchColumnIds={['name', 'kind', 'summary']}
 		searchPlaceholder={m.search_ingredients()}
 		emptyTitle={m.no_saved_ingredients_yet()}

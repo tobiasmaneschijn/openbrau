@@ -36,7 +36,6 @@
 		name: string;
 		brewType: string;
 		style: string;
-		complexity: string;
 		targetBatchSizeLValue: number;
 		targetBatchSizeLabel: string;
 		targetOg: string;
@@ -52,67 +51,62 @@
 	const recipeColumns: ColumnDef<RecipeTableRow>[] = [
 		{
 			accessorKey: 'name',
-			header: m.recipe()
+			header: m.recipe(),
+			enableColumnFilter: true,
+			meta: { filter: { type: 'string' } }
 		},
 		{
 			accessorKey: 'brewType',
 			header: m.brew_type(),
-			enableColumnFilter: true
+			enableColumnFilter: true,
+			meta: {
+				filter: {
+					type: 'enum',
+					options: Object.values(BREW_TYPE_CONFIG).map((config) => ({
+						label: config.label,
+						value: config.label
+					}))
+				}
+			}
 		},
 		{
 			accessorKey: 'style',
-			header: m.style()
+			header: m.style(),
+			enableColumnFilter: true,
+			meta: { filter: { type: 'string' } }
 		},
 		{
 			id: 'targetBatchSize',
 			header: m.target_volume(),
 			accessorFn: (row) => row.targetBatchSizeLValue,
-			cell: ({ row }) => row.original.targetBatchSizeLabel
+			cell: ({ row }) => row.original.targetBatchSizeLabel,
+			enableColumnFilter: true,
+			meta: { filter: { type: 'number' } }
 		},
 		{
 			accessorKey: 'targetOg',
-			header: m.original_gravity()
+			header: m.original_gravity(),
+			enableColumnFilter: true,
+			meta: { filter: { type: 'string' } }
 		},
 		{
 			accessorKey: 'targetFg',
-			header: m.final_gravity()
+			header: m.final_gravity(),
+			enableColumnFilter: true,
+			meta: { filter: { type: 'string' } }
 		},
 		{
 			id: 'targetIbu',
 			header: m.ibu(),
 			accessorFn: (row) => row.targetIbuValue,
-			cell: ({ row }) => row.original.targetIbuLabel
-		},
-		{
-			accessorKey: 'complexity',
-			header: m.mode(),
-			enableColumnFilter: true
+			cell: ({ row }) => row.original.targetIbuLabel,
+			enableColumnFilter: true,
+			meta: { filter: { type: 'number' } }
 		},
 		{
 			accessorKey: 'notes',
 			header: m.notes(),
 			enableSorting: false
-		}
-	];
-
-	const recipeFilters: DataTableFilterControl[] = [
-		{
-			columnId: 'brewType',
-			label: m.brew_type(),
-			type: 'select',
-			options: Object.values(BREW_TYPE_CONFIG).map((config) => ({
-				label: config.label,
-				value: config.label
-			}))
-		},
-		{
-			columnId: 'complexity',
-			label: m.mode(),
-			type: 'select',
-			options: [
-				{ label: m.standard(), value: m.standard() },
-				{ label: m.advanced(), value: m.advanced() }
-			]
 		}
 	];
 
@@ -122,7 +116,6 @@
 			name: recipe.name,
 			brewType: BREW_TYPE_CONFIG[recipe.brewType].label,
 			style: recipe.style || m.unknown(),
-			complexity: recipe.advancedMode ? m.advanced() : m.standard(),
 			targetBatchSizeLValue: Number(recipe.targetBatchSizeL),
 			targetBatchSizeLabel: `${recipe.targetBatchSizeL} L`,
 			targetOg: recipe.targetOg || '-',
@@ -206,7 +199,6 @@
 	<DataTable
 		data={recipeRows}
 		columns={recipeColumns}
-		filterControls={recipeFilters}
 		searchColumnIds={['name', 'brewType', 'style', 'notes']}
 		searchPlaceholder={m.search_recipes()}
 		emptyTitle={m.no_recipes_yet()}

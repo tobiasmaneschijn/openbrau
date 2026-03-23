@@ -68,8 +68,8 @@
 			] as const
 	);
 
-	let currentPageHeader = $state<AppPageHeaderConfig | null>(null);
-	let registeredHeaderPath = $state<string | null>(null);
+	let currentPageHeader = $state.raw<AppPageHeaderConfig | null>(null);
+	let registeredHeaderPath = $state.raw<string | null>(null);
 	let lastPathname = $state(page.url.pathname);
 	const registerPageHeader: SetAppPageHeader = (config) => {
 		currentPageHeader = config;

@@ -20,15 +20,19 @@
 		type Updater,
 		type VisibilityState
 	} from '@tanstack/table-core';
-	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
-	import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
-	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
-	import CheckIcon from '@lucide/svelte/icons/check';
-	import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
-	import SearchIcon from '@lucide/svelte/icons/search';
-	import Settings2Icon from '@lucide/svelte/icons/settings-2';
+	import { 
+		ArrowDownIcon, 
+		ArrowUpDownIcon, 
+		ArrowUpIcon, 
+		CheckIcon, 
+		EllipsisIcon, 
+		SearchIcon, 
+		Settings2Icon 
+	} from '@lucide/svelte';
 	import { cn } from '$lib/utils';
 	import type { DataTableFilterControl } from './types';
+	import { typeAwareFilterFn } from './filter';
+	import DataTableColumnFilter from './data-table-column-filter.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import {
@@ -69,15 +73,15 @@
 		getRowId
 	}: Props = $props();
 
-	let globalFilter = $state('');
-	let sorting = $state<SortingState>([]);
-	let columnFilters = $state<ColumnFiltersState>([]);
-	let columnVisibility = $state<VisibilityState>({});
-	let columnPinning = $state<ColumnPinningState>({
+	let globalFilter = $state.raw('');
+	let sorting = $state.raw<SortingState>([]);
+	let columnFilters = $state.raw<ColumnFiltersState>([]);
+	let columnVisibility = $state.raw<VisibilityState>({});
+	let columnPinning = $state.raw<ColumnPinningState>({
 		left: [],
 		right: []
 	});
-	let pagination = $state<PaginationState>({
+	let pagination = $state.raw<PaginationState>({
 		pageIndex: 0,
 		pageSize: 10
 	});
@@ -86,8 +90,11 @@
 	let openActionRowId = $state<string | null>(null);
 	let actionMenuPosition = $state({ top: 0, left: 0 });
 
-	function applyUpdater<T>(updater: Updater<T>, current: T) {
-		return typeof updater === 'function' ? (updater as (value: T) => T)(current) : updater;
+	function applyUpdater<T>(updater: Updater<T>, current: T): T {
+		const next = typeof updater === 'function' ? (updater as (value: T) => T)(current) : updater;
+		if (Array.isArray(next)) return [...next] as any;
+		if (typeof next === 'object' && next !== null) return { ...next } as any;
+		return next;
 	}
 
 	function formatValue(value: unknown) {
@@ -125,6 +132,15 @@
 		);
 	}
 
+	const mappedColumns = $derived(
+		columns.map((col) => {
+			if ((col as any).meta?.filter) {
+				return { ...col, filterFn: typeAwareFilterFn };
+			}
+			return col;
+		})
+	);
+
 	const table = createTable<TData>({
 		data: [],
 		columns: [],
@@ -143,23 +159,29 @@
 		enableHiding: true,
 		onColumnPinningChange: (updater) => {
 			columnPinning = applyUpdater(updater, columnPinning);
+			syncTableOptions();
 		},
 		onSortingChange: (updater) => {
 			sorting = applyUpdater(updater, sorting);
+			syncTableOptions();
 		},
 		onColumnFiltersChange: (updater) => {
 			columnFilters = applyUpdater(updater, columnFilters);
 			pagination = { ...pagination, pageIndex: 0 };
+			syncTableOptions();
 		},
 		onColumnVisibilityChange: (updater) => {
 			columnVisibility = applyUpdater(updater, columnVisibility);
+			syncTableOptions();
 		},
 		onGlobalFilterChange: (updater) => {
 			globalFilter = String(applyUpdater(updater, globalFilter) ?? '');
 			pagination = { ...pagination, pageIndex: 0 };
+			syncTableOptions();
 		},
 		onPaginationChange: (updater) => {
 			pagination = applyUpdater(updater, pagination);
+			syncTableOptions();
 		},
 		globalFilterFn: buildGlobalFilterFn()
 	});
@@ -203,7 +225,7 @@
 		table.setOptions((current) => ({
 			...current,
 			data,
-			columns,
+			columns: mappedColumns,
 			state: {
 				...current.state,
 				sorting,
@@ -221,7 +243,7 @@
 	function touchTableState() {
 		return {
 			data,
-			columns,
+			columns: mappedColumns,
 			sorting,
 			columnFilters,
 			columnVisibility,
@@ -377,37 +399,6 @@
 					class="pl-9"
 				/>
 			</label>
-
-			{#each filterControls as control (control.columnId)}
-				<div class="min-w-48">
-					<label class="block">
-						<span
-							class="mb-1 block text-xs font-semibold tracking-wide text-muted-foreground uppercase"
-						>
-							{control.label}
-						</span>
-						{#if control.type === 'select'}
-							<select
-								class="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
-								value={String(table.getColumn(control.columnId)?.getFilterValue() ?? '')}
-								onchange={(event) => handleSelectFilterInput(control.columnId, event)}
-							>
-								<option value="">{m.all()}</option>
-								{#each control.options ?? [] as option (option.value)}
-									<option value={option.value}>{option.label}</option>
-								{/each}
-							</select>
-						{:else}
-							<Input
-								value={String(table.getColumn(control.columnId)?.getFilterValue() ?? '')}
-								oninput={(event) => handleTextFilterInput(control.columnId, event)}
-								placeholder={control.placeholder ??
-									m.filter_label({ label: control.label.toLowerCase() })}
-							/>
-						{/if}
-					</label>
-				</div>
-			{/each}
 		</div>
 
 		<div class="flex flex-wrap items-end gap-3 xl:flex-nowrap">
@@ -492,28 +483,38 @@
 				{#each headerGroups as headerGroup (headerGroup.id)}
 					<TableRow>
 						{#each headerGroup.headers as header (header.id)}
-							<TableHead class="bg-muted/20 first:rounded-tl-2xl last:rounded-tr-2xl">
-								{#if header.isPlaceholder}
-									&nbsp;
-								{:else if header.column.getCanSort()}
-									<Button
-										variant="ghost"
-										size="sm"
-										class="h-8 w-full justify-between px-2"
-										onclick={() => handleSortToggle(header.column.id)}
-									>
-										<span>{renderHeader(header.getContext())}</span>
-										{#if getSortDirection(header.column.id) === 'asc'}
-											<ArrowUpIcon class="size-4" />
-										{:else if getSortDirection(header.column.id) === 'desc'}
-											<ArrowDownIcon class="size-4" />
-										{:else}
-											<ArrowUpDownIcon class="size-4 text-muted-foreground" />
-										{/if}
-									</Button>
-								{:else}
-									<span>{renderHeader(header.getContext())}</span>
-								{/if}
+							<TableHead class="relative bg-muted/20 first:rounded-tl-2xl last:rounded-tr-2xl">
+								<div class="flex items-center {header.column.getCanSort() ? '' : 'h-8 px-2'}">
+									{#if header.isPlaceholder}
+										&nbsp;
+									{:else if header.column.getCanSort()}
+										<Button
+											variant="ghost"
+											size="sm"
+											class="h-8 flex-1 justify-start gap-2 px-2"
+											onclick={() => handleSortToggle(header.column.id)}
+										>
+											<span>{renderHeader(header.getContext())}</span>
+											{#if getSortDirection(header.column.id) === 'asc'}
+												<ArrowUpIcon class="size-4" />
+											{:else if getSortDirection(header.column.id) === 'desc'}
+												<ArrowDownIcon class="size-4" />
+											{:else}
+												<ArrowUpDownIcon class="size-4 text-muted-foreground" />
+											{/if}
+										</Button>
+									{:else}
+										<span class="flex-1">{renderHeader(header.getContext())}</span>
+									{/if}
+
+									{#if header.column.getCanFilter() && (header.column.columnDef.meta as any)?.filter}
+										<DataTableColumnFilter
+											column={header.column}
+											filterDef={(header.column.columnDef.meta as any).filter}
+											filterValue={columnFilters.find((f) => f.id === header.column.id)?.value}
+										/>
+									{/if}
+								</div>
 							</TableHead>
 						{/each}
 

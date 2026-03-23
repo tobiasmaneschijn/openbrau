@@ -37,49 +37,56 @@
 	const batchColumns: ColumnDef<BatchTableRow>[] = [
 		{
 			accessorKey: 'recipeName',
-			header: m.batch_log()
+			header: m.batch_log(),
+			enableColumnFilter: true,
+			meta: { filter: { type: 'string' } }
 		},
 		{
 			accessorKey: 'status',
 			header: m.batch_status_draft(),
-			enableColumnFilter: true
+			enableColumnFilter: true,
+			meta: {
+				filter: {
+					type: 'enum',
+					options: Object.values(BATCH_STATUS_LABELS).map((label) => ({
+						label,
+						value: label
+					}))
+				}
+			}
 		},
 		{
 			accessorKey: 'style',
-			header: m.style()
+			header: m.style(),
+			enableColumnFilter: true,
+			meta: { filter: { type: 'string' } }
 		},
 		{
 			id: 'brewDate',
 			header: m.date_and_time(),
 			accessorFn: (row) => row.brewDateValue,
-			cell: ({ row }) => row.original.brewDateLabel
+			cell: ({ row }) => row.original.brewDateLabel,
+			enableColumnFilter: true,
+			meta: { filter: { type: 'date' } }
 		},
 		{
 			accessorKey: 'equipmentName',
-			header: m.equipment()
+			header: m.equipment(),
+			enableColumnFilter: true,
+			meta: { filter: { type: 'string' } }
 		},
 		{
 			id: 'actualBatchSize',
 			header: m.target_volume(),
 			accessorFn: (row) => row.actualBatchSizeLValue,
-			cell: ({ row }) => row.original.actualBatchSizeLabel
+			cell: ({ row }) => row.original.actualBatchSizeLabel,
+			enableColumnFilter: true,
+			meta: { filter: { type: 'number' } }
 		},
 		{
 			accessorKey: 'notes',
 			header: m.notes(),
 			enableSorting: false
-		}
-	];
-
-	const batchFilters: DataTableFilterControl[] = [
-		{
-			columnId: 'status',
-			label: m.batch_status_draft(),
-			type: 'select',
-			options: Object.values(BATCH_STATUS_LABELS).map((label) => ({
-				label,
-				value: label
-			}))
 		}
 	];
 
@@ -125,7 +132,6 @@
 	<DataTable
 		data={batchRows}
 		columns={batchColumns}
-		filterControls={batchFilters}
 		searchColumnIds={['recipeName', 'status', 'style', 'equipmentName', 'notes']}
 		searchPlaceholder={m.search_recipes()}
 		emptyTitle={m.no_recipes_yet()}
