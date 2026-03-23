@@ -15,6 +15,13 @@
       "when": 1773862366066,
       "tag": "0001_audit_triggers",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1774303097401,
+      "tag": "0002_brainy_cargill",
+      "breakpoints": true
     }
   ]
 }

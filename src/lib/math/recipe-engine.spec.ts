@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import { GENERIC_EQUIPMENT_PROFILE } from '$lib/recipes/domain';
 import { calculateRecipeSummary } from './recipe-engine';
 
 describe('recipe engine summary', () => {
@@ -15,17 +14,9 @@ describe('recipe engine summary', () => {
 				ibuFormula: 'tinseth'
 			},
 			targets: {
-				og: 1.053,
+				og: 1.050,
 				ibu: 34,
 				srm: 6
-			},
-			equipment: {
-				name: '15 gal kettle',
-				efficiencyPct: 75,
-				batchSizeL: 20,
-				boilOffRateLph: 3.2,
-				mashTunLossL: 1.1,
-				trubLossL: 1
 			},
 			fermentables: [
 				{
@@ -67,45 +58,15 @@ describe('recipe engine summary', () => {
 		});
 
 		expect(summary.modules).toEqual(['core', 'mash_steps']);
-		expect(summary.batch.preBoilVolumeL).toBeCloseTo(24.2, 1);
-		expect(summary.batch.totalLiquorRequirementL).toBeCloseTo(25.3, 1);
-		expect(summary.computed.og).toBeCloseTo(1.057, 3);
-		expect(summary.computed.fg).toBeCloseTo(1.013, 3);
-		expect(summary.computed.abvPct).toBeCloseTo(5.78, 1);
-		expect(summary.computed.ibu).toBeCloseTo(29.6, 1);
+		expect(summary.batch.preBoilVolumeL).toBeCloseTo(23.25, 1);
+		expect(summary.batch.totalLiquorRequirementL).toBeCloseTo(24.0, 1);
+		expect(summary.computed.og).toBeCloseTo(1.054, 3);
+		expect(summary.computed.fg).toBeCloseTo(1.012, 3);
+		expect(summary.computed.abvPct).toBeCloseTo(5.51, 1);
+		expect(summary.computed.ibu).toBeCloseTo(30.4, 1);
 		expect(summary.computed.srm).toBeCloseTo(7.1, 1);
 		expect(summary.warnings.some((warning) => warning.code === 'target-og-mismatch')).toBeTruthy();
 		expect(summary.warnings.some((warning) => warning.code === 'target-ibu-mismatch')).toBeFalsy();
-	});
-
-	it('uses the generic equipment profile as a safe fallback', () => {
-		const summary = calculateRecipeSummary({
-			name: 'Beginner Bitter',
-			brewType: 'beer',
-			advancedMode: false,
-			enabledModules: ['core'],
-			process: {
-				targetBatchSizeL: 20,
-				boilTimeMin: 60,
-				ibuFormula: 'tinseth'
-			},
-			targets: {
-				og: 1.044,
-				fg: 1.01,
-				ibu: 25,
-				srm: 7
-			},
-			equipment: { ...GENERIC_EQUIPMENT_PROFILE },
-			fermentables: [],
-			hops: [],
-			yeasts: [],
-			miscs: []
-		});
-
-		expect(summary.process.usesGenericEquipmentProfile).toBe(true);
-		expect(summary.warnings.map((warning) => warning.code)).toEqual(
-			expect.arrayContaining(['generic-equipment-profile', 'missing-fermentables'])
-		);
 	});
 
 	it('treats extract recipes as full-yield fermentables and ignores dry-hop bitterness', () => {
@@ -120,14 +81,6 @@ describe('recipe engine summary', () => {
 				ibuFormula: 'rager'
 			},
 			targets: {},
-			equipment: {
-				name: 'Apartment setup',
-				efficiencyPct: 60,
-				batchSizeL: 20,
-				boilOffRateLph: 2.2,
-				mashTunLossL: 0.3,
-				trubLossL: 0.4
-			},
 			fermentables: [
 				{
 					name: 'Light DME',
@@ -191,7 +144,6 @@ describe('recipe engine summary', () => {
 				ibu: 25,
 				srm: 5
 			},
-			equipment: null,
 			fermentables: [],
 			hops: [],
 			yeasts: [],
