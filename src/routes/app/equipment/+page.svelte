@@ -32,47 +32,52 @@
 	const equipmentColumns: ColumnDef<EquipmentTableRow>[] = [
 		{
 			accessorKey: 'name',
-			header: m.profile()
+			header: m.profile(),
+			enableColumnFilter: true,
+			meta: { filter: { type: 'string' } }
 		},
 		{
 			id: 'batchSize',
 			header: m.batch_size_label(),
 			accessorFn: (row) => row.batchSizeLValue,
-			cell: ({ row }) => row.original.batchSizeLabel
+			cell: ({ row }) => row.original.batchSizeLabel,
+			enableColumnFilter: true,
+			meta: { filter: { type: 'number' } }
 		},
 		{
 			id: 'boilOffRate',
 			header: m.boil_off(),
 			accessorFn: (row) => row.boilOffRateLphValue,
-			cell: ({ row }) => row.original.boilOffRateLphLabel
+			cell: ({ row }) => row.original.boilOffRateLphLabel,
+			enableColumnFilter: true,
+			meta: { filter: { type: 'number' } }
 		},
 		{
 			id: 'efficiency',
 			header: m.efficiency(),
 			accessorFn: (row) => row.efficiencyPctValue,
-			cell: ({ row }) => row.original.efficiencyPctLabel
+			cell: ({ row }) => row.original.efficiencyPctLabel,
+			enableColumnFilter: true,
+			meta: { filter: { type: 'number' } }
 		},
 		{
 			accessorKey: 'defaultStatus',
 			header: m.default_label(),
-			enableColumnFilter: true
+			enableColumnFilter: true,
+			meta: {
+				filter: {
+					type: 'enum',
+					options: [
+						{ label: m.default_label(), value: m.default_label() },
+						{ label: m.custom_label(), value: m.custom_label() }
+					]
+				}
+			}
 		},
 		{
 			accessorKey: 'description',
 			header: m.summary(),
 			enableSorting: false
-		}
-	];
-
-	const equipmentFilters: DataTableFilterControl[] = [
-		{
-			columnId: 'defaultStatus',
-			label: m.default_label(),
-			type: 'select',
-			options: [
-				{ label: m.default_label(), value: m.default_label() },
-				{ label: m.custom_label(), value: m.custom_label() }
-			]
 		}
 	];
 
@@ -112,7 +117,6 @@
 	<DataTable
 		data={equipmentRows}
 		columns={equipmentColumns}
-		filterControls={equipmentFilters}
 		searchColumnIds={['name', 'description', 'defaultStatus']}
 		searchPlaceholder={m.search_equipment()}
 		emptyTitle={m.no_equipment_yet()}
